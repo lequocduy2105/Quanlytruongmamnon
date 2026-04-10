@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Student Registry - Atelier Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary": "#004e63",
+                    "on-primary": "#ffffff",
+                    "primary-fixed-dim": "#86d0ef",
+                    "primary-container": "#006782",
+                    "outline": "#6f787d",
+                    "on-primary-fixed": "#001f29",
+                    "secondary": "#186d2d",
+                    "tertiary-fixed-dim": "#ffb781",
+                    "surface-variant": "#e2e3e1",
+                    "surface-dim": "#d9dad9",
+                    "on-tertiary-fixed-variant": "#703800",
+                    "on-secondary-fixed-variant": "#00531c",
+                    "on-primary-container": "#9fe2ff",
+                    "secondary-fixed": "#a2f6a6",
+                    "inverse-on-surface": "#f0f1ef",
+                    "on-error": "#ffffff",
+                    "surface-container-high": "#e8e8e7",
+                    "on-secondary-container": "#1e7131",
+                    "inverse-surface": "#2f3130",
+                    "tertiary-container": "#934b00",
+                    "surface-tint": "#006782",
+                    "error-container": "#ffdad6",
+                    "secondary-container": "#9ff3a3",
+                    "on-background": "#1a1c1b",
+                    "secondary-fixed-dim": "#87d98c",
+                    "outline-variant": "#bfc8cd",
+                    "on-tertiary-container": "#ffcfae",
+                    "on-surface-variant": "#3f484c",
+                    "surface-bright": "#f9f9f8",
+                    "on-error-container": "#93000a",
+                    "tertiary": "#703800",
+                    "tertiary-fixed": "#ffdcc5",
+                    "surface-container-lowest": "#ffffff",
+                    "on-tertiary": "#ffffff",
+                    "primary-fixed": "#baeaff",
+                    "on-primary-fixed-variant": "#004d62",
+                    "on-surface": "#1a1c1b",
+                    "inverse-primary": "#86d0ef",
+                    "on-secondary-fixed": "#002107",
+                    "surface-container": "#edeeec",
+                    "on-secondary": "#ffffff",
+                    "on-tertiary-fixed": "#301400",
+                    "error": "#ba1a1a",
+                    "surface-container-highest": "#e2e3e1",
+                    "background": "#f9f9f8",
+                    "surface-container-low": "#f3f4f2",
+                    "surface": "#f9f9f8"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #f9f9f8; }
+        .font-headline { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="text-on-surface">
+<!-- SideNavBar (Shared Component) -->
+<aside class="h-screen w-64 border-r-0 fixed left-0 top-0 bg-slate-50 flex flex-col py-6 z-50">
+<div class="px-6 mb-10">
+<h1 class="text-xl font-bold tracking-tight text-cyan-900 font-headline">Atelier</h1>
+<p class="text-xs font-semibold text-slate-500 uppercase tracking-widest">Management</p>
+</div>
+<nav class="flex-1 space-y-1">
+<!-- Dashboard -->
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-200/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-medium text-sm">Dashboard</span>
+</a>
+<!-- Students (Active) -->
+<a class="flex items-center gap-3 px-4 py-3 text-cyan-800 font-bold border-r-4 border-cyan-800 bg-white shadow-sm" href="#">
+<span class="material-symbols-outlined" data-icon="face">face</span>
+<span class="font-bold text-sm">Students</span>
+</a>
+<!-- Teachers -->
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-200/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-medium text-sm">Teachers</span>
+</a>
+<!-- Classes -->
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-200/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="school">school</span>
+<span class="font-medium text-sm">Classes</span>
+</a>
+<!-- Health Records -->
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-200/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="medical_services">medical_services</span>
+<span class="font-medium text-sm">Health Records</span>
+</a>
+<!-- Assessments -->
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-200/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="edit_note">edit_note</span>
+<span class="font-medium text-sm">Assessments</span>
+</a>
+<!-- Reports -->
+<a class="flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-200/50 transition-colors duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="font-medium text-sm">Reports</span>
+</a>
+</nav>
+<div class="px-6 pt-6 mt-auto border-t border-slate-200/60">
+<div class="flex items-center gap-3">
+<img alt="Administrator" class="w-10 h-10 rounded-full object-cover" data-alt="Professional headshot of a female school administrator with a friendly expression in a bright office setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6s4qBt45ZqugUyIgpX3PtpGqX8JYMMUoDlMVDVsf5jiRA_Kf2cj0HZf70ukKNC_h8HPE6DXJOKpJqgLdfPkQ_fXoGtcORQlCJ1b-COfWe74qkvbE_-Gt4sm8ZlUZUrWJXzm-DwQWRFwOnCYbieN1-ZJJC2SDarYED53v8ENALLbUx6GlvzPQUbFuXcJDKI1sxtqdWtUl0qEA0uPlj9fkBLK2GHTPUM6w5JgsBaaGZBgxO8ynHSuc9QMxY5j8QCAAki23byY9FqUo"/>
+<div>
+<p class="text-sm font-bold text-cyan-900">Sarah Jenkins</p>
+<p class="text-[10px] text-slate-500 font-semibold uppercase">Administrator</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="ml-64 min-h-screen bg-white">
+<!-- TopNavBar (Shared Component Integration) -->
+<header class="flex justify-between items-center w-full px-12 h-16 sticky top-0 bg-white/70 backdrop-blur-xl z-40 border-b border-slate-100">
+<div class="flex items-center gap-4 flex-1">
+<div class="relative w-full max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg" data-icon="search">search</span>
+<input class="w-full bg-surface-container-low border-none rounded-lg py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/20 placeholder:text-slate-400" placeholder="Search student by name or ID..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6 ml-4">
+<button class="text-slate-500 hover:text-cyan-800 relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-tertiary rounded-full border-2 border-white"></span>
+</button>
+<button class="text-slate-500 hover:text-cyan-800">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+</div>
+</header>
+<div class="px-12 py-8">
+<!-- Header Section -->
+<div class="flex justify-between items-end mb-10">
+<div>
+<h2 class="text-3xl font-extrabold text-primary font-headline tracking-tight">Student Registry</h2>
+<p class="text-on-surface-variant mt-1">Manage and track development records for all enrolled students.</p>
+</div>
+<div class="flex items-center gap-3">
+<div class="relative">
+<select class="appearance-none bg-surface-container-low border-none rounded-lg px-4 py-2.5 pr-10 text-sm font-medium text-on-surface focus:ring-2 focus:ring-primary/20">
+<option>Filter by Age</option>
+<option>2-3 Years</option>
+<option>3-4 Years</option>
+<option>4-5 Years</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" data-icon="expand_more">expand_more</span>
+</div>
+<div class="relative">
+<select class="appearance-none bg-surface-container-low border-none rounded-lg px-4 py-2.5 pr-10 text-sm font-medium text-on-surface focus:ring-2 focus:ring-primary/20">
+<option>All Classes</option>
+<option>Sunflower Room</option>
+<option>Little Da Vincis</option>
+<option>Bluebell Studio</option>
+</select>
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" data-icon="expand_more">expand_more</span>
+</div>
+<button class="bg-gradient-to-br from-primary-container to-primary text-on-primary rounded-full px-6 py-2.5 text-sm font-bold flex items-center gap-2 shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+                        New Student
+                    </button>
+</div>
+</div>
+<!-- Top Metrics Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+<div class="bg-surface-container-low p-6 rounded-xl relative overflow-hidden group">
+<div class="flex justify-between items-start mb-4">
+<div class="bg-white p-3 rounded-lg text-primary shadow-sm">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+</div>
+<span class="bg-secondary-container text-on-secondary-container text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider flex items-center gap-1">
+<span class="material-symbols-outlined text-xs" data-icon="trending_up">trending_up</span> 8%
+                        </span>
+</div>
+<h3 class="text-3xl font-black text-primary font-headline">342</h3>
+<p class="text-sm font-semibold text-slate-500 mt-1">Total Enrollment</p>
+<div class="absolute -right-4 -bottom-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
+<span class="material-symbols-outlined text-8xl" data-icon="groups">groups</span>
+</div>
+</div>
+<div class="bg-error-container/40 p-6 rounded-xl relative overflow-hidden group">
+<div class="flex justify-between items-start mb-4">
+<div class="bg-white p-3 rounded-lg text-error shadow-sm">
+<span class="material-symbols-outlined" data-icon="emergency">emergency</span>
+</div>
+</div>
+<h3 class="text-3xl font-black text-error font-headline">5</h3>
+<p class="text-sm font-semibold text-slate-600 mt-1">Critical Medical Alerts</p>
+<div class="absolute -right-4 -bottom-4 opacity-10 text-error group-hover:scale-110 transition-transform duration-500">
+<span class="material-symbols-outlined text-8xl" data-icon="emergency">emergency</span>
+</div>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl">
+<div class="flex justify-between items-start mb-4">
+<div class="bg-white p-3 rounded-lg text-tertiary shadow-sm">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+</div>
+</div>
+<h3 class="text-3xl font-black text-tertiary font-headline">94%</h3>
+<p class="text-sm font-semibold text-slate-500 mt-1">Average Attendance</p>
+</div>
+<div class="bg-surface-container-low p-6 rounded-xl">
+<div class="flex justify-between items-start mb-4">
+<div class="bg-white p-3 rounded-lg text-cyan-700 shadow-sm">
+<span class="material-symbols-outlined" data-icon="checklist">checklist</span>
+</div>
+</div>
+<h3 class="text-3xl font-black text-cyan-900 font-headline">28</h3>
+<p class="text-sm font-semibold text-slate-500 mt-1">Pending Assessments</p>
+</div>
+</div>
+<!-- Data Table Section -->
+<div class="bg-white rounded-xl overflow-hidden shadow-sm border border-slate-50">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-slate-100">
+<th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Student Name &amp; Photo</th>
+<th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Assigned Class</th>
+<th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Medical History &amp; Alerts</th>
+<th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider">Primary Guardian</th>
+<th class="px-6 py-4 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-50">
+<!-- Row 1 -->
+<tr class="hover:bg-slate-50/50 transition-colors">
+<td class="px-6 py-5">
+<div class="flex items-center gap-4">
+<img alt="Student Avatar" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm" data-alt="Close up portrait of a smiling young boy with curly hair in a classroom setting with soft natural light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBJuBrVALhpwlvNbVs9EQ4jAP3l5v6Fy7HmRA2HYuaYFc7KU1nfiflrM33JdPpl5TcafMArD9Tl_oLxx-wlAYmbqYZYqWOQgSChyKscLdtxAkRc248g311koZp72Kf1ghkUS_DulfXy3Xxlhb2s2c6kos8aZDRZEiNU0g9Z1v9w8-NGLCsy98zJxHcYz5zPUQuUAUlfx2BqpRdzFwPb1u9fHyz4GUNbrFC-CPyTfWenDn4D4A2VKrFphmQwuJ3gLNOaDtxvUCkxqoE"/>
+<div>
+<p class="text-sm font-bold text-primary">Ethan Rodriguez</p>
+<p class="text-[11px] text-slate-400 font-medium">ID: #STU-2024-001</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-yellow-400"></span>
+<span class="text-sm text-on-surface">Sunflower Room</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-error-container text-on-error-container">
+                                        Severe Nut Allergy
+                                    </span>
+</td>
+<td class="px-6 py-5">
+<div class="text-sm">
+<p class="font-semibold text-on-surface">Maria Rodriguez</p>
+<a class="text-primary hover:underline text-xs flex items-center gap-1 mt-1" href="tel:5550123">
+<span class="material-symbols-outlined text-[14px]" data-icon="call">call</span>
+                                            (555) 012-3456
+                                        </a>
+</div>
+</td>
+<td class="px-6 py-5 text-right">
+<div class="flex justify-end gap-2">
+<button class="p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors">
+<span class="material-symbols-outlined" data-icon="visibility">visibility</span>
+</button>
+<button class="p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors">
+<span class="material-symbols-outlined" data-icon="edit">edit</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-slate-50/50 transition-colors">
+<td class="px-6 py-5">
+<div class="flex items-center gap-4">
+<img alt="Student Avatar" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm" data-alt="Portrait of a young girl with braids wearing a blue dress, smiling broadly in a sunlit playground" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAZ5FyCz7lYfTbJ5dktomK_OQxilNKK3ggM7g0VRVP3Yvb6GwBVCHgLw8uadt4GGM0nHPDkbsC0mRh6hwqzwZU_IV2XrnxznwwOctWUuB8gXuJv3QNJkM3XHQoKFJuJxQ5bmNBCYFPADogVPeUaBRikdGiOre76Cy_pAQVQnYPsXqa0AZ0c1bAlm8DHyMr4YZCW4oPjIk86tk1o9athe9XqyDPUfcW5f2Gr9dq_TYYd_ERC-ilR-N0fBIQuTjwChzw2yuQJlvqPxXI"/>
+<div>
+<p class="text-sm font-bold text-primary">Aria Chen</p>
+<p class="text-[11px] text-slate-400 font-medium">ID: #STU-2024-042</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+<span class="text-sm text-on-surface">Little Da Vincis</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-secondary-container text-on-secondary-container">
+                                        No Alerts
+                                    </span>
+</td>
+<td class="px-6 py-5">
+<div class="text-sm">
+<p class="font-semibold text-on-surface">David Chen</p>
+<a class="text-primary hover:underline text-xs flex items-center gap-1 mt-1" href="tel:5550789">
+<span class="material-symbols-outlined text-[14px]" data-icon="call">call</span>
+                                            (555) 078-9012
+                                        </a>
+</div>
+</td>
+<td class="px-6 py-5 text-right">
+<div class="flex justify-end gap-2">
+<button class="p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors">
+<span class="material-symbols-outlined" data-icon="visibility">visibility</span>
+</button>
+<button class="p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors">
+<span class="material-symbols-outlined" data-icon="edit">edit</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-slate-50/50 transition-colors">
+<td class="px-6 py-5">
+<div class="flex items-center gap-4">
+<img alt="Student Avatar" class="w-10 h-10 rounded-full object-cover border-2 border-white shadow-sm" data-alt="Young boy with blonde hair playing with building blocks, soft bokeh background with bright classroom colors" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWNc3SCqYJ4u7p97ZqQFUX9LaQyoAUxDwbw8tgb1mMMT8pKzhffjpVWyWaH9lOTTsOGfDUkCWwv5o0OF9SNoI02YtrWMd4JoU5wR64j-qMp8J38Hp3eK8lu95UTEhBdmPc-OYAJhbRmxxP_QXZmfS4pCiYvlJrh3z3ZOFPOGz--KoT-qiHnRAdvkD1s-b3BlONwxIdMgFOFRLKostf4wZ6oO5XDLgW8OyDgiT42pXN932WBELkvNa54cEwo5wM5RMfb2cfqQH1F5M"/>
+<div>
+<p class="text-sm font-bold text-primary">Leo Thompson</p>
+<p class="text-[11px] text-slate-400 font-medium">ID: #STU-2024-018</p>
+</div>
+</div>
+</td>
+<td class="px-6 py-5">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-yellow-400"></span>
+<span class="text-sm text-on-surface">Sunflower Room</span>
+</div>
+</td>
+<td class="px-6 py-5">
+<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-tertiary-fixed text-on-tertiary-fixed-variant">
+                                        Lactose Intolerant
+                                    </span>
+</td>
+<td class="px-6 py-5">
+<div class="text-sm">
+<p class="font-semibold text-on-surface">James Thompson</p>
+<a class="text-primary hover:underline text-xs flex items-center gap-1 mt-1" href="tel:5550345">
+<span class="material-symbols-outlined text-[14px]" data-icon="call">call</span>
+                                            (555) 034-5678
+                                        </a>
+</div>
+</td>
+<td class="px-6 py-5 text-right">
+<div class="flex justify-end gap-2">
+<button class="p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors">
+<span class="material-symbols-outlined" data-icon="visibility">visibility</span>
+</button>
+<button class="p-2 text-slate-400 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors">
+<span class="material-symbols-outlined" data-icon="edit">edit</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="px-6 py-4 bg-surface-container-low/30 border-t border-slate-50 flex items-center justify-between">
+<p class="text-xs font-medium text-slate-500">Showing 1 to 10 of 342 students</p>
+<div class="flex gap-2">
+<button class="p-1.5 rounded-lg border border-slate-200 text-slate-400 hover:bg-white disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="px-3 py-1 rounded-lg bg-primary text-white text-xs font-bold">1</button>
+<button class="px-3 py-1 rounded-lg border border-slate-200 text-slate-600 hover:bg-white text-xs font-medium">2</button>
+<button class="px-3 py-1 rounded-lg border border-slate-200 text-slate-600 hover:bg-white text-xs font-medium">3</button>
+<span class="text-slate-400">...</span>
+<button class="px-3 py-1 rounded-lg border border-slate-200 text-slate-600 hover:bg-white text-xs font-medium">35</button>
+<button class="p-1.5 rounded-lg border border-slate-200 text-slate-400 hover:bg-white">
+<span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- FAB for quick action (Optional but helps UI) -->
+<div class="fixed bottom-8 right-8">
+<button class="w-14 h-14 bg-primary text-on-primary rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-3xl" data-icon="mail">mail</span>
+</button>
+</div>
+</body></html>

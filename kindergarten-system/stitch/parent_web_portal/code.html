@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "tertiary-fixed": "#ffdcc5",
+                    "surface-tint": "#006782",
+                    "primary-fixed-dim": "#86d0ef",
+                    "error-container": "#ffdad6",
+                    "secondary-fixed": "#a2f6a6",
+                    "on-error-container": "#93000a",
+                    "tertiary-container": "#934b00",
+                    "secondary-container": "#9ff3a3",
+                    "on-surface": "#1a1c1b",
+                    "surface-variant": "#e2e3e1",
+                    "surface-container-lowest": "#ffffff",
+                    "on-tertiary-container": "#ffcfae",
+                    "on-primary-fixed": "#001f29",
+                    "on-tertiary-fixed-variant": "#703800",
+                    "secondary-fixed-dim": "#87d98c",
+                    "primary-fixed": "#baeaff",
+                    "on-secondary-container": "#1e7131",
+                    "surface-container-low": "#f3f4f2",
+                    "on-secondary": "#ffffff",
+                    "on-secondary-fixed-variant": "#00531c",
+                    "on-primary-container": "#9fe2ff",
+                    "surface-bright": "#f9f9f8",
+                    "outline-variant": "#bfc8cd",
+                    "secondary": "#186d2d",
+                    "primary-container": "#006782",
+                    "on-surface-variant": "#3f484c",
+                    "on-error": "#ffffff",
+                    "tertiary-fixed-dim": "#ffb781",
+                    "tertiary": "#703800",
+                    "primary": "#004e63",
+                    "surface-container-high": "#e8e8e7",
+                    "inverse-on-surface": "#f0f1ef",
+                    "outline": "#6f787d",
+                    "on-secondary-fixed": "#002107",
+                    "on-primary-fixed-variant": "#004d62",
+                    "on-background": "#1a1c1b",
+                    "inverse-primary": "#86d0ef",
+                    "background": "#f9f9f8",
+                    "error": "#ba1a1a",
+                    "on-primary": "#ffffff",
+                    "surface-container-highest": "#e2e3e1",
+                    "surface": "#f9f9f8",
+                    "inverse-surface": "#2f3130",
+                    "on-tertiary-fixed": "#301400",
+                    "on-tertiary": "#ffffff",
+                    "surface-container": "#edeeec",
+                    "surface-dim": "#d9dad9"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        body { background-color: #f9f9f8; font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="text-on-surface">
+<!-- Top Navigation (Shell Implementation) -->
+<nav class="fixed top-0 w-full z-50 border-b border-slate-200/20 dark:border-slate-800/20 bg-slate-50/70 backdrop-blur-xl flex justify-between items-center h-16 px-8 w-full shadow-sm shadow-cyan-900/5">
+<div class="flex items-center gap-8">
+<span class="text-2xl font-extrabold tracking-tight text-cyan-950">Loom &amp; Leaf</span>
+<div class="hidden md:flex gap-6">
+<a class="font-['Manrope'] font-bold text-lg text-cyan-700 border-b-2 border-cyan-700 pb-1" href="#">Dashboard</a>
+<a class="font-['Manrope'] font-bold text-lg text-slate-500 hover:text-cyan-900 transition-all duration-300" href="#">Health &amp; Skills</a>
+<a class="font-['Manrope'] font-bold text-lg text-slate-500 hover:text-cyan-900 transition-all duration-300" href="#">Feedback</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-slate-100/50 transition-all">
+<span class="material-symbols-outlined text-cyan-900">notifications</span>
+</button>
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container">
+<img alt="User profile" data-alt="professional portrait of a smiling woman with glasses and dark hair in a brightly lit office setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCo66TZY1K6jtg5CdJztXwG1jmWFPoVWpF2ohPoBFQOi9BSjJzoW-GAEnpXF4bfIhwH1J-GqdavjR9f-BYbdDUE_rqHmgJMWcvyIK2sD_8qcAXoN6OR7NOtZDfneWOphny6XPw38p_7GuCfnSZeCxCgTVUYkh-SO6CljtPIXZQ2zMeo2dP6kJMTdsQcKDY6WMPzznzsm4jiG1-IDXU-qWkfl1fEhk2kXvw4IM9Pfp1PGM8frYvwmvDu0E1uExUtr0Sw-y9Af5mV-20"/>
+</div>
+</div>
+</nav>
+<!-- Main Content Grid -->
+<main class="max-w-7xl mx-auto pt-28 pb-20 px-8">
+<div class="grid grid-cols-12 gap-8">
+<!-- Left Column: Child Profile & Weekly Digest -->
+<div class="col-span-12 md:col-span-4 space-y-8">
+<!-- Child's Profile Card -->
+<div class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm">
+<div class="relative h-64">
+<img class="w-full h-full object-cover" data-alt="close-up portrait of a happy toddler laughing in a sunny preschool classroom filled with wooden blocks" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC25RLc7bDeZitlK2NLT6cAlmkbxiv7AiWf2sL1_8yDTyoIxK68bd2efDQ3ogsUstqsDWDW7aFN_KGxpAW3uQsD6U3Zja0UOW8NncjoYIQ0bwgCNM5KgqRRcd1OyhRkOCOyg9py6SW3CD-3PlltX8lD4OvWTCFYjbw9Wu5TrJBmz0ZSv2Q70fWmjTfOIinffpZEuU_wDwJRpR5egKucQ_DI-pxGbZLe5XafjQRxEF5k1bJeRY9X8Z8CYx6f1VrfDOsTJyXE9NFSODY"/>
+<div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/60 to-transparent">
+<h2 class="font-headline text-3xl font-extrabold text-white">Leo Harrison</h2>
+<p class="font-body text-white/90">Butterfly Room • Age 4</p>
+</div>
+</div>
+<div class="p-6 space-y-4 bg-surface-container-lowest">
+<div class="flex justify-between items-center text-sm font-label text-on-surface-variant">
+<span>Primary Teacher</span>
+<span class="font-bold text-primary">Ms. Elena Vance</span>
+</div>
+<div class="flex justify-between items-center text-sm font-label text-on-surface-variant">
+<span>Attendance Score</span>
+<span class="font-bold text-secondary">94%</span>
+</div>
+</div>
+</div>
+<!-- Weekly Digest Card -->
+<div class="bg-surface-container-lowest p-8 rounded-xl shadow-sm">
+<h3 class="font-headline text-xl font-bold mb-6 text-primary">Weekly Digest</h3>
+<div class="space-y-6">
+<div class="flex gap-4">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-on-secondary-container">palette</span>
+</div>
+<div>
+<p class="font-body font-semibold text-sm">Art Milestone</p>
+<p class="font-body text-xs text-on-surface-variant">Successfully completed "Color Mixing" project with primary shades.</p>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-on-primary-container">menu_book</span>
+</div>
+<div>
+<p class="font-body font-semibold text-sm">Reading Progress</p>
+<p class="font-body text-xs text-on-surface-variant">Read 3 picture books independently during morning quiet time.</p>
+</div>
+</div>
+<div class="flex gap-4">
+<div class="w-10 h-10 rounded-full bg-tertiary-container flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-on-tertiary-container">favorite</span>
+</div>
+<div>
+<p class="font-body font-semibold text-sm">Social Skills</p>
+<p class="font-body text-xs text-on-surface-variant">Demonstrated great kindness by sharing blocks with Sarah.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Quick Actions & Gallery -->
+<div class="col-span-12 md:col-span-8 space-y-8">
+<!-- Quick Actions Grid -->
+<div class="grid grid-cols-2 gap-4">
+<button class="flex items-center justify-center gap-3 p-6 rounded-full bg-gradient-to-r from-primary to-primary-container text-white font-headline font-bold text-lg hover:opacity-90 transition-all">
+<span class="material-symbols-outlined">vital_signs</span>
+                        View Health
+                    </button>
+<button class="flex items-center justify-center gap-3 p-6 rounded-full bg-surface-container-high text-on-surface font-headline font-bold text-lg hover:bg-surface-container-highest transition-all">
+<span class="material-symbols-outlined">trending_up</span>
+                        View Skills
+                    </button>
+</div>
+<!-- Recent Photos Gallery -->
+<div class="bg-surface-container-lowest p-8 rounded-xl shadow-sm">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline text-xl font-bold text-primary">Recent Photos</h3>
+<a class="text-sm font-bold text-primary" href="#">View All</a>
+</div>
+<div class="grid grid-cols-3 gap-4">
+<div class="aspect-square rounded-lg overflow-hidden bg-surface-container-low group relative">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="child with colorful painted hands smiling towards the camera with sunlight streaming through a window" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMh0_U8rNGyLY8AvyWJKsMqKgeM_4_NZpaAIxNZvmd5fZQuYWDlfGDe6uJWpi-pz7I_kmXnvdMByrgwQXcYwFXg8-P_-2LJ2gwT0pSqctBEZ9ej0RdKtuHaT6NF61ZFadC4CgOoQjb98Lkk_K4Fm2gFhmYPzwLmCDrxvpHvMpG5tyDhIbb6xWuO0HH9PeDfc6cvuSaYSjMi71lE3PINUHJM_-Vy3MyZgBfCIZuTmdzlC5ZjrasMTZ-U5RxIFBXAzTiywY8YXYlkM8"/>
+</div>
+<div class="aspect-square rounded-lg overflow-hidden bg-surface-container-low group relative">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="group of preschoolers sitting in a circle on a colorful rug listening to a teacher read a book" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_hsxEATsR7Oeo1Du3IbQBBHpMBIBI4xXkn7YiPukolvwDw1uZ-NLWsUv_4oyqoMU9m23m9vbe6hsPH4UgKbCwpj9Zdxfp5q3vSlTH3Hf6ecPRwv83s9QL5Z8iAgRdeeYdY8k5uxbZh5HFArv2hf-EeKyFeTD0RWGmkyxSri2T4oMOQ9MBQja-9KKtlo75Q8X28BA7EXDFXrRtR84wxtnJrU4qHT7jurblLl6YIpJu_2Kz-XZnewn0SteyTTTLpYsc8ouxMC8B2Rs"/>
+</div>
+<div class="aspect-square rounded-lg overflow-hidden bg-surface-container-low group relative">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="close-up of tiny child hands building a tower with bright primary colored plastic blocks" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAN6Q34CLg8mB3h7b-qmSvezGRe13s2xN-KvDsxYlc_HQsTcMZk9nS757rmtkdq82xJJuDOS2SDa76qJxqD2c98SCiV6kUrWNvr49ZP9pAKnb2JE1vSvJ82CNFeUVMBPPvwimyEPNXUqQcEiOfDCuiqF3AQuxXJJMrlTMSZXN1eqthKeXv2vRACtyuaYsOkXlxQSNeew_reDteR2r7DUC63LpSF0pOCf22zL1hXcQLhyU3hrcgHqyQwo9QHnHB6DnklKsxbaENjhU8"/>
+</div>
+</div>
+</div>
+<!-- Health & Skills: BMI Chart Section -->
+<div class="bg-surface-container-lowest p-8 rounded-xl shadow-sm">
+<h3 class="font-headline text-xl font-bold mb-8 text-primary">Growth Curve &amp; Vitality</h3>
+<!-- Vital Stats Row -->
+<div class="grid grid-cols-4 gap-6 mb-10">
+<div class="bg-surface-container-low p-4 rounded-lg">
+<p class="text-xs text-on-surface-variant mb-1 font-label">Height</p>
+<p class="font-headline text-2xl font-extrabold text-primary">104 <span class="text-xs font-normal">cm</span></p>
+</div>
+<div class="bg-surface-container-low p-4 rounded-lg">
+<p class="text-xs text-on-surface-variant mb-1 font-label">Weight</p>
+<p class="font-headline text-2xl font-extrabold text-primary">16.8 <span class="text-xs font-normal">kg</span></p>
+</div>
+<div class="bg-surface-container-low p-4 rounded-lg">
+<p class="text-xs text-on-surface-variant mb-1 font-label">Heart Rate</p>
+<p class="font-headline text-2xl font-extrabold text-primary">88 <span class="text-xs font-normal">bpm</span></p>
+</div>
+<div class="bg-surface-container-low p-4 rounded-lg relative overflow-hidden">
+<div class="absolute top-0 right-0 bg-tertiary px-2 py-0.5 text-[10px] text-white rounded-bl">ALERT</div>
+<p class="text-xs text-on-surface-variant mb-1 font-label">Medical</p>
+<p class="font-body text-sm font-bold text-tertiary">Nut Allergy</p>
+</div>
+</div>
+<!-- BMI Chart Representation (Styled SVG for precision) -->
+<div class="relative h-64 w-full bg-surface-container-low/50 rounded-xl p-4">
+<div class="absolute inset-0 flex items-end px-8 pb-8">
+<svg class="w-full h-full" preserveaspectratio="none" viewbox="0 0 800 200">
+<!-- Grid Lines -->
+<line stroke="#bfc8cd" stroke-dasharray="4" stroke-opacity="0.3" x1="0" x2="800" y1="180" y2="180"></line>
+<line stroke="#bfc8cd" stroke-dasharray="4" stroke-opacity="0.3" x1="0" x2="800" y1="120" y2="120"></line>
+<line stroke="#bfc8cd" stroke-dasharray="4" stroke-opacity="0.3" x1="0" x2="800" y1="60" y2="60"></line>
+<!-- Growth Area Gradient -->
+<path d="M0,180 Q200,160 400,100 T800,40 L800,200 L0,200 Z" fill="url(#chartGradient)" fill-opacity="0.1"></path>
+<defs>
+<lineargradient id="chartGradient" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#186d2d"></stop>
+<stop offset="100%" stop-color="#186d2d" stop-opacity="0"></stop>
+</lineargradient>
+</defs>
+<!-- Growth Line -->
+<path d="M0,180 Q200,160 400,100 T800,40" fill="none" stroke="#186d2d" stroke-linecap="round" stroke-width="4"></path>
+<!-- Data Points -->
+<circle cx="200" cy="160" fill="#186d2d" r="6"></circle>
+<circle cx="400" cy="100" fill="#186d2d" r="6"></circle>
+<circle cx="600" cy="70" fill="#186d2d" r="6"></circle>
+<circle cx="800" cy="40" fill="#186d2d" r="8" stroke="white" stroke-width="2"></circle>
+</svg>
+</div>
+<div class="absolute bottom-2 left-0 right-0 flex justify-between px-8 text-[10px] text-on-surface-variant uppercase tracking-widest font-bold">
+<span>January</span>
+<span>February</span>
+<span>March</span>
+<span>April (Current)</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Mandatory Feedback Modal Overlay -->
+<div class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+<!-- Backdrop -->
+<div class="absolute inset-0 bg-primary/20 backdrop-blur-sm"></div>
+<!-- Modal Card -->
+<div class="relative bg-white w-full max-w-2xl rounded-2xl shadow-2xl shadow-primary/20 overflow-hidden transform animate-in fade-in zoom-in duration-300">
+<div class="p-8 space-y-8">
+<div class="space-y-2">
+<h2 class="font-headline text-3xl font-extrabold text-primary">Help Us Improve</h2>
+<p class="font-body text-on-surface-variant">Rate Teacher Performance &amp; Facilities to proceed to your profile.</p>
+</div>
+<div class="space-y-6">
+<!-- Teacher Dedication -->
+<div class="flex items-center justify-between">
+<span class="font-body font-semibold">Teacher Dedication</span>
+<div class="flex gap-1">
+<span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-outline-variant">star</span>
+</div>
+</div>
+<!-- Facilities -->
+<div class="flex items-center justify-between">
+<span class="font-body font-semibold">Facilities</span>
+<div class="flex gap-1">
+<span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+</div>
+<!-- Communication -->
+<div class="flex items-center justify-between">
+<span class="font-body font-semibold">Communication</span>
+<div class="flex gap-1">
+<span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-outline-variant">star</span>
+<span class="material-symbols-outlined text-outline-variant">star</span>
+</div>
+</div>
+<div class="space-y-2">
+<label class="font-body text-sm font-semibold">Additional Comments</label>
+<textarea class="w-full bg-surface-container-high border-none rounded-lg p-4 focus:ring-4 focus:ring-primary/10 transition-all min-h-[120px] placeholder:text-outline" placeholder="How has your experience been this month?"></textarea>
+</div>
+</div>
+<div class="flex flex-col gap-4">
+<button class="w-full py-4 rounded-full bg-gradient-to-r from-primary to-primary-container text-white font-headline font-bold text-xl shadow-lg shadow-primary/20 hover:scale-[1.02] transition-all">
+                        Submit to Unlock
+                    </button>
+<p class="text-center text-xs text-on-surface-variant">Your feedback is anonymous and helps us improve the atelier environment.</p>
+</div>
+</div>
+</div>
+</div>
+</body></html>

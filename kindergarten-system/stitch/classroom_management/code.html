@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Classroom Management | Atelier Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary": "#ffffff",
+                        "primary": "#004e63",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-container": "#9ff3a3",
+                        "primary-container": "#006782",
+                        "on-surface": "#1a1c1b",
+                        "surface-container-high": "#e8e8e7",
+                        "on-primary-fixed-variant": "#004d62",
+                        "secondary-fixed-dim": "#87d98c",
+                        "on-tertiary": "#ffffff",
+                        "surface-tint": "#006782",
+                        "on-error": "#ffffff",
+                        "inverse-on-surface": "#f0f1ef",
+                        "surface-variant": "#e2e3e1",
+                        "on-secondary-container": "#1e7131",
+                        "on-primary-container": "#9fe2ff",
+                        "surface-container-highest": "#e2e3e1",
+                        "surface-dim": "#d9dad9",
+                        "on-secondary-fixed-variant": "#00531c",
+                        "inverse-surface": "#2f3130",
+                        "outline": "#6f787d",
+                        "tertiary": "#703800",
+                        "secondary-fixed": "#a2f6a6",
+                        "on-surface-variant": "#3f484c",
+                        "on-primary-fixed": "#001f29",
+                        "on-secondary": "#ffffff",
+                        "on-tertiary-container": "#ffcfae",
+                        "surface-container-low": "#f3f4f2",
+                        "surface-container": "#edeeec",
+                        "on-background": "#1a1c1b",
+                        "secondary": "#186d2d",
+                        "tertiary-fixed-dim": "#ffb781",
+                        "tertiary-fixed": "#ffdcc5",
+                        "error-container": "#ffdad6",
+                        "surface-bright": "#f9f9f8",
+                        "outline-variant": "#bfc8cd",
+                        "inverse-primary": "#86d0ef",
+                        "error": "#ba1a1a",
+                        "primary-fixed-dim": "#86d0ef",
+                        "on-tertiary-fixed-variant": "#703800",
+                        "on-error-container": "#93000a",
+                        "surface": "#f9f9f8",
+                        "on-secondary-fixed": "#002107",
+                        "on-tertiary-fixed": "#301400",
+                        "background": "#f9f9f8",
+                        "tertiary-container": "#934b00",
+                        "primary-fixed": "#baeaff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #f9f9f8; }
+        h1, h2, h3, .font-headline { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="text-on-surface">
+<!-- SideNavBar Shell -->
+<aside class="h-screen w-64 flex flex-col fixed left-0 top-0 bg-stone-50 dark:bg-stone-950 flex flex-col h-full py-8 px-4 border-none">
+<div class="mb-10 px-2">
+<h1 class="text-xl font-bold tracking-tight text-cyan-950 dark:text-cyan-100">Atelier Management</h1>
+<p class="text-xs text-stone-500 font-medium tracking-wide">Quality &amp; Health System</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2.5 text-stone-500 dark:text-stone-400 hover:text-cyan-800 dark:hover:text-cyan-300 hover:bg-stone-200/50 dark:hover:bg-stone-800/50 transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-medium text-sm">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-stone-500 dark:text-stone-400 hover:text-cyan-800 dark:hover:text-cyan-300 hover:bg-stone-200/50 dark:hover:bg-stone-800/50 transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="face">face</span>
+<span class="font-medium text-sm">Students</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-stone-500 dark:text-stone-400 hover:text-cyan-800 dark:hover:text-cyan-300 hover:bg-stone-200/50 dark:hover:bg-stone-800/50 transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="person_pin_circle">person_pin_circle</span>
+<span class="font-medium text-sm">Teachers</span>
+</a>
+<!-- Active State: Classes -->
+<a class="flex items-center gap-3 px-3 py-2.5 text-cyan-900 dark:text-cyan-200 font-semibold border-r-4 border-cyan-800 dark:border-cyan-400 bg-stone-200/30 transition-all duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="school">school</span>
+<span class="font-medium text-sm">Classes</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-stone-500 dark:text-stone-400 hover:text-cyan-800 dark:hover:text-cyan-300 hover:bg-stone-200/50 dark:hover:bg-stone-800/50 transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="monitor_heart">monitor_heart</span>
+<span class="font-medium text-sm">Health Records</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-stone-500 dark:text-stone-400 hover:text-cyan-800 dark:hover:text-cyan-300 hover:bg-stone-200/50 dark:hover:bg-stone-800/50 transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="assignment_turned_in">assignment_turned_in</span>
+<span class="font-medium text-sm">Assessments</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 text-stone-500 dark:text-stone-400 hover:text-cyan-800 dark:hover:text-cyan-300 hover:bg-stone-200/50 dark:hover:bg-stone-800/50 transition-colors rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="analytics">analytics</span>
+<span class="font-medium text-sm">Reports</span>
+</a>
+</nav>
+<div class="mt-auto pt-6 border-t border-stone-200 dark:border-stone-800">
+<button class="w-full bg-primary-container text-on-primary-container py-3 rounded-full font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all shadow-sm">
+<span class="material-symbols-outlined text-sm" data-icon="add">add</span>
+                New Log
+            </button>
+</div>
+</aside>
+<!-- Main Content Wrapper -->
+<main class="ml-64 min-h-screen">
+<!-- TopNavBar Shell -->
+<header class="fixed top-0 right-0 w-[calc(100%-16rem)] h-16 z-40 bg-white/70 dark:bg-stone-950/70 backdrop-blur-xl flex items-center justify-between px-8 border-b border-stone-100/10 dark:border-stone-800/20 shadow-sm shadow-cyan-900/5">
+<div class="flex items-center flex-1 max-w-xl">
+<div class="relative w-full">
+<span class="absolute inset-y-0 left-0 pl-3 flex items-center text-stone-400">
+<span class="material-symbols-outlined text-xl" data-icon="search">search</span>
+</span>
+<input class="block w-full pl-10 pr-3 py-2 bg-stone-100 dark:bg-stone-800 border-none rounded-lg text-sm focus:ring-2 focus:ring-cyan-500/20 transition-all outline-none" placeholder="Search classrooms, students, or schedules..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-4">
+<button class="p-2 text-stone-400 hover:text-cyan-700 dark:hover:text-cyan-300 transition-all">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<button class="p-2 text-stone-400 hover:text-cyan-700 dark:hover:text-cyan-300 transition-all">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+</div>
+<div class="h-8 w-[1px] bg-stone-200 dark:bg-stone-800"></div>
+<div class="flex items-center gap-3">
+<span class="text-sm font-semibold text-cyan-900 dark:text-cyan-400">Administrator</span>
+<img alt="Administrator Profile" class="h-9 w-9 rounded-full object-cover border border-stone-100 shadow-sm" data-alt="professional portrait of a confident middle-aged school administrator in a bright office setting with soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBQtTuEtsInXPMfQDl7-gYzWYgxAuLcU_B53w32VFpiOo_UKNO4K13Z4F3QTaDWqKxHfyJD9h8R3nPiEldJBrlMaNPf0OUHgSUXc0i3OwJkOmh0WNyZVf7duQUmZfEIFDTpkomKnZYkduoLENss2ZVsMMcsVz5iu7LUSVy0HuYiKJeGoW9M5VnxtMovUpCSDjDvtL6UsWQkptqQjcaymnOyEFxuO0f041UPj1XNwd5B0MIVzIIv0BEEwBdAVHXLprSR3wDNN-AgzMs"/>
+</div>
+</div>
+</header>
+<!-- Page Content Area -->
+<section class="pt-24 pb-12 px-8">
+<!-- Header Section -->
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+<div>
+<h2 class="text-4xl font-extrabold text-primary mb-2 tracking-tight">Classroom Management</h2>
+<p class="text-on-surface-variant max-w-lg leading-relaxed">Oversee and organize the learning environments of Atelier. Manage capacities, lead instructors, and age-specific curriculum tracks.</p>
+</div>
+<button class="bg-gradient-to-r from-primary to-primary-container text-white px-6 py-3 rounded-full font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-2 self-start">
+<span class="material-symbols-outlined" data-icon="add_circle">add_circle</span>
+                    Create New Class
+                </button>
+</div>
+<!-- Bento Grid Layout for Classes -->
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+<!-- Class Card 1 -->
+<div class="bg-surface-container-lowest rounded-xl p-8 transition-all hover:scale-[1.01] flex flex-col gap-6 relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-24 h-24 bg-secondary-container/10 rounded-bl-full -mr-12 -mt-12 transition-all group-hover:scale-110"></div>
+<div class="flex justify-between items-start">
+<div>
+<span class="bg-tertiary-fixed text-on-tertiary-fixed text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">Nursery</span>
+<h3 class="text-2xl font-bold text-primary mt-3">Sunflower Room</h3>
+</div>
+<button class="text-stone-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="edit_square">edit_square</span>
+</button>
+</div>
+<div class="flex items-center gap-4 bg-surface-container-low p-4 rounded-xl">
+<img alt="Teacher Avatar" class="h-12 w-12 rounded-full object-cover" data-alt="warm and friendly portrait of a young female teacher smiling with soft studio lighting and clean background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDcfSYA8ENWq1Ec0oQBtFCRS1aupOy2yaHEdY4YbTwHBRiAUZ8hl5S0mz_mhZuM4evYulZx7qazbpLWK29l8CCIE-IV6YIZ4TpOc-nxOJt4wVNLekN9OjlpAbF0Bo83wLk3jF0IQuX5y7dImWlJeL5vk8i4m1eOXFE4spgb4m14tBxpwgDL49jYEQ1XI13vKiq68EfqwSBtHqUjzZ93puqSmvoqOP-OLyhPS4ZXt6sfLmKXiCGZbV0B5wueESQfBxofhx_xPslCUrY"/>
+<div>
+<p class="text-xs text-on-surface-variant font-medium">Lead Teacher</p>
+<p class="font-bold text-primary">Sarah Jenkins</p>
+</div>
+</div>
+<div class="mt-auto pt-4">
+<div class="flex justify-between items-end mb-2">
+<span class="text-sm font-semibold text-on-surface">Student Capacity</span>
+<span class="text-sm font-bold text-secondary">22/25 Students</span>
+</div>
+<div class="w-full h-2.5 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-[88%] rounded-full"></div>
+</div>
+</div>
+<a class="text-primary font-bold text-sm flex items-center gap-1 hover:gap-2 transition-all" href="#">
+                        Edit Details
+                        <span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</div>
+<!-- Class Card 2 -->
+<div class="bg-surface-container-lowest rounded-xl p-8 transition-all hover:scale-[1.01] flex flex-col gap-6 relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-24 h-24 bg-primary-container/10 rounded-bl-full -mr-12 -mt-12 transition-all group-hover:scale-110"></div>
+<div class="flex justify-between items-start">
+<div>
+<span class="bg-secondary-fixed text-on-secondary-fixed text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">Pre-K</span>
+<h3 class="text-2xl font-bold text-primary mt-3">Maple Grove</h3>
+</div>
+<button class="text-stone-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="edit_square">edit_square</span>
+</button>
+</div>
+<div class="flex items-center gap-4 bg-surface-container-low p-4 rounded-xl">
+<img alt="Teacher Avatar" class="h-12 w-12 rounded-full object-cover" data-alt="portrait of a professional male teacher with a friendly expression in an educational environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDa9BGkRGUMuxd-wR5YH29sLj-m7QfolVOayCrsmYdXVHscl-KJDKVR_W3vVbrhx5I2dPJuIOxpCbVaurlUEpFCDPa99AssUK-3QGAjq-_AqGTsB35LyvcC3nQfj9gmsgcsgsv_yK6KTxt6eGM_MBwxExPTRCMV6CxWMA39MKuphWx231EsgSJoMmHLXvobGd59_z_hR2o335hc9coA_9fFvTGTH3ASo1DZEFMSlA-gGwLhaoQeM-i6q2imhH8H6LTNhF4KD3FcYR4"/>
+<div>
+<p class="text-xs text-on-surface-variant font-medium">Lead Teacher</p>
+<p class="font-bold text-primary">Marcus Chen</p>
+</div>
+</div>
+<div class="mt-auto pt-4">
+<div class="flex justify-between items-end mb-2">
+<span class="text-sm font-semibold text-on-surface">Student Capacity</span>
+<span class="text-sm font-bold text-secondary">18/20 Students</span>
+</div>
+<div class="w-full h-2.5 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-[90%] rounded-full"></div>
+</div>
+</div>
+<a class="text-primary font-bold text-sm flex items-center gap-1 hover:gap-2 transition-all" href="#">
+                        Edit Details
+                        <span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</div>
+<!-- Class Card 3 -->
+<div class="bg-surface-container-lowest rounded-xl p-8 transition-all hover:scale-[1.01] flex flex-col gap-6 relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-24 h-24 bg-tertiary-fixed/30 rounded-bl-full -mr-12 -mt-12 transition-all group-hover:scale-110"></div>
+<div class="flex justify-between items-start">
+<div>
+<span class="bg-primary-fixed text-on-primary-fixed-variant text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">K1</span>
+<h3 class="text-2xl font-bold text-primary mt-3">Sky Atelier</h3>
+</div>
+<button class="text-stone-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="edit_square">edit_square</span>
+</button>
+</div>
+<div class="flex items-center gap-4 bg-surface-container-low p-4 rounded-xl">
+<img alt="Teacher Avatar" class="h-12 w-12 rounded-full object-cover" data-alt="cheerful teacher posing for a profile photo with soft natural lighting in a classroom" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCVwdDRPEZnTFRj0IZWOOnEJnnFlB4cY8aGRACIpvDOYHs0HaqOPxcOvOu8Gs-y-QTuRUz1TkiwnPzyVpp-zR-iPrmLBtqVY35-YxaTDPVa4T_BL9wyTBfPYcUUQ2LAbBwyaAeI5H428ebGAfHgX_jyfHWXrFpqPlHcB5bLdLllJhQRtjOivBuDarHoJQXuBbJLRhQDV3AZtboIGpGRGLIJpDSz1Gr-J0Ch5wAhIDaFmLPvr8OWTOuFehJNb2gMCpRGqkpxiHd5KXE"/>
+<div>
+<p class="text-xs text-on-surface-variant font-medium">Lead Teacher</p>
+<p class="font-bold text-primary">Elena Rodriguez</p>
+</div>
+</div>
+<div class="mt-auto pt-4">
+<div class="flex justify-between items-end mb-2">
+<span class="text-sm font-semibold text-on-surface">Student Capacity</span>
+<span class="text-sm font-bold text-tertiary">15/25 Students</span>
+</div>
+<div class="w-full h-2.5 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[60%] rounded-full"></div>
+</div>
+</div>
+<a class="text-primary font-bold text-sm flex items-center gap-1 hover:gap-2 transition-all" href="#">
+                        Edit Details
+                        <span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</div>
+<!-- Class Card 4 -->
+<div class="bg-surface-container-lowest rounded-xl p-8 transition-all hover:scale-[1.01] flex flex-col gap-6 relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-24 h-24 bg-secondary-container/10 rounded-bl-full -mr-12 -mt-12 transition-all group-hover:scale-110"></div>
+<div class="flex justify-between items-start">
+<div>
+<span class="bg-secondary-fixed text-on-secondary-fixed text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">K2</span>
+<h3 class="text-2xl font-bold text-primary mt-3">Oak Academy</h3>
+</div>
+<button class="text-stone-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="edit_square">edit_square</span>
+</button>
+</div>
+<div class="flex items-center gap-4 bg-surface-container-low p-4 rounded-xl">
+<img alt="Teacher Avatar" class="h-12 w-12 rounded-full object-cover" data-alt="friendly portrait of a male teacher in a blue shirt with bright office lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNQV20kNweH3ZNBA1EtfFkoHKj7422Jpzdt06Cp3FIrA63Eehtf0SFJq2TLqur8EfozL2nuyUcb52Ms6BO-7H_rdWzMYMqOt11BT9orfcsy1rqUUF2C3moWoyhaAP5M43Qpgwty5Ovu64h4zNlFfZJ31LmWfigq520bkR7fHjzg0m4OlZjjfcDlFlmSghwwY6gBf3E991bAGN-p6UfqBKKQCZ-lhraWpcsfVthJEWoVWsgLaVvcQBvWEVDDroKPIa6cRUu7Jt0ZIE"/>
+<div>
+<p class="text-xs text-on-surface-variant font-medium">Lead Teacher</p>
+<p class="font-bold text-primary">Julian Thorne</p>
+</div>
+</div>
+<div class="mt-auto pt-4">
+<div class="flex justify-between items-end mb-2">
+<span class="text-sm font-semibold text-on-surface">Student Capacity</span>
+<span class="text-sm font-bold text-secondary">24/25 Students</span>
+</div>
+<div class="w-full h-2.5 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-error w-[96%] rounded-full"></div>
+</div>
+</div>
+<a class="text-primary font-bold text-sm flex items-center gap-1 hover:gap-2 transition-all" href="#">
+                        Edit Details
+                        <span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</div>
+<!-- Class Card 5 -->
+<div class="bg-surface-container-lowest rounded-xl p-8 transition-all hover:scale-[1.01] flex flex-col gap-6 relative overflow-hidden group">
+<div class="absolute top-0 right-0 w-24 h-24 bg-tertiary-fixed/30 rounded-bl-full -mr-12 -mt-12 transition-all group-hover:scale-110"></div>
+<div class="flex justify-between items-start">
+<div>
+<span class="bg-tertiary-fixed text-on-tertiary-fixed text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">Nursery</span>
+<h3 class="text-2xl font-bold text-primary mt-3">Willow Stream</h3>
+</div>
+<button class="text-stone-400 hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="edit_square">edit_square</span>
+</button>
+</div>
+<div class="flex items-center gap-4 bg-surface-container-low p-4 rounded-xl">
+<img alt="Teacher Avatar" class="h-12 w-12 rounded-full object-cover" data-alt="close up headshot of a smiling female professional in a minimalist setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAcGIK5fQz1EO8DLAQGUL5SGwAKWAZN_-QsFz52FAdnp4JCUC78TcRuu38Wjfxc9tmwow5trsiaICsRNlcWa5FqXvE7SXifm6CqFNjJAqrym5AgInhWQrOy-TyWOLaAbCfBqbLOGyWQCO45_6M624yO9bxQ6LgOSBNfCTUe1mbt_rxZvvt_xNQhwMbka6W1UAFDdKrZu2rru70b2d2LE9fvBqGRrLDPXAwNdXCSJnxXeHyWX8JzLFys7uJlH5xOa3F3NfXlKW1Q7ug"/>
+<div>
+<p class="text-xs text-on-surface-variant font-medium">Lead Teacher</p>
+<p class="font-bold text-primary">Sonia Gupta</p>
+</div>
+</div>
+<div class="mt-auto pt-4">
+<div class="flex justify-between items-end mb-2">
+<span class="text-sm font-semibold text-on-surface">Student Capacity</span>
+<span class="text-sm font-bold text-secondary">12/15 Students</span>
+</div>
+<div class="w-full h-2.5 bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-secondary w-[80%] rounded-full"></div>
+</div>
+</div>
+<a class="text-primary font-bold text-sm flex items-center gap-1 hover:gap-2 transition-all" href="#">
+                        Edit Details
+                        <span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</div>
+<!-- New Class Placeholder Button/Card -->
+<button class="border-2 border-dashed border-stone-200 dark:border-stone-800 rounded-xl p-8 flex flex-col items-center justify-center gap-4 hover:border-cyan-500/50 hover:bg-stone-50 transition-all group">
+<div class="w-16 h-16 rounded-full bg-stone-100 flex items-center justify-center group-hover:bg-cyan-50 transition-colors">
+<span class="material-symbols-outlined text-3xl text-stone-400 group-hover:text-primary transition-colors" data-icon="add">add</span>
+</div>
+<div class="text-center">
+<p class="font-bold text-primary">Add New Room</p>
+<p class="text-xs text-stone-500 mt-1">Initialize a new learning space</p>
+</div>
+</button>
+</div>
+</section>
+<!-- Stats Section (Bonus for professional enterprise look) -->
+<section class="px-8 pb-16">
+<div class="bg-primary p-8 rounded-2xl flex flex-wrap gap-12 items-center text-white relative overflow-hidden">
+<div class="absolute top-0 right-0 p-8 opacity-10">
+<span class="material-symbols-outlined text-9xl" data-icon="school">school</span>
+</div>
+<div class="flex-1 min-w-[200px]">
+<h4 class="text-sm font-bold tracking-widest uppercase text-cyan-200 mb-2">System Capacity</h4>
+<p class="text-5xl font-extrabold tracking-tight">88%</p>
+<p class="text-sm mt-2 text-cyan-100 opacity-80">Overall classroom utilization across all branches</p>
+</div>
+<div class="h-16 w-[1px] bg-cyan-400/30 hidden lg:block"></div>
+<div class="flex-1 min-w-[200px]">
+<h4 class="text-sm font-bold tracking-widest uppercase text-cyan-200 mb-2">Waitlist</h4>
+<p class="text-5xl font-extrabold tracking-tight">42</p>
+<p class="text-sm mt-2 text-cyan-100 opacity-80">Students pending classroom placement</p>
+</div>
+<div class="h-16 w-[1px] bg-cyan-400/30 hidden lg:block"></div>
+<div class="flex-1 min-w-[200px]">
+<h4 class="text-sm font-bold tracking-widest uppercase text-cyan-200 mb-2">Active Staff</h4>
+<p class="text-5xl font-extrabold tracking-tight">18</p>
+<p class="text-sm mt-2 text-cyan-100 opacity-80">Assigned lead and assistant educators</p>
+</div>
+</div>
+</section>
+</main>
+</body></html>

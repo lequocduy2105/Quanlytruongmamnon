@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Loom &amp; Leaf | Kindergarten Parent Portal</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-error-container": "#93000a",
+                    "secondary-fixed-dim": "#87d98c",
+                    "secondary-container": "#9ff3a3",
+                    "on-surface": "#1a1c1b",
+                    "on-background": "#1a1c1b",
+                    "secondary": "#186d2d",
+                    "surface-dim": "#d9dad9",
+                    "outline": "#6f787d",
+                    "on-primary-container": "#9fe2ff",
+                    "tertiary-fixed": "#ffdcc5",
+                    "on-surface-variant": "#3f484c",
+                    "outline-variant": "#bfc8cd",
+                    "on-secondary-fixed-variant": "#00531c",
+                    "error-container": "#ffdad6",
+                    "surface-bright": "#f9f9f8",
+                    "secondary-fixed": "#a2f6a6",
+                    "inverse-primary": "#86d0ef",
+                    "tertiary-container": "#934b00",
+                    "primary-container": "#006782",
+                    "on-secondary-container": "#1e7131",
+                    "surface-tint": "#006782",
+                    "surface-container-low": "#f3f4f2",
+                    "primary": "#004e63",
+                    "surface-container-high": "#e8e8e7",
+                    "surface-container": "#edeeec",
+                    "primary-fixed": "#baeaff",
+                    "on-primary-fixed-variant": "#004d62",
+                    "surface-container-highest": "#e2e3e1",
+                    "inverse-surface": "#2f3130",
+                    "on-tertiary-container": "#ffcfae",
+                    "on-tertiary-fixed-variant": "#703800",
+                    "on-primary": "#ffffff",
+                    "on-primary-fixed": "#001f29",
+                    "on-secondary-fixed": "#002107",
+                    "error": "#ba1a1a",
+                    "inverse-on-surface": "#f0f1ef",
+                    "on-error": "#ffffff",
+                    "on-tertiary": "#ffffff",
+                    "on-secondary": "#ffffff",
+                    "tertiary": "#703800",
+                    "surface-container-lowest": "#ffffff",
+                    "primary-fixed-dim": "#86d0ef",
+                    "on-tertiary-fixed": "#301400",
+                    "surface": "#f9f9f8",
+                    "tertiary-fixed-dim": "#ffb781",
+                    "background": "#f9f9f8",
+                    "surface-variant": "#e2e3e1"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+        h1, h2, h3, .font-manrope { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #edeeec; }
+        ::-webkit-scrollbar-thumb { background: #86d0ef; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-background text-on-surface">
+<!-- TopNavBar (Shared Component) -->
+<header class="fixed top-0 w-full z-50 bg-slate-50/70 backdrop-blur-md shadow-sm shadow-cyan-900/5 transition-all duration-300 ease-in-out">
+<div class="flex justify-between items-center px-8 py-4 max-w-screen-2xl mx-auto">
+<div class="flex items-center gap-8">
+<span class="text-xl font-bold text-cyan-900 font-manrope">Loom &amp; Leaf</span>
+<nav class="hidden md:flex gap-6 items-center">
+<a class="text-cyan-700 border-b-2 border-cyan-700 pb-1 font-semibold text-sm transition-all duration-300 ease-in-out active:scale-95" href="#">Dashboard</a>
+<a class="text-slate-500 hover:text-cyan-600 text-sm transition-all duration-300 ease-in-out active:scale-95" href="#">Health Records</a>
+<a class="text-slate-500 hover:text-cyan-600 text-sm transition-all duration-300 ease-in-out active:scale-95" href="#">Skills &amp; Progress</a>
+<a class="text-slate-500 hover:text-cyan-600 text-sm transition-all duration-300 ease-in-out active:scale-95" href="#">Feedback</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="p-2 text-cyan-800 hover:bg-cyan-50/50 rounded-lg transition-all active:scale-95">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="p-2 text-cyan-800 hover:bg-cyan-50/50 rounded-lg transition-all active:scale-95">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="ml-2 w-10 h-10 rounded-full overflow-hidden ring-2 ring-primary/10">
+<img alt="Parent profile avatar" class="w-full h-full object-cover" data-alt="Professional headshot of a smiling young mother with soft natural lighting and a minimalist beige background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAHKhBWgbnmbJOs9e2sdJ5RDHyGA96CYqDc31vQE2qOyv4Nm5l0aOl2vCvE6kqmXyjTyZkO3Ny8AkhpS5s2buoKAJbQvUqlciveI-SUcObiS8ihrhToACnjCo2UbE-k5RrUUJBXz5desHWLUN92pWP90dke5SyN0iJJRbqckvYeTpcWjefOq6anQJYPRX4IAuqRVblSFsCB2NMEgCGXxFMeDi2Ay_Eps5qeEqTdsDUd3edSMgq_CliqRVzYeElULxzvz_pFIUZMqkg"/>
+</div>
+</div>
+</div>
+</header>
+<main class="pt-24 pb-12 px-8 max-w-screen-2xl mx-auto space-y-8">
+<!-- Top Profile Card (Full Width) -->
+<section class="relative overflow-hidden bg-surface-container-lowest rounded-xl p-8 shadow-sm flex flex-col md:flex-row items-center gap-8 border-l-8 border-primary">
+<div class="relative">
+<div class="w-32 h-32 rounded-full overflow-hidden ring-4 ring-primary-fixed">
+<img alt="Leo's child photo" class="w-full h-full object-cover" data-alt="Close-up portrait of a cheerful little boy with curly hair and a green sweater, brightly lit and joyful atmosphere" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBO6aM-yd1m70p86LMaEW873JeLM353J57YvR4COtRyeefVsTvQwzq-e0kzhqqQEIqP3YX-BSoeafw_FawJgNaB-yYJhNDQvE2swy2UkP73EJ2u2jEbV3xLy6ZHih3B6nrKlLoSjYRYoWzcRVZpAPA6IpmsavPa-rOJAWPR_4IdMfvL58qTGNEBO6N-W-04T8DIbLuSpqeQm5gAykWRSBjPm6NLSTDvV4LPfbKPdwVTll4lcsjPpNO_quXNUoAr-ecOOOJpA8gyh0c"/>
+</div>
+<div class="absolute bottom-1 right-1 bg-secondary w-6 h-6 rounded-full border-4 border-surface-container-lowest"></div>
+</div>
+<div class="flex-grow text-center md:text-left">
+<div class="flex flex-col md:flex-row md:items-baseline gap-2 mb-1">
+<h1 class="text-4xl font-extrabold font-manrope text-on-surface tracking-tight">Leo Dubois</h1>
+<span class="text-lg font-medium text-on-surface-variant font-manrope">Sunflower Room</span>
+</div>
+<p class="text-on-surface-variant flex items-center justify-center md:justify-start gap-2">
+<span class="material-symbols-outlined text-secondary scale-90">location_on</span>
+                    Primary Early Learning Center
+                </p>
+</div>
+<div class="flex flex-col items-center md:items-end gap-3">
+<div class="px-4 py-2 bg-secondary-container text-on-secondary-container rounded-full text-sm font-bold flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+                    In School
+                </div>
+<span class="text-xs text-on-surface-variant italic">Last updated: 8:45 AM today</span>
+</div>
+</section>
+<!-- Main Grid (Two Columns) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+<!-- Left Column: Weekly Digest -->
+<section class="lg:col-span-5 bg-surface-container-lowest rounded-xl p-8 space-y-6 shadow-sm border-t-4 border-secondary">
+<div class="flex items-center justify-between">
+<h2 class="text-2xl font-bold font-manrope text-primary flex items-center gap-2">
+<span class="material-symbols-outlined">auto_stories</span>
+                        Weekly Digest
+                    </h2>
+<span class="text-xs font-bold uppercase tracking-wider text-outline">Oct 16 - 20</span>
+</div>
+<div class="space-y-4">
+<div class="p-5 bg-surface-container-low rounded-xl group hover:bg-primary/5 transition-colors">
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-secondary pt-1">palette</span>
+<div class="space-y-1">
+<h3 class="font-bold text-on-surface">Completed Autumn Art Project</h3>
+<p class="text-sm text-on-surface-variant leading-relaxed">Leo used various textures including dried leaves and pinecones to create a seasonal collage. He focused intently on the glue application.</p>
+</div>
+</div>
+</div>
+<div class="p-5 bg-surface-container-low rounded-xl group hover:bg-primary/5 transition-colors">
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-secondary pt-1">restaurant</span>
+<div class="space-y-1">
+<h3 class="font-bold text-on-surface">Ate all lunches this week</h3>
+<p class="text-sm text-on-surface-variant leading-relaxed">A great week for nutrition! Leo particularly enjoyed the vegetable stir-fry on Wednesday and asked for seconds of the apple slices.</p>
+</div>
+</div>
+</div>
+<div class="p-5 bg-surface-container-low rounded-xl group hover:bg-primary/5 transition-colors">
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-secondary pt-1">music_note</span>
+<div class="space-y-1">
+<h3 class="font-bold text-on-surface">Participated in music circle</h3>
+<p class="text-sm text-on-surface-variant leading-relaxed">He was very vocal during the "Morning Harmony" session, leading his peers in a chorus of the community song.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Right Column: Recent Classroom Photos -->
+<section class="lg:col-span-7 bg-surface-container-lowest rounded-xl p-8 space-y-6 shadow-sm">
+<div class="flex items-center justify-between">
+<h2 class="text-2xl font-bold font-manrope text-primary flex items-center gap-2">
+<span class="material-symbols-outlined">camera_roll</span>
+                        Recent Classroom Photos
+                    </h2>
+<button class="text-sm font-bold text-primary-container hover:underline decoration-2">View Album</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 h-full">
+<div class="relative rounded-xl overflow-hidden aspect-[4/3] group">
+<img alt="Child painting" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="Group of young children in a brightly lit classroom using watercolors to paint on large white sheets of paper" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDRpxaUcTUTenEZimMqLBzBfmdeub40ZHdjLquaba_mes7HAU0T5SS6YP_bdpaoHm_5zHQGdmvxus2Y6uJMgfmjgOa-pXSju_SvVAcaZ1-gX4BUpbHPZNBxyAYb8ajJcShgkB7oTECJqVSVyi09jsItBMb3TpAmX2TiwtNYJ_mNAyyN22adDNsXi9yzUn9kdSXj17jRzP04oEUvvRy2-lNhJiX0MiX6SEcMW1pqvHQiScitcKIb-jeJ5QEL57muGEPEx1tbJvB4QaE"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+<span class="text-white text-xs font-medium">Artistic Expressions • Monday</span>
+</div>
+</div>
+<div class="grid grid-rows-2 gap-4">
+<div class="relative rounded-xl overflow-hidden group">
+<img alt="Child playing with blocks" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="Close up of small children's hands building a tower with colorful wooden blocks on a soft play mat" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBp6zaQCxukM3Lg_-1NiCC3p5o-AvJGYSmE8PMQPpww0YoAbxOuhiSDu3hqeHOYgAgjvy2FWGW7pHId8Hc870ahcrSGqTuEvF20BAsUDX0fgBQWqrR4dSu7Yk3zWinEsFTnpy5rLJtV0vt9CtxabFYsGJ05ekYdmKtDS3seF-mWJxp-pjm67Gx3ykAqZft0aSIcxpXNXBoevPKuQ6tDHghaWGESl7FR5b6FQ35lH6LdkSMWG768ybzGH4n0EkEUPMO8FPh34Rvl4yA"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+<span class="text-white text-xs font-medium">Construction Time • Tuesday</span>
+</div>
+</div>
+<div class="relative rounded-xl overflow-hidden group">
+<img alt="Child reading" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" data-alt="A teacher reading a storybook to a group of attentive children sitting on a circular rug in a library nook" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-Rx13rEpy6voDILCIyX-cxWzuYM_ssa-XmdiYuF6TIMTHu1s9iLlXArENgmN5hO_6ACUqSpjXvkQyZg1ldWr4nU3DgdbbajsQLIUa-hvPz0Trv9kc9Fxa_5Ne2Leh8q2GOqIAj_lGM-eB0UJ76orn1_wQ6X-nXHVfXYsN2TbaQaeQ21lqz2LfWrElUuWUjB5Gk3Vsb540du9zVx9YpYf4mZxpH2qlp0U32y_FZeGkn8xoYvVwa9qDrXhyyOr158q-cW0np2gZhgs"/>
+<div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4">
+<span class="text-white text-xs font-medium">Story Circle • Wednesday</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Bottom Section: Summary Widgets -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+<!-- Attendance Rate -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm flex items-center gap-6 border-l-4 border-secondary">
+<div class="relative w-24 h-24 flex items-center justify-center">
+<svg class="w-full h-full -rotate-90">
+<circle class="text-surface-container-high" cx="48" cy="48" fill="transparent" r="40" stroke="currentColor" stroke-width="8"></circle>
+<circle class="text-secondary" cx="48" cy="48" fill="transparent" r="40" stroke="currentColor" stroke-dasharray="251.2" stroke-dashoffset="5" stroke-width="8"></circle>
+</svg>
+<span class="absolute text-xl font-bold font-manrope">98%</span>
+</div>
+<div>
+<h4 class="text-on-surface-variant text-sm font-medium uppercase tracking-wider">Attendance Rate</h4>
+<p class="text-2xl font-extrabold font-manrope text-on-surface">Excellent</p>
+<p class="text-xs text-outline">Only 2 missed days this term</p>
+</div>
+</div>
+<!-- Next Upcoming Event -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm flex items-center gap-6 border-l-4 border-tertiary">
+<div class="w-16 h-16 bg-tertiary-fixed rounded-2xl flex flex-col items-center justify-center text-on-tertiary-fixed-variant">
+<span class="text-xs font-bold uppercase">Fri</span>
+<span class="text-2xl font-bold font-manrope">20</span>
+</div>
+<div>
+<h4 class="text-on-surface-variant text-sm font-medium uppercase tracking-wider">Next Upcoming Event</h4>
+<p class="text-lg font-bold font-manrope text-on-surface leading-tight">Grandparents Day Tea</p>
+<p class="text-sm text-tertiary font-medium">Friday at 2:00 PM</p>
+</div>
+</div>
+<!-- Daily Pulse Quick Access (Design System Custom Component) -->
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm hidden lg:block">
+<h4 class="text-on-surface-variant text-sm font-medium uppercase tracking-wider mb-4">Quick Log</h4>
+<div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+<div class="flex-shrink-0 px-4 py-2 bg-surface-container-high rounded-full text-xs font-bold flex items-center gap-2 cursor-pointer hover:bg-primary-fixed transition-colors">
+<span class="material-symbols-outlined text-base">medical_services</span> Health
+                    </div>
+<div class="flex-shrink-0 px-4 py-2 bg-surface-container-high rounded-full text-xs font-bold flex items-center gap-2 cursor-pointer hover:bg-primary-fixed transition-colors">
+<span class="material-symbols-outlined text-base">lunch_dining</span> Meal
+                    </div>
+<div class="flex-shrink-0 px-4 py-2 bg-surface-container-high rounded-full text-xs font-bold flex items-center gap-2 cursor-pointer hover:bg-primary-fixed transition-colors">
+<span class="material-symbols-outlined text-base">chat</span> Message
+                    </div>
+</div>
+</div>
+</div>
+</main>
+<!-- FAB for Quick Communication -->
+<button class="fixed bottom-8 right-8 w-14 h-14 rounded-full bg-gradient-to-tr from-primary to-primary-container text-white shadow-xl shadow-primary/30 flex items-center justify-center hover:scale-110 active:scale-95 transition-all">
+<span class="material-symbols-outlined">chat_bubble</span>
+</button>
+</body></html>

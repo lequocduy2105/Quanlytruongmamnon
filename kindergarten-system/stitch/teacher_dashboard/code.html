@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Nurturing Atelier - Teacher Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-primary-container": "#9fe2ff",
+                    "surface-container": "#edeeec",
+                    "surface-bright": "#f9f9f8",
+                    "on-background": "#1a1c1b",
+                    "secondary": "#186d2d",
+                    "surface-variant": "#e2e3e1",
+                    "secondary-fixed-dim": "#87d98c",
+                    "primary": "#004e63",
+                    "on-primary-fixed": "#001f29",
+                    "on-secondary-fixed-variant": "#00531c",
+                    "on-error": "#ffffff",
+                    "surface-dim": "#d9dad9",
+                    "surface-container-highest": "#e2e3e1",
+                    "on-tertiary": "#ffffff",
+                    "inverse-surface": "#2f3130",
+                    "on-surface-variant": "#3f484c",
+                    "on-primary-fixed-variant": "#004d62",
+                    "error-container": "#ffdad6",
+                    "on-tertiary-container": "#ffcfae",
+                    "on-secondary": "#ffffff",
+                    "surface": "#f9f9f8",
+                    "on-secondary-fixed": "#002107",
+                    "outline": "#6f787d",
+                    "tertiary-container": "#934b00",
+                    "primary-fixed-dim": "#86d0ef",
+                    "tertiary-fixed": "#ffdcc5",
+                    "on-secondary-container": "#1e7131",
+                    "surface-tint": "#006782",
+                    "on-tertiary-fixed": "#301400",
+                    "on-tertiary-fixed-variant": "#703800",
+                    "tertiary": "#703800",
+                    "background": "#f9f9f8",
+                    "secondary-container": "#9ff3a3",
+                    "inverse-on-surface": "#f0f1ef",
+                    "inverse-primary": "#86d0ef",
+                    "surface-container-low": "#f3f4f2",
+                    "primary-fixed": "#baeaff",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary-fixed": "#a2f6a6",
+                    "tertiary-fixed-dim": "#ffb781",
+                    "error": "#ba1a1a",
+                    "primary-container": "#006782",
+                    "on-surface": "#1a1c1b",
+                    "surface-container-high": "#e8e8e7",
+                    "outline-variant": "#bfc8cd",
+                    "on-primary": "#ffffff",
+                    "on-error-container": "#93000a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Inter"],
+                    "label": ["Inter"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- SideNavBar (Desktop Only) -->
+<aside class="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 border-r-0 bg-slate-50 dark:bg-slate-950 font-manrope text-sm font-semibold py-6 z-40">
+<div class="px-6 mb-10 flex items-center gap-3">
+<div class="w-10 h-10 rounded-xl bg-primary-container flex items-center justify-center text-white">
+<span class="material-symbols-outlined">school</span>
+</div>
+<div>
+<h1 class="text-lg font-black text-cyan-900 dark:text-cyan-50 leading-none">Atelier Management</h1>
+<p class="text-[10px] text-slate-500 font-medium">Quality &amp; Health System</p>
+</div>
+</div>
+<nav class="flex-1 space-y-1 px-4">
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ease-in-out text-cyan-800 dark:text-cyan-100 font-bold border-r-4 border-cyan-700 bg-cyan-50 dark:bg-cyan-900/20" href="#">
+<span class="material-symbols-outlined">dashboard</span> Dashboard
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ease-in-out text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800" href="#">
+<span class="material-symbols-outlined">face</span> Students
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ease-in-out text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800" href="#">
+<span class="material-symbols-outlined">group</span> Teachers
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ease-in-out text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800" href="#">
+<span class="material-symbols-outlined">school</span> Classes
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ease-in-out text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800" href="#">
+<span class="material-symbols-outlined">monitor_heart</span> Health Records
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ease-in-out text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800" href="#">
+<span class="material-symbols-outlined">assignment</span> Assessments
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-300 ease-in-out text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800" href="#">
+<span class="material-symbols-outlined">analytics</span> Reports
+            </a>
+</nav>
+<div class="px-4 mt-auto pt-6 space-y-1">
+<button class="w-full bg-primary-container text-white py-3 px-4 rounded-full font-bold flex items-center justify-center gap-2 mb-6">
+<span class="material-symbols-outlined">add</span> New Entry
+            </button>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:bg-slate-100 rounded-lg" href="#">
+<span class="material-symbols-outlined">settings</span> Settings
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 text-slate-500 hover:bg-slate-100 rounded-lg" href="#">
+<span class="material-symbols-outlined">help</span> Support
+            </a>
+</div>
+</aside>
+<!-- TopNavBar -->
+<header class="fixed top-0 right-0 left-0 md:left-64 h-16 flex justify-between items-center px-8 z-50 bg-surface/70 dark:bg-slate-900/70 backdrop-blur-xl transition-colors">
+<div class="flex items-center gap-8">
+<span class="text-xl font-bold tracking-tight text-cyan-900 dark:text-cyan-50 font-manrope">Nurturing Atelier</span>
+<div class="hidden lg:flex items-center gap-6">
+<a class="font-manrope text-sm font-medium transition-colors text-cyan-700 dark:text-cyan-300 border-b-2 border-cyan-700 pb-1" href="#">Dashboard</a>
+<a class="font-manrope text-sm font-medium transition-colors text-slate-500 hover:text-cyan-600" href="#">Health Records</a>
+<a class="font-manrope text-sm font-medium transition-colors text-slate-500 hover:text-cyan-600" href="#">Reports</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden sm:flex bg-surface-container-low px-4 py-1.5 rounded-full items-center gap-2 text-slate-500 text-sm">
+<span class="material-symbols-outlined text-lg">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-48" placeholder="Search entries..." type="text"/>
+</div>
+<button class="material-symbols-outlined text-slate-500 hover:text-primary transition-colors">notifications</button>
+<button class="material-symbols-outlined text-slate-500 hover:text-primary transition-colors">settings</button>
+<div class="flex items-center gap-3 ml-2 pl-4 border-l border-outline-variant/30">
+<div class="text-right hidden sm:block">
+<p class="text-xs font-bold leading-none">Sarah Jenkins</p>
+<p class="text-[10px] text-slate-500">Lead Educator</p>
+</div>
+<img alt="Sarah Jenkins Avatar" class="w-9 h-9 rounded-full object-cover border-2 border-primary-container/20" data-alt="portrait of a professional friendly school teacher with a warm smile and approachable look" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAxnfcZ59kyIrW5KTUbdBME1T_Qf6J1SGpgLIdEc9XQ7cuA1G5uwJGplhtnPWtlbIHcMHXTVP2B_HmcstKalQVPyo67o9YBJF-bOnn_93CL5Cxp1YBI-iknYdzPioqF6BdeOBaqwtJeSqqmTzHFE_xLGn60NH5GOJE7ityAlwK2Ootg57C4pNop3GK9dxe7TC5Ug9EPBVcpXAQu8u1YMJh6ultdNEanR4kiLZBf34J13QiWNtnP-qaIw6r98hKaxVmDJsMEv-bdAVk"/>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="pt-24 pb-12 md:pl-72 pr-8 min-h-screen">
+<!-- Class Overview Section -->
+<section class="mb-12">
+<div class="flex justify-between items-end mb-8">
+<div>
+<h2 class="text-3xl font-extrabold text-on-surface tracking-tight leading-tight">Class Overview</h2>
+<p class="text-on-surface-variant font-medium">Sunflower Room • Tuesday, October 24</p>
+</div>
+<div class="flex gap-2">
+<button class="bg-surface-container-high px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2">
+<span class="material-symbols-outlined text-lg">calendar_today</span> Week View
+                    </button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+<!-- Daily Attendance Bento -->
+<div class="md:col-span-7 bg-surface-container-lowest p-8 rounded-3xl transition-all">
+<div class="flex justify-between items-center mb-6">
+<h3 class="text-lg font-bold text-primary">Daily Attendance Status</h3>
+<span class="text-xs bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full font-bold">LIVE</span>
+</div>
+<div class="grid grid-cols-3 gap-6">
+<div class="p-6 rounded-2xl bg-slate-50 flex flex-col items-center">
+<p class="text-4xl font-black text-secondary mb-1">22</p>
+<p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Present</p>
+</div>
+<div class="p-6 rounded-2xl bg-slate-50 flex flex-col items-center">
+<p class="text-4xl font-black text-error mb-1">02</p>
+<p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Absent</p>
+</div>
+<div class="p-6 rounded-2xl bg-slate-50 flex flex-col items-center">
+<p class="text-4xl font-black text-tertiary mb-1">01</p>
+<p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Late</p>
+</div>
+</div>
+</div>
+<!-- Recent Alerts Bento -->
+<div class="md:col-span-5 bg-tertiary-fixed text-on-tertiary-fixed p-8 rounded-3xl">
+<h3 class="text-lg font-bold mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary">warning</span> Recent Alerts
+                    </h3>
+<div class="space-y-3">
+<div class="bg-white/40 p-3 rounded-xl flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-tertiary/20 flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined text-base">emergency</span>
+</div>
+<div class="flex-1">
+<p class="text-sm font-bold">Liam M. Health Log</p>
+<p class="text-[10px] opacity-70">Daily deficiency log missing</p>
+</div>
+<span class="text-[10px] font-bold bg-white px-2 py-1 rounded-full">NOW</span>
+</div>
+<div class="bg-white/40 p-3 rounded-xl flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-tertiary/20 flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined text-base">medication</span>
+</div>
+<div class="flex-1">
+<p class="text-sm font-bold">Sofia G. Allergy</p>
+<p class="text-[10px] opacity-70">Peanut alert during snack time</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Health Tracker Module -->
+<section class="mb-12">
+<div class="bg-surface-container-lowest rounded-[2rem] overflow-hidden">
+<div class="p-8 flex flex-col md:flex-row justify-between items-center gap-4">
+<div>
+<h3 class="text-2xl font-extrabold text-primary">Health Tracker Module</h3>
+<p class="text-sm text-on-surface-variant font-medium">Student vitals and historical tracking</p>
+</div>
+<div class="flex items-center gap-3 w-full md:w-auto">
+<div class="bg-surface-container-low px-4 py-2.5 rounded-xl flex items-center gap-2 flex-1 md:w-64">
+<span class="material-symbols-outlined text-slate-400">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm" placeholder="Filter by student name..." type="text"/>
+</div>
+<button class="p-2.5 bg-surface-container-high rounded-xl text-slate-600">
+<span class="material-symbols-outlined">filter_list</span>
+</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="bg-surface-container-low/50">
+<th class="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500">Student</th>
+<th class="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500">Last Update</th>
+<th class="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500">Vitals Status</th>
+<th class="px-8 py-4 text-[10px] font-black uppercase tracking-widest text-slate-500">Alerts</th>
+<th class="px-8 py-4 text-right"></th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container">
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="px-8 py-5">
+<div class="flex items-center gap-3">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="cute happy toddler boy with curly hair smiling for a school photo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDTfdliSWCE4eGTNEFWJTuLfZvGPbsu4Uyb7P7-fK_M4c2PfdwQfR5AMBa--GToyZFX9NdEX2fo5kupi5pnP08uxg_0zuXjJH1O6TfCe1Y_8DnZuYB2QQAsB6gKhUcrkt-IriW2vMFd4KshEBBVB_AS8yCquwaYbg6E7sduO8aBV_7rIiVXTbG0TaNQTuetoypszxdrGeSlCjMV41ZVelsHiw7aMwuieBGI0vl24saMGKSY85ehQ8mhVCRe1A6ND6lHUhmd-Gnl1N0"/>
+<div>
+<p class="font-bold text-sm">Liam Miller</p>
+<p class="text-[11px] text-slate-500">ID: AT-0922</p>
+</div>
+</div>
+</td>
+<td class="px-8 py-5 text-sm text-slate-600">Oct 23, 09:15 AM</td>
+<td class="px-8 py-5">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary-container/30 text-secondary text-[11px] font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span> Normal
+                                    </span>
+</td>
+<td class="px-8 py-5">
+<div class="flex gap-1">
+<span class="material-symbols-outlined text-error text-lg" style="font-variation-settings: 'FILL' 1;">emergency_home</span>
+<span class="material-symbols-outlined text-tertiary text-lg">medical_services</span>
+</div>
+</td>
+<td class="px-8 py-5 text-right">
+<button class="bg-primary text-white text-xs font-bold px-5 py-2 rounded-full hover:shadow-lg transition-all" onclick="document.getElementById('healthModal').classList.remove('hidden')">Update</button>
+</td>
+</tr>
+<tr class="hover:bg-slate-50 transition-colors">
+<td class="px-8 py-5">
+<div class="flex items-center gap-3">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="adorable toddler girl with braids and bright eyes looking at the camera" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAF26lcNkVu6u-lshb2dCWPLpZoLeUtaSJFMtoEf6nvvLjuMmU3OpnqlG20D6ocMsJjTM4hz9dVpyBFF00a3aL6nxJyBha_Ck706w8zglC5e9ABEHD9bmQADETTyo8PjKpOmYY-5ilRMq6i3xFMb-jlPSA-7mHmMCnFNsbzU17KvzBxW0lofgTDAaAWhV20ZndvHm0-4qGptkGjg2f8W6uhKXvZvkndFwaFSBXxHpLUbIbPdS9mpidChZ2usiBPRoWsoDFXEYzHA-0"/>
+<div>
+<p class="font-bold text-sm">Sofia Garcia</p>
+<p class="text-[11px] text-slate-500">ID: AT-1124</p>
+</div>
+</div>
+</td>
+<td class="px-8 py-5 text-sm text-slate-600">Oct 20, 10:40 AM</td>
+<td class="px-8 py-5">
+<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-tertiary-fixed text-tertiary text-[11px] font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span> Review Needed
+                                    </span>
+</td>
+<td class="px-8 py-5">
+<span class="material-symbols-outlined text-error text-lg" style="font-variation-settings: 'FILL' 1;">egg_alt</span>
+</td>
+<td class="px-8 py-5 text-right">
+<button class="bg-primary text-white text-xs font-bold px-5 py-2 rounded-full hover:shadow-lg transition-all">Update</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<!-- Assessment Module -->
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<div class="lg:col-span-12">
+<h3 class="text-2xl font-extrabold text-primary mb-6">Assessment Module</h3>
+</div>
+<div class="lg:col-span-4 bg-surface-container-high/40 rounded-3xl p-6 h-fit">
+<h4 class="text-sm font-bold text-slate-500 uppercase tracking-widest mb-4">Select Student</h4>
+<div class="space-y-3">
+<div class="p-4 bg-primary text-white rounded-2xl flex items-center gap-4 cursor-pointer shadow-xl shadow-primary/20">
+<img class="w-12 h-12 rounded-full border-2 border-white/20" data-alt="portrait of Liam Miller" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlZ5JsJLgr0LaRj01jNLcZbAHdWrp9gBgna_qb5SAgNnzPPSenzVPlpnXMAQ7bCJf7qGsbW7hS_t9NqDQtdwGsuOHWqn7J94nD1F7war_RSM6aSpsVt0zK163jiGzEB9ARxbiu1ku2OUefbwo3ztwtlEHTO4OAPE2H9J7MIJJg7s-X_K_1AtwnhRL3_TCA-GdlCeRXrazxpaPQ_zDI9ihMqVEHgQTnfJuVt8JktsHjOctA83B1jzAsl02FB9Ov2u40FYPN9f4aBis"/>
+<div>
+<p class="font-bold">Liam Miller</p>
+<p class="text-[10px] opacity-80 uppercase font-medium">Class: Sunflower</p>
+</div>
+<span class="material-symbols-outlined ml-auto">check_circle</span>
+</div>
+<div class="p-4 bg-surface-container-lowest text-on-surface rounded-2xl flex items-center gap-4 cursor-pointer hover:bg-slate-50 transition-colors">
+<img class="w-12 h-12 rounded-full" data-alt="portrait of Sofia Garcia" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD6RVz5iThillGwFfgwR_EBtJEcvgbcU0X-DwDqsqveoBgolDgBCiEMJTWSC-GwhuoJt0njAN2rr7qqUF32eLpr0o5TCNf8a0LUI4Y_zX78vzto5CpdtZ1n2keDgtDGdY3HPalAU57e2eoWy8fy0DdmwaY6ZifWNfUItA3UszN76QaKT5eINadzbbWel0c4GJjdf3Nj1CVZPcvTDo6UUfU6iE5ChTJMvI1WJowm5QyRXkMUlfWFQllAf9mGaU0A1-cm0xGbziiTsGc"/>
+<div>
+<p class="font-bold">Sofia Garcia</p>
+<p class="text-[10px] text-slate-500 uppercase font-medium">Class: Sunflower</p>
+</div>
+</div>
+</div>
+</div>
+<div class="lg:col-span-8 space-y-6">
+<div class="bg-surface-container-lowest rounded-3xl p-8">
+<div class="flex justify-between items-center mb-8">
+<h4 class="text-xl font-bold text-primary">Skill Proficiency Log</h4>
+<div class="flex gap-2">
+<span class="px-3 py-1 rounded-lg bg-primary-fixed text-on-primary-fixed text-[10px] font-black uppercase">Cognitive Development</span>
+</div>
+</div>
+<div class="space-y-10">
+<!-- Skill 1 -->
+<div class="space-y-4">
+<div class="flex justify-between items-end">
+<div>
+<p class="font-bold text-slate-800">Problem Solving &amp; Logic</p>
+<p class="text-xs text-slate-500">Ability to follow 2-step instructions and puzzles</p>
+</div>
+<span class="text-2xl font-black text-primary">7.5</span>
+</div>
+<div class="relative pt-2">
+<input class="w-full h-3 bg-surface-container rounded-full appearance-none cursor-pointer accent-primary" max="10" min="0" step="0.5" type="range" value="7.5"/>
+<div class="flex justify-between mt-2 text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+<span>Beginning</span>
+<span>Developing</span>
+<span>Proficient</span>
+</div>
+</div>
+</div>
+<!-- Skill 2 -->
+<div class="space-y-4">
+<div class="flex justify-between items-end">
+<div>
+<p class="font-bold text-slate-800">Social Collaboration</p>
+<p class="text-xs text-slate-500">Sharing materials and turn-taking in small groups</p>
+</div>
+<span class="text-2xl font-black text-secondary">9.0</span>
+</div>
+<div class="relative pt-2">
+<input class="w-full h-3 bg-surface-container rounded-full appearance-none cursor-pointer accent-secondary" max="10" min="0" step="0.5" type="range" value="9"/>
+<div class="flex justify-between mt-2 text-[10px] font-bold text-slate-400 uppercase tracking-tighter">
+<span>Beginning</span>
+<span>Developing</span>
+<span>Proficient</span>
+</div>
+</div>
+</div>
+<div class="pt-6 border-t border-slate-100">
+<label class="block text-sm font-bold text-slate-700 mb-3">Deficiency Log / Observation Gaps</label>
+<textarea class="w-full rounded-xl border-none bg-slate-50 focus:ring-2 focus:ring-primary/20 text-sm p-4" placeholder="Note any specific areas where student struggled or demonstrated significant leaps..." rows="4" spellcheck="false"></textarea>
+</div>
+<div class="flex justify-end pt-4">
+<button class="bg-primary text-white px-8 py-3 rounded-full font-bold shadow-xl shadow-primary/20 hover:scale-[1.02] transition-transform">Save Assessment</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Health Record Modal -->
+<div class="hidden fixed inset-0 z-[60] flex items-center justify-center p-4" id="healthModal">
+<div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onclick="document.getElementById('healthModal').classList.add('hidden')"></div>
+<div class="relative bg-white w-full max-w-4xl rounded-[2.5rem] overflow-hidden flex flex-col md:flex-row max-h-[921px]">
+<!-- Side Summary -->
+<div class="md:w-1/3 bg-slate-50 p-8 flex flex-col border-r border-slate-100">
+<div class="mb-8">
+<button class="mb-6 flex items-center gap-2 text-slate-400 font-bold text-xs uppercase hover:text-primary transition-colors" onclick="document.getElementById('healthModal').classList.add('hidden')">
+<span class="material-symbols-outlined text-sm">arrow_back</span> Back to class
+                    </button>
+<div class="flex items-center gap-4 mb-4">
+<img class="w-16 h-16 rounded-3xl object-cover" data-alt="profile photo of Liam Miller" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC5JRxH47x62G4PNguiwD5Su6aaRi4jWc3ZUnDHesgoT7ahN8CIlQ6MMboKNaLH8rM20uwr5ajox-mq3bV60G9GmhBne89nr7c9XgrxIjfJyVoo2c1cv9QaGVwsJctke-6xhS1lGkj3naTxqFXCUGXmxuHNVG9LIvn8-uefQWpc8zE43WhSk4x7_HZW493sGZLNM1LLmS8MlbSJISoIxl8HTr7wqv2tfAaki4ITrG1sXB_DgY1MX6L2UZOvZWVjp-iM7V7dhu30MjY"/>
+<div>
+<h2 class="text-xl font-extrabold text-primary leading-tight">Liam Miller</h2>
+<p class="text-xs text-slate-500 font-medium">Age: 4y 2m</p>
+</div>
+</div>
+<div class="space-y-2">
+<div class="flex items-center gap-2 text-error text-[11px] font-bold bg-error-container/50 px-3 py-1.5 rounded-lg">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">error</span>
+                            Allergic to Dairy &amp; Eggs
+                        </div>
+<div class="flex items-center gap-2 text-tertiary text-[11px] font-bold bg-tertiary-fixed px-3 py-1.5 rounded-lg">
+<span class="material-symbols-outlined text-sm">history</span>
+                            Mild Asthma (Inhaler in locker)
+                        </div>
+</div>
+</div>
+<div class="mt-auto">
+<p class="text-[10px] font-black text-slate-400 uppercase mb-4 tracking-widest">Growth Forecast</p>
+<div class="h-32 w-full bg-white rounded-2xl p-4 flex items-end gap-1">
+<!-- Simplified Chart Placeholder -->
+<div class="flex-1 bg-primary/10 rounded-t-lg" style="height: 40%;"></div>
+<div class="flex-1 bg-primary/20 rounded-t-lg" style="height: 55%;"></div>
+<div class="flex-1 bg-primary/30 rounded-t-lg" style="height: 70%;"></div>
+<div class="flex-1 bg-primary/50 rounded-t-lg" style="height: 65%;"></div>
+<div class="flex-1 bg-primary/70 rounded-t-lg" style="height: 85%;"></div>
+<div class="flex-1 bg-primary rounded-t-lg" style="height: 90%;"></div>
+</div>
+<p class="text-[10px] text-center mt-2 text-slate-400 font-bold">Child Growth Curve (BMI)</p>
+</div>
+</div>
+<!-- Form Content -->
+<div class="md:w-2/3 p-10 overflow-y-auto hide-scrollbar">
+<div class="mb-8">
+<h3 class="text-2xl font-extrabold text-primary">New Health Update</h3>
+<p class="text-sm text-slate-500">Record bi-weekly vitals and general wellness check.</p>
+</div>
+<form class="space-y-8">
+<div class="grid grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="text-xs font-black uppercase text-slate-500 tracking-widest">Weight (kg)</label>
+<input class="w-full bg-slate-50 border-none rounded-xl p-4 font-bold text-primary focus:ring-2 focus:ring-primary/20" step="0.1" type="number" value="16.4"/>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-black uppercase text-slate-500 tracking-widest">Height (cm)</label>
+<input class="w-full bg-slate-50 border-none rounded-xl p-4 font-bold text-primary focus:ring-2 focus:ring-primary/20" step="0.1" type="number" value="104.5"/>
+</div>
+</div>
+<div class="space-y-2">
+<label class="text-xs font-black uppercase text-slate-500 tracking-widest">Heart Rate (BPM)</label>
+<div class="flex items-center gap-4">
+<input class="flex-1 bg-slate-50 border-none rounded-xl p-4 font-bold text-primary focus:ring-2 focus:ring-primary/20" type="number" value="95"/>
+<span class="text-secondary font-bold flex items-center gap-1">
+<span class="material-symbols-outlined">favorite</span> Healthy Range
+                            </span>
+</div>
+</div>
+<div class="p-6 bg-secondary-container/20 rounded-3xl space-y-4">
+<h4 class="font-bold text-on-secondary-container flex items-center gap-2">
+<span class="material-symbols-outlined">check_circle</span> Wellness Confirmation
+                        </h4>
+<div class="grid grid-cols-2 gap-4">
+<label class="flex items-center gap-3 bg-white p-3 rounded-xl cursor-pointer shadow-sm">
+<input checked="" class="rounded border-slate-300 text-secondary focus:ring-secondary" type="checkbox"/>
+<span class="text-sm font-medium">Clear Breath Sounds</span>
+</label>
+<label class="flex items-center gap-3 bg-white p-3 rounded-xl cursor-pointer shadow-sm">
+<input checked="" class="rounded border-slate-300 text-secondary focus:ring-secondary" type="checkbox"/>
+<span class="text-sm font-medium">Normal Skin Temp</span>
+</label>
+</div>
+</div>
+<div class="flex gap-4 pt-6">
+<button class="flex-1 bg-slate-100 text-slate-600 py-4 rounded-2xl font-bold hover:bg-slate-200 transition-colors" type="button">Print PDF Report</button>
+<button class="flex-[2] bg-primary text-white py-4 rounded-2xl font-bold shadow-xl shadow-primary/30 hover:scale-[1.01] active:scale-[0.99] transition-all" type="submit">Record Health Data</button>
+</div>
+</form>
+</div>
+</div>
+</div>
+</body></html>
