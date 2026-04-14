@@ -87,6 +87,12 @@ export class ApiGatewayService {
     );
   }
 
+  getAllFeedbacks() {
+    return firstValueFrom(
+      this.academicClient.send({ cmd: 'get_all_feedbacks' }, {}),
+    );
+  }
+
   getParentStudentRecords(studentId: string, guardianUserId: number) {
     return firstValueFrom(
       this.academicClient.send(
@@ -373,6 +379,36 @@ export class ApiGatewayService {
     );
   }
 
+  updateFeeConfig(id: number, data: object) {
+    return firstValueFrom(
+      this.academicClient.send({ cmd: 'update_fee_config' }, { id, ...data }),
+    );
+  }
+
+  deleteFeeConfig(id: number) {
+    return firstValueFrom(
+      this.academicClient.send({ cmd: 'delete_fee_config' }, { id }),
+    );
+  }
+
+  getInvoicesByClass(classId: number, month: string) {
+    return firstValueFrom(
+      this.academicClient.send(
+        { cmd: 'get_invoices_by_class' },
+        { classId, month },
+      ),
+    );
+  }
+
+  getClassFinanceSummary(classId: number, month: string) {
+    return firstValueFrom(
+      this.academicClient.send(
+        { cmd: 'get_class_finance_summary' },
+        { classId, month },
+      ),
+    );
+  }
+
   // ─── Medications (MISSING-03) ────────────────────────────────────
   getMedicationsToday() {
     return firstValueFrom(
@@ -413,10 +449,23 @@ export class ApiGatewayService {
   // ─── Teacher Lookup ─────────────────────────────────────────────────────────
   getTeacherByUserId(userId: number) {
     return firstValueFrom(
-      this.academicClient.send(
-        { cmd: 'get_teacher_by_user_id' },
-        { userId },
-      ),
+      this.academicClient.send({ cmd: 'get_teacher_by_user_id' }, { userId }),
+    );
+  }
+
+  getTeacherById(teacherId: number) {
+    return firstValueFrom(
+      this.academicClient.send({ cmd: 'get_teacher_by_id' }, { teacherId }),
+    );
+  }
+
+  /**
+   * Lấy classroom mà teacher đang phụ trách, lookup từ phía classroom.teacher_id
+   * Đây là nguồn dữ liệu chính xác nhất, tránh trường hợp teachers.class_id bị stale
+   */
+  getClassroomByTeacherId(teacherId: number) {
+    return firstValueFrom(
+      this.academicClient.send({ cmd: 'get_classroom_by_teacher_id' }, { teacherId }),
     );
   }
 
@@ -467,10 +516,7 @@ export class ApiGatewayService {
 
   reviewIncident(id: number, adminUserId: number) {
     return firstValueFrom(
-      this.academicClient.send(
-        { cmd: 'review_incident' },
-        { id, adminUserId },
-      ),
+      this.academicClient.send({ cmd: 'review_incident' }, { id, adminUserId }),
     );
   }
 
@@ -492,10 +538,7 @@ export class ApiGatewayService {
 
   getLeaveRequestsAdmin(status?: string) {
     return firstValueFrom(
-      this.academicClient.send(
-        { cmd: 'get_leave_requests_admin' },
-        { status },
-      ),
+      this.academicClient.send({ cmd: 'get_leave_requests_admin' }, { status }),
     );
   }
 
@@ -562,18 +605,18 @@ export class ApiGatewayService {
 
   // ─── Teacher Class & Pickup ──────────────────────────────────────────────────
 
-  getTeacherClass(userId: number) {
+  getTeacherClass(userId?: number, teacherId?: number) {
     return firstValueFrom(
-      this.academicClient.send({ cmd: 'get_teacher_class' }, { userId }),
+      this.academicClient.send(
+        { cmd: 'get_teacher_class' },
+        { userId, teacherId },
+      ),
     );
   }
 
   getClassPickupsToday(classId: number) {
     return firstValueFrom(
-      this.academicClient.send(
-        { cmd: 'get_class_pickups_today' },
-        { classId },
-      ),
+      this.academicClient.send({ cmd: 'get_class_pickups_today' }, { classId }),
     );
   }
 

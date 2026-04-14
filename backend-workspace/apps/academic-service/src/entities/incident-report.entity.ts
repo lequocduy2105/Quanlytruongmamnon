@@ -52,7 +52,12 @@ export class IncidentReport {
   @Column({ name: 'first_aid_taken', type: 'text', nullable: true })
   firstAidTaken: string | null;
 
-  @Column({ name: 'attachment_url', type: 'varchar', length: 500, nullable: true })
+  @Column({
+    name: 'attachment_url',
+    type: 'varchar',
+    length: 500,
+    nullable: true,
+  })
   attachmentUrl: string | null;
 
   @Column({

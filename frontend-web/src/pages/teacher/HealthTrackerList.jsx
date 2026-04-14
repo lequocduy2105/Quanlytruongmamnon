@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { AreaChart, Area, ResponsiveContainer, XAxis, Tooltip } from "recharts";
 import api from "../../api/axiosClient";
+import { useOutletContext } from "react-router-dom";
 import { useToast } from "../../components/Toast";
 import { useLang } from "../../contexts/LangContext";
 
 export default function HealthTrackerList() {
   const toast = useToast();
+  const { activeTeacher } = useOutletContext();
   const { lang } = useLang();
   const vi = lang === "vi";
 
@@ -44,15 +46,23 @@ export default function HealthTrackerList() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [studentsRes, vitalsRes] = await Promise.all([
-        api.get("/academic/students"),
+      const [classRes, vitalsRes] = await Promise.all([
+        api.get(`/teacher/my-class?teacherId=${activeTeacher?.id || ""}`),
         api.get("/health/vitals"),
       ]);
-      setStudents(studentsRes.data || []);
-      setVitalsData(vitalsRes.data || []);
-      if (studentsRes.data && studentsRes.data.length > 0) {
-        setSelectedStudent(studentsRes.data[0]);
+      // Chỉ hiện học sinh của lớp giáo viên phụ trách
+      const classStudents = classRes.data?.students || [];
+      if (classStudents.length > 0) {
+        setStudents(classStudents);
+        setSelectedStudent(classStudents[0]);
+      } else {
+        // fallback: lấy tất cả nếu chưa có lớp
+        const allRes = await api.get("/academic/students");
+        const all = allRes.data || [];
+        setStudents(all);
+        if (all.length > 0) setSelectedStudent(all[0]);
       }
+      setVitalsData(vitalsRes.data || []);
     } catch (err) {
       console.error("Lỗi khi tải dữ liệu sức khoẻ:", err);
     } finally {

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useOutletContext } from "react-router-dom";
 import api from "../../api/axiosClient";
 
 const FREQ_LABEL = {
@@ -19,11 +20,9 @@ function fmtDate(d) {
 }
 
 export default function ParentMedications() {
-  const [children, setChildren] = useState([]);
-  const [selectedChildId, setSelectedChildId] = useState(null);
+  const { activeStudent } = useOutletContext();
   const [schedules, setSchedules] = useState([]);
   const [logs, setLogs] = useState([]);
-  const [loadingChildren, setLoadingChildren] = useState(true);
   const [loadingSchedules, setLoadingSchedules] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -40,27 +39,10 @@ export default function ParentMedications() {
   });
 
   useEffect(() => {
-    fetchChildren();
-  }, []);
-
-  useEffect(() => {
-    if (selectedChildId) {
-      fetchSchedules(selectedChildId);
+    if (activeStudent) {
+      fetchSchedules(activeStudent.id);
     }
-  }, [selectedChildId]);
-
-  const fetchChildren = async () => {
-    try {
-      const res = await api.get("/parent/my-children");
-      const list = res.data || [];
-      setChildren(list);
-      if (list.length > 0) setSelectedChildId(list[0].id);
-    } catch {
-      setChildren([]);
-    } finally {
-      setLoadingChildren(false);
-    }
-  };
+  }, [activeStudent]);
 
   const fetchSchedules = async (studentId) => {
     setLoadingSchedules(true);
@@ -80,12 +62,12 @@ export default function ParentMedications() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!selectedChildId || !form.medicationName || !form.dosage) return;
+    if (!activeStudent || !form.medicationName || !form.dosage) return;
     setSaving(true);
     try {
       await api.post("/parent/medications", {
         ...form,
-        studentId: selectedChildId,
+        studentId: activeStudent.id,
       });
       setShowAddForm(false);
       setForm({
@@ -99,7 +81,7 @@ export default function ParentMedications() {
         endDate: "",
         prescriptionNote: "",
       });
-      fetchSchedules(selectedChildId);
+      fetchSchedules(activeStudent.id);
     } catch (err) {
       alert("Không thể gửi đơn thuốc. Vui lòng thử lại.");
     } finally {
@@ -126,7 +108,7 @@ export default function ParentMedications() {
         </div>
         <button
           onClick={() => setShowAddForm(true)}
-          disabled={!selectedChildId}
+          disabled={!activeStudent}
           className="flex items-center gap-2 bg-cyan-800 hover:bg-cyan-900 text-white font-bold px-5 py-2.5 rounded-2xl transition-colors shadow disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <span className="material-symbols-outlined text-[18px]">add</span>
@@ -134,24 +116,7 @@ export default function ParentMedications() {
         </button>
       </div>
 
-      {/* ─── Child Selector ─── */}
-      {children.length > 1 && (
-        <div className="flex gap-3">
-          {children.map((c) => (
-            <button
-              key={c.id}
-              onClick={() => setSelectedChildId(c.id)}
-              className={`px-5 py-2 rounded-2xl font-bold text-sm transition-all ${
-                selectedChildId === c.id
-                  ? "bg-cyan-800 text-white shadow"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-              }`}
-            >
-              {c.full_name}
-            </button>
-          ))}
-        </div>
-      )}
+      {/* Removed Child Selector Since Gatekeeper Handles It */}
 
       {/* ─── Add Form Modal ─── */}
       {showAddForm && (

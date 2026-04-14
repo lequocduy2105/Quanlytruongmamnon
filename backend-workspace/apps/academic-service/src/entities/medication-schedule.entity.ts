@@ -51,7 +51,12 @@ export class MedicationSchedule {
   @Column({ name: 'prescription_note', type: 'text', nullable: true })
   prescriptionNote!: string | null;
 
-  @Column({ name: 'prescription_url', type: 'varchar', length: 500, nullable: true })
+  @Column({
+    name: 'prescription_url',
+    type: 'varchar',
+    length: 500,
+    nullable: true,
+  })
   prescriptionUrl!: string | null;
 
   @Column({ name: 'is_active', type: 'boolean', default: true })

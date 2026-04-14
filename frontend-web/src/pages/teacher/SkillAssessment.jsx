@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
+import { useOutletContext } from "react-router-dom";
 import api from "../../api/axiosClient";
-import { AuthContext } from "../../contexts/AuthContext";
 import { useToast } from "../../components/Toast";
 import { useLang } from "../../contexts/LangContext";
 
 export default function SkillAssessment() {
-  const { user } = useContext(AuthContext);
+  const { activeTeacher } = useOutletContext();
   const toast = useToast();
   const { lang } = useLang();
   const [students, setStudents] = useState([]);
@@ -30,10 +30,17 @@ export default function SkillAssessment() {
   const fetchStudents = async () => {
     try {
       setLoading(true);
-      const res = await api.get("/academic/students");
-      setStudents(res.data || []);
-      if (res.data?.length > 0) {
-        setSelectedStudent(res.data[0]);
+      // Ưu tiên lấy học sinh của lớp giáo viên phụ trách
+      const res = await api.get(`/teacher/my-class?teacherId=${activeTeacher?.id || ""}`);
+      const classStudents = res.data?.students || [];
+      if (classStudents.length > 0) {
+        setStudents(classStudents);
+        setSelectedStudent(classStudents[0]);
+      } else {
+        // fallback: lấy tất cả nếu chưa có lớp
+        const allRes = await api.get("/academic/students");
+        setStudents(allRes.data || []);
+        if (allRes.data?.length > 0) setSelectedStudent(allRes.data[0]);
       }
     } catch (error) {
       console.error("Lỗi khi tải danh sách học sinh:", error);
@@ -52,7 +59,7 @@ export default function SkillAssessment() {
       setSaving(true);
       await api.post("/academic/assessments", {
         studentId: selectedStudent.id,
-        teacherId: user?.id || 1,
+        teacherId: activeTeacher?.id || 1,
         cognitiveScore: scores.problemSolving,
         socialScore: scores.socialInteraction,
         emotionalScore: scores.emotionalRegulation,

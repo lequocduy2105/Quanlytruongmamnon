@@ -43,12 +43,13 @@ export class HealthServiceService {
       else normal++;
     });
 
-    const total = records.length || 1; // tránh chia 0
+    const total = normal + under + over; // chỉ đếm records có BMI hợp lệ
     return {
       normal,
       under,
       over,
-      normalPercentage: Math.round((normal / total) * 100),
+      total,
+      normalPercentage: total > 0 ? Math.round((normal / total) * 100) : 0,
     };
   }
 

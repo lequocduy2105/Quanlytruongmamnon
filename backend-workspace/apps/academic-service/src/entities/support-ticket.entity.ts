@@ -48,7 +48,12 @@ export class SupportTicket {
   @Column({ type: 'text' })
   content: string;
 
-  @Column({ name: 'attachment_url', type: 'varchar', length: 500, nullable: true })
+  @Column({
+    name: 'attachment_url',
+    type: 'varchar',
+    length: 500,
+    nullable: true,
+  })
   attachmentUrl: string | null;
 
   @Column({

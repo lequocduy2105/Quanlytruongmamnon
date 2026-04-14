@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useOutletContext } from "react-router-dom";
 import api from "../../api/axiosClient";
 
 const STATUS_BADGE = {
@@ -49,6 +50,7 @@ function fmtDate(d) {
 }
 
 export default function ParentInvoices() {
+  const { activeStudent } = useOutletContext();
   const [invoices, setInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedMonth, setSelectedMonth] = useState("");
@@ -62,16 +64,19 @@ export default function ParentInvoices() {
   });
 
   useEffect(() => {
-    fetchInvoices();
-  }, []);
+    if (activeStudent) {
+      fetchInvoices(activeStudent.id);
+    }
+  }, [activeStudent]);
 
-  const fetchInvoices = async () => {
+  const fetchInvoices = async (studentId) => {
     try {
       setLoading(true);
-      // API gateway: GET /parent/invoices
-      const res = await api.get("/parent/invoices");
+      const res = await api.get("/parent/my-invoices");
       const data = Array.isArray(res.data) ? res.data : [];
-      setInvoices(data);
+      // Lọc hóa đơn theo học sinh hiện tại
+      const studentInvoices = data.filter(inv => inv.studentId === studentId);
+      setInvoices(studentInvoices);
     } catch (err) {
       console.error("Failed to fetch invoices:", err);
     } finally {

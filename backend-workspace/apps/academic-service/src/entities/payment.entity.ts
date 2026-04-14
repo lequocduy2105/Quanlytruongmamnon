@@ -31,7 +31,12 @@ export class Payment {
   })
   paymentMethod: PaymentMethod;
 
-  @Column({ name: 'reference_code', type: 'varchar', length: 100, nullable: true })
+  @Column({
+    name: 'reference_code',
+    type: 'varchar',
+    length: 100,
+    nullable: true,
+  })
   referenceCode: string | null;
 
   @Column({

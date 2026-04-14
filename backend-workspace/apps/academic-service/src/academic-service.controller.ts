@@ -23,6 +23,20 @@ export class AcademicServiceController {
     return this.academicServiceService.getTeacherByUserId(data.userId);
   }
 
+  @MessagePattern({ cmd: 'get_teacher_by_id' })
+  getTeacherById(@Payload() data: { teacherId: number }) {
+    return this.academicServiceService.getTeacherById(data.teacherId);
+  }
+
+  /**
+   * Lookup classroom từ phía classroom.teacher_id (đáng tin cậy hơn teacher.class_id)
+   * Dùng khi cần biết GV đang phụ trách lớp nào
+   */
+  @MessagePattern({ cmd: 'get_classroom_by_teacher_id' })
+  getClassroomByTeacherId(@Payload() data: { teacherId: number }) {
+    return this.academicServiceService.getClassroomByTeacherId(data.teacherId);
+  }
+
   @MessagePattern({ cmd: 'get_teachers' })
   getTeachers() {
     return this.academicServiceService.getTeachers();
@@ -47,8 +61,14 @@ export class AcademicServiceController {
   }
 
   @MessagePattern({ cmd: 'get_teacher_dashboard' })
-  getTeacherDashboard(@Payload() payload: { userId: number }) {
-    return this.academicServiceService.getTeacherDashboard(payload.userId);
+  getTeacherDashboard(
+    @Payload() payload: { userId?: number; teacherId?: number },
+  ) {
+    // Ưu tiên teacherId nếu có (gatekeeper by name), fallback về userId (JWT)
+    return this.academicServiceService.getTeacherDashboard(
+      payload.userId,
+      payload.teacherId,
+    );
   }
 
   @MessagePattern({ cmd: 'submit_assessment' })
@@ -59,6 +79,11 @@ export class AcademicServiceController {
   @MessagePattern({ cmd: 'submit_feedback' })
   submitFeedback(@Payload() data: any) {
     return this.academicServiceService.submitFeedback(data);
+  }
+
+  @MessagePattern({ cmd: 'get_all_feedbacks' })
+  getAllFeedbacks() {
+    return this.academicServiceService.getAllFeedbacks();
   }
 
   @MessagePattern({ cmd: 'get_student_records' })
@@ -72,7 +97,9 @@ export class AcademicServiceController {
   }
 
   @MessagePattern({ cmd: 'get_student_assessments' })
-  async getStudentAssessments(@Payload() payload: { studentId?: number | null }) {
+  async getStudentAssessments(
+    @Payload() payload: { studentId?: number | null },
+  ) {
     try {
       return await this.academicServiceService.getStudentAssessments(
         payload?.studentId ?? undefined,
@@ -297,7 +324,18 @@ export class AcademicServiceController {
 
   @MessagePattern({ cmd: 'upsert_fee_config' })
   upsertFeeConfig(@Payload() data: Record<string, unknown>) {
-    return this.academicServiceService.getFeeConfigs(); // placeholder — no upsert method in service yet
+    return this.academicServiceService.createFeeConfig(data as any);
+  }
+
+  @MessagePattern({ cmd: 'update_fee_config' })
+  updateFeeConfig(@Payload() data: { id: number } & Record<string, unknown>) {
+    const { id, ...rest } = data;
+    return this.academicServiceService.updateFeeConfig(id, rest as any);
+  }
+
+  @MessagePattern({ cmd: 'delete_fee_config' })
+  deleteFeeConfig(@Payload() data: { id: number }) {
+    return this.academicServiceService.deleteFeeConfig(data.id);
   }
 
   @MessagePattern({ cmd: 'get_invoices' })
@@ -306,12 +344,21 @@ export class AcademicServiceController {
     return this.academicServiceService.getInvoicesByMonth(month);
   }
 
+  @MessagePattern({ cmd: 'get_invoices_by_class' })
+  getInvoicesByClass(@Payload() data: { classId: number; month: string }) {
+    return this.academicServiceService.getInvoicesByClass(data.classId, data.month);
+  }
+
+  @MessagePattern({ cmd: 'get_class_finance_summary' })
+  getClassFinanceSummary(@Payload() data: { classId: number; month: string }) {
+    return this.academicServiceService.getClassFinanceSummary(data.classId, data.month);
+  }
+
   @MessagePattern({ cmd: 'generate_monthly_invoices' })
   generateMonthlyInvoices(@Payload() data: { month: string }) {
     return this.academicServiceService.generateMonthlyInvoices({
       month: data.month,
-      tuitionAmount: 1500000,
-      mealDailyRate: 25000,
+      // tuitionAmount and mealDailyRate are now auto-read from fee_configs in DB
     });
   }
 
@@ -381,15 +428,17 @@ export class AcademicServiceController {
   @MessagePattern({ cmd: 'get_incidents_admin' })
   getIncidentsAdmin(
     @Payload()
-    data: { severity?: string; studentId?: number; limit?: number },
+    data: {
+      severity?: string;
+      studentId?: number;
+      limit?: number;
+    },
   ) {
     return this.academicServiceService.getIncidentsAdmin(data);
   }
 
   @MessagePattern({ cmd: 'acknowledge_incident' })
-  acknowledgeIncident(
-    @Payload() data: { id: number; parentUserId: number },
-  ) {
+  acknowledgeIncident(@Payload() data: { id: number; parentUserId: number }) {
     return this.academicServiceService.acknowledgeIncident(
       data.id,
       data.parentUserId,
@@ -432,9 +481,7 @@ export class AcademicServiceController {
   }
 
   @MessagePattern({ cmd: 'approve_leave_request' })
-  approveLeaveRequest(
-    @Payload() data: { id: number; adminUserId: number },
-  ) {
+  approveLeaveRequest(@Payload() data: { id: number; adminUserId: number }) {
     return this.academicServiceService.approveLeaveRequest(
       data.id,
       data.adminUserId,
@@ -487,8 +534,11 @@ export class AcademicServiceController {
   // ─── Teacher Class & Pickup Handlers ────────────────────────────────────────
 
   @MessagePattern({ cmd: 'get_teacher_class' })
-  getTeacherClass(@Payload() data: { userId: number }) {
-    return this.academicServiceService.getTeacherClass(data.userId);
+  getTeacherClass(@Payload() payload: { userId?: number; teacherId?: number }) {
+    return this.academicServiceService.getTeacherClass(
+      payload.userId,
+      payload.teacherId,
+    );
   }
 
   @MessagePattern({ cmd: 'get_class_pickups_today' })
@@ -543,7 +593,7 @@ export class AcademicServiceController {
   updateDailyMenu(@Payload() data: { id: number } & Record<string, unknown>) {
     const { id, ...rest } = data;
     return this.academicServiceService.updateDailyMenu(
-      id as number,
+      id,
       rest as Parameters<typeof this.academicServiceService.updateDailyMenu>[1],
     );
   }

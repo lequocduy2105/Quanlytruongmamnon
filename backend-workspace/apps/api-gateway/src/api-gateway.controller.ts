@@ -82,17 +82,24 @@ export class ApiGatewayController {
   }
 
   /**
-   * GET /api/teacher/dashboard
+   * GET /api/teacher/dashboard?teacherId=X
    * RBAC: TEACHER only
+   * teacherId query param: nếu có, dùng teacher ID trực tiếp (cho trường hợp gatekeeper bằng tên)
+   * Nếu không, fallback về userId từ JWT
    */
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('TEACHER')
   @Get('teacher/dashboard')
-  getTeacherDashboard(@Request() req: any) {
+  getTeacherDashboard(
+    @Request() req: any,
+    @Query('teacherId') teacherId?: string,
+  ) {
     return firstValueFrom(
       this.apiGatewayService['academicClient'].send(
         { cmd: 'get_teacher_dashboard' },
-        { userId: req.user.userId },
+        teacherId
+          ? { teacherId: Number(teacherId) } // dùng teacher.id trực tiếp
+          : { userId: req.user.userId }, // fallback JWT
       ),
     );
   }
@@ -318,6 +325,17 @@ export class ApiGatewayController {
   @Get('admin/deficiencies')
   getDeficiencyDetails() {
     return this.apiGatewayService.getDeficiencyDetails();
+  }
+
+  /**
+   * GET /api/admin/feedbacks
+   * RBAC: ADMIN only - xem toàn bộ đánh giá phụ huynh kèm thông tin giáo viên/học sinh
+   */
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Get('admin/feedbacks')
+  getAllFeedbacks() {
+    return this.apiGatewayService.getAllFeedbacks();
   }
 
   /**
@@ -568,6 +586,98 @@ export class ApiGatewayController {
   }
 
   /**
+   * PUT /api/finance/fee-configs/:id — cập nhật cấu hình học phí
+   */
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Put('finance/fee-configs/:id')
+  updateFeeConfig(@Param('id') id: string, @Body() body: object) {
+    return this.apiGatewayService.updateFeeConfig(Number(id), body);
+  }
+
+  /**
+   * DELETE /api/finance/fee-configs/:id — xoá cấu hình học phí
+   */
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Delete('finance/fee-configs/:id')
+  deleteFeeConfig(@Param('id') id: string) {
+    return this.apiGatewayService.deleteFeeConfig(Number(id));
+  }
+
+  /**
+   * GET /api/finance/invoices/by-class?classId=X&month=YYYY-MM — admin xem hóa đơn theo lớp
+   */
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Get('finance/invoices/by-class')
+  getInvoicesByClass(
+    @Query('classId') classId: string,
+    @Query('month') month?: string,
+  ) {
+    const m = month ?? new Date().toISOString().slice(0, 7);
+    return this.apiGatewayService.getInvoicesByClass(Number(classId), m);
+  }
+
+  /**
+   * GET /api/teacher/class-finance?month=YYYY-MM
+   * Giáo viên xem hóa đơn & tổng hợp tài chính lớp mình.
+   * Dùng classroom.teacher_id (FK từ phía classroom) thay vì teacher.class_id
+   * để tránh lỗi desync — classroom.teacher_id luôn được Admin set đúng.
+   */
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('TEACHER')
+  @Get('teacher/class-finance')
+  async getTeacherClassFinance(
+    @Request() req: any,
+    @Query('month') month?: string,
+  ) {
+    // Bước 1: Lấy thông tin teacher từ userId trong JWT
+    const teacher = await this.apiGatewayService.getTeacherByUserId(req.user.userId);
+    console.log('[DEBUG class-finance] userId=%s, teacher=%s', req.user.userId, JSON.stringify(teacher ? { id: teacher.id, name: teacher.full_name, classId: teacher.classId } : null));
+    if (!teacher) {
+      return { error: 'Không tìm thấy hồ sơ giáo viên.' };
+    }
+
+    // Bước 2: Lookup classroom từ phía classroom.teacher_id (nguồn dữ liệu đúng nhất)
+    const classroom = await this.apiGatewayService.getClassroomByTeacherId(teacher.id);
+    console.log('[DEBUG class-finance] classroom=%s', JSON.stringify(classroom));
+    if (!classroom) {
+      return { error: 'Bạn chưa được phân công lớp.' };
+    }
+
+    // Bước 3: Lấy tổng hợp tài chính theo classId đúng
+    const m = month ?? new Date().toISOString().slice(0, 7);
+    const summary = await this.apiGatewayService.getClassFinanceSummary(classroom.id, m);
+
+    // Bước 4: Override teacherName bằng tên giáo viên từ JWT — luôn đúng
+    if (summary && !summary.error) {
+      summary.teacherName = teacher.full_name ?? summary.teacherName;
+    }
+    return summary;
+  }
+
+  /**
+   * POST /api/teacher/finance/record-payment — giáo viên ghi nhận thu tiền
+   * Body: { invoiceId, amountPaid, note? }
+   */
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('TEACHER', 'ADMIN')
+  @Post('teacher/finance/record-payment')
+  async teacherRecordPayment(
+    @Body() body: { invoiceId: number; amountPaid: number; note?: string },
+    @Request() req: any,
+  ) {
+    return this.apiGatewayService.recordPayment({
+      invoiceId: body.invoiceId,
+      amount: body.amountPaid,
+      paymentMethod: 'cash',
+      note: body.note ?? null,
+      receivedBy: req.user.userId,
+    });
+  }
+
+  /**
    * GET /api/parent/my-invoices — hóa đơn của phụ huynh
    */
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -625,7 +735,7 @@ export class ApiGatewayController {
   ) {
     const user = req.user as { userId: number };
     return this.apiGatewayService.logMedicationGiven(Number(id), {
-      ...(body as object),
+      ...body,
       administeredBy: user.userId,
     });
   }
@@ -663,7 +773,7 @@ export class ApiGatewayController {
   createParentPickup(@Body() body: object, @Request() req: any) {
     const user = req.user as { userId: number };
     return this.apiGatewayService.createPickup({
-      ...(body as object),
+      ...body,
       createdBy: user.userId,
     } as any);
   }
@@ -764,7 +874,7 @@ export class ApiGatewayController {
   createMedicationForParent(@Body() body: object, @Request() req: any) {
     const user = req.user as { userId: number };
     return this.apiGatewayService.createMedication({
-      ...(body as object),
+      ...body,
       createdBy: user.userId,
     });
   }
@@ -805,7 +915,7 @@ export class ApiGatewayController {
       throw new ForbiddenException('Access denied: not your child.');
     }
     return this.apiGatewayService.createPickup({
-      ...(body as object),
+      ...body,
       studentId: Number(id),
       createdBy: req.user.userId,
     } as any);
@@ -832,7 +942,7 @@ export class ApiGatewayController {
     }
     return this.apiGatewayService.updatePickup({
       id: Number(pickupId),
-      ...(body as object),
+      ...body,
     } as any);
   }
 
@@ -863,10 +973,10 @@ export class ApiGatewayController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('TEACHER')
   @Post('teacher/incidents')
-  async createIncident(@Body() body: any, @Request() req: any) {
-    const teacher = await this.apiGatewayService.getTeacherByUserId(
-      req.user.userId,
-    );
+  async createIncident(@Body() body: any, @Request() req: any, @Query('teacherId') teacherId?: string) {
+    const teacher = teacherId
+      ? await this.apiGatewayService.getTeacherById(Number(teacherId))
+      : await this.apiGatewayService.getTeacherByUserId(req.user.userId);
     return this.apiGatewayService.createIncidentReport({
       ...body,
       teacherId: teacher?.id,
@@ -878,10 +988,10 @@ export class ApiGatewayController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('TEACHER')
   @Get('teacher/incidents')
-  async getTeacherIncidents(@Request() req: any) {
-    const teacher = await this.apiGatewayService.getTeacherByUserId(
-      req.user.userId,
-    );
+  async getTeacherIncidents(@Request() req: any, @Query('teacherId') teacherId?: string) {
+    const teacher = teacherId
+      ? await this.apiGatewayService.getTeacherById(Number(teacherId))
+      : await this.apiGatewayService.getTeacherByUserId(req.user.userId);
     return this.apiGatewayService.getIncidentsByTeacher(teacher?.id ?? 0);
   }
 
@@ -929,10 +1039,7 @@ export class ApiGatewayController {
   @Roles('ADMIN')
   @Put('admin/incidents/:id/review')
   reviewIncident(@Param('id') id: string, @Request() req: any) {
-    return this.apiGatewayService.reviewIncident(
-      Number(id),
-      req.user.userId,
-    );
+    return this.apiGatewayService.reviewIncident(Number(id), req.user.userId);
   }
 
   // ─── LEAVE REQUESTS ──────────────────────────────────────────────────────────
@@ -1086,8 +1193,11 @@ export class ApiGatewayController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('TEACHER')
   @Get('teacher/my-class')
-  getMyClass(@Request() req: any) {
-    return this.apiGatewayService.getTeacherClass(req.user.userId);
+  getMyClass(@Request() req: any, @Query('teacherId') teacherId?: string) {
+    return this.apiGatewayService.getTeacherClass(
+      teacherId ? undefined : req.user.userId,
+      teacherId ? Number(teacherId) : undefined,
+    );
   }
 
   /**
@@ -1098,10 +1208,10 @@ export class ApiGatewayController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('TEACHER')
   @Get('teacher/class-pickups')
-  async getClassPickups(@Request() req: any) {
-    const teacher = await this.apiGatewayService.getTeacherByUserId(
-      req.user.userId,
-    );
+  async getClassPickups(@Request() req: any, @Query('teacherId') teacherId?: string) {
+    const teacher = teacherId
+      ? await this.apiGatewayService.getTeacherById(Number(teacherId))
+      : await this.apiGatewayService.getTeacherByUserId(req.user.userId);
     if (!teacher?.classId) return [];
     return this.apiGatewayService.getClassPickupsToday(teacher.classId);
   }
@@ -1114,19 +1224,17 @@ export class ApiGatewayController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('TEACHER')
   @Get('teacher/medications-today')
-  async getTeacherMedicationsToday(@Request() req: any) {
-    const teacher = await this.apiGatewayService.getTeacherByUserId(
-      req.user.userId,
-    );
+  async getTeacherMedicationsToday(@Request() req: any, @Query('teacherId') teacherId?: string) {
+    const teacher = teacherId
+      ? await this.apiGatewayService.getTeacherById(Number(teacherId))
+      : await this.apiGatewayService.getTeacherByUserId(req.user.userId);
     if (!teacher?.classId) return [];
     return this.apiGatewayService.getMedicationsByClass(teacher.classId);
   }
 
-
   // =========================================================================
   // ADMIN — Student Emergency Info
   // =========================================================================
-
 
   /**
    * PUT /api/admin/students/:id/emergency-info
@@ -1149,10 +1257,7 @@ export class ApiGatewayController {
       medical_notes?: string;
     },
   ) {
-    return this.apiGatewayService.updateStudentEmergencyInfo(
-      Number(id),
-      body,
-    );
+    return this.apiGatewayService.updateStudentEmergencyInfo(Number(id), body);
   }
 
   // =========================================================================

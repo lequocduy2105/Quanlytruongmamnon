@@ -205,9 +205,6 @@ CREATE TABLE `attendance` (
     FOREIGN KEY (`student_id`) REFERENCES `students`(`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Bật lại kiểm tra khoá ngoại
-SET FOREIGN_KEY_CHECKS = 1;
-
 -- ============================================================
 -- TABLE: typeorm_metadata (required by TypeORM)
 -- TypeORM yêu cầu bảng này khi có các cột insert:false/update:false
@@ -299,7 +296,7 @@ CREATE TABLE `invoices` (
     `meal_daily_rate` DECIMAL(12,0) NOT NULL DEFAULT 0
                       COMMENT 'Tiền ăn/ngày',
     `meal_amount`     DECIMAL(12,0) GENERATED ALWAYS AS (`meal_days` * `meal_daily_rate`) STORED
-                      COMMENT 'Tiền ăn = meal_days × meal_daily_rate',
+                      COMMENT 'Tiền ăn = meal_days x meal_daily_rate',
     `other_fees`      DECIMAL(12,0) NOT NULL DEFAULT 0,
     `discount`        DECIMAL(12,0) NOT NULL DEFAULT 0,
     `total_amount`    DECIMAL(12,0) GENERATED ALWAYS AS
@@ -503,56 +500,63 @@ CREATE TABLE `daily_menus` (
 -- ============================================================
 -- SEED DATA — Tài khoản demo mặc định
 -- Mật khẩu: password123 (bcrypt rounds=10)
+-- user_id: admin=1, teacher=2, teacher2=3, teacher3=4, parent=5, parent2=6
 -- ============================================================
 INSERT INTO `users` (`email`, `password_hash`, `role`) VALUES
 ('admin@school.com',    '$2b$10$Jj2Iilh.pV71bOZ4e.OkqO/gi79VYkK7fEo9uFAASXBWHvbemBJsC', 'ADMIN'),
 ('teacher@school.com',  '$2b$10$Jj2Iilh.pV71bOZ4e.OkqO/gi79VYkK7fEo9uFAASXBWHvbemBJsC', 'TEACHER'),
 ('teacher2@school.com', '$2b$10$Jj2Iilh.pV71bOZ4e.OkqO/gi79VYkK7fEo9uFAASXBWHvbemBJsC', 'TEACHER'),
+('teacher3@school.com', '$2b$10$Jj2Iilh.pV71bOZ4e.OkqO/gi79VYkK7fEo9uFAASXBWHvbemBJsC', 'TEACHER'),
 ('parent@school.com',   '$2b$10$Jj2Iilh.pV71bOZ4e.OkqO/gi79VYkK7fEo9uFAASXBWHvbemBJsC', 'PARENT'),
 ('parent2@school.com',  '$2b$10$Jj2Iilh.pV71bOZ4e.OkqO/gi79VYkK7fEo9uFAASXBWHvbemBJsC', 'PARENT');
 
 -- ============================================================
 -- SEED DATA — Giáo viên demo
--- user_id khớp với bảng users ở trên (teacher = id 2, teacher2 = id 3)
+-- teacher id=1 → user_id=2  (teacher@school.com)
+-- teacher id=2 → user_id=3  (teacher2@school.com)
+-- teacher id=3 → user_id=4  (teacher3@school.com)
 -- ============================================================
 INSERT INTO `teachers` (`full_name`, `specializations`, `user_id`, `is_active`) VALUES
 ('Trần Ngọc Ánh',   'Giáo Dục Mầm Non',    2, 1),
-('Nguyễn Văn Minh', 'Thể Dục & Nghệ Thuật', 3, 1);
-
--- Sau khi INSERT classrooms, cập nhật class_id cho giáo viên
--- (dùng UPDATE vì cần classroom ID đã tồn tại trước)
+('Nguyễn Văn Minh', 'Thể Dục & Nghệ Thuật', 3, 1),
+('Lê Trung Khang',  'STEM & Công Nghệ',     4, 1);
 
 -- ============================================================
--- SEED DATA — Lớp học demo (teacher_id khớp với bảng teachers)
+-- SEED DATA — Lớp học demo
+-- classroom id=1 → teacher_id=1 (Trần Ngọc Ánh)
+-- classroom id=2 → teacher_id=2 (Nguyễn Văn Minh)
+-- classroom id=3 → teacher_id=3 (Lê Trung Khang)
 -- ============================================================
 INSERT INTO `classrooms` (`name`, `age_group`, `max_capacity`, `teacher_id`) VALUES
 ('Lớp Bướm Vui', '4-5 tuổi', 20, 1),
-('Lớp Sao Sáng', '5-6 tuổi', 20, 2);
+('Lớp Sao Sáng', '5-6 tuổi', 20, 2),
+('Lớp IT',        '4-5 tuổi', 20, 3);
 
 -- Gán lớp cho giáo viên (sau khi classrooms đã có ID)
-UPDATE `teachers` SET `class_id` = 1 WHERE `id` = 1; -- Trần Ngọc Ánh phụ trách Lớp Bướm Vui
+UPDATE `teachers` SET `class_id` = 1 WHERE `id` = 1; -- Trần Ngọc Ánh  phụ trách Lớp Bướm Vui
 UPDATE `teachers` SET `class_id` = 2 WHERE `id` = 2; -- Nguyễn Văn Minh phụ trách Lớp Sao Sáng
+UPDATE `teachers` SET `class_id` = 3 WHERE `id` = 3; -- Lê Trung Khang  phụ trách Lớp IT
 
 -- ============================================================
 -- SEED DATA — Học sinh demo
--- class_id: 1 = Lớp Bướm Vui, 2 = Lớp Sao Sáng
--- guardian_user_id: 4 = parent@school.com, 5 = parent2@school.com
--- date_of_birth: học sinh mầm non sinh khoảng 2019-2022
+-- class_id: 1=Lớp Bướm Vui, 2=Lớp Sao Sáng, 3=Lớp IT
+-- guardian_user_id: 5=parent@school.com, 6=parent2@school.com
 -- ============================================================
 INSERT INTO `students` (`full_name`, `class_id`, `guardian_user_id`, `allergy_tags`, `allergy_severity`, `emergency_contact_name`, `emergency_contact_phone`, `emergency_contact_relation`, `blood_type`, `date_of_birth`) VALUES
-('Lê Quốc Duy',    1, 4, 'Hải sản',          'SEVERE',       'Lê Văn Hùng',  '0901 234 567', 'Ba',  'O+', '2020-05-15'),
-('Nguyễn Thị Mai',  1, 4, NULL,                'NONE',         'Nguyễn Thị Lan','0912 345 678', 'Mẹ',  'A+', '2020-08-20'),
-('Trần Bảo Châu',  2, 5, 'Đậu phộng,Sữa bò', 'ANAPHYLACTIC', 'Trần Mạnh Hùng','0933 456 789', 'Ba',  'B+', '2019-11-10');
+('Lê Quốc Duy',   1, 5, 'Hải sản',           'SEVERE',       'Lê Văn Hùng',   '0901 234 567', 'Ba',  'O+', '2020-05-15'),
+('Nguyễn Thị Mai', 1, 5, NULL,                 'NONE',         'Nguyễn Thị Lan','0912 345 678', 'Mẹ',  'A+', '2020-08-20'),
+('Trần Bảo Châu', 2, 6, 'Đậu phộng,Sữa bò',  'ANAPHYLACTIC', 'Trần Mạnh Hùng','0933 456 789', 'Ba',  'B+', '2019-11-10'),
+('Hoàng Long',     3, NULL, NULL,               'NONE',         'Hoàng Văn Bình','0944 567 890', 'Ba',  'A+', '2020-03-22');
 
 -- ============================================================
 -- SEED DATA — Mẫu đánh giá kỹ năng
--- student_id: 1=Lê Quốc Duy, teacher_id: 1=Trần Ngọc Ánh
 -- ============================================================
 INSERT INTO `skill_assessments`
   (`student_id`, `teacher_id`, `cognitive_score`, `social_score`, `motor_score`, `emotional_score`, `deficiency_log`)
 VALUES
   (1, 1, 8.0, 7.5, 9.0, 8.5, NULL),
-  (2, 1, 7.0, 8.0, 7.5, 9.0, 'Cần cải thiện kỹ năng đọc');
+  (2, 1, 7.0, 8.0, 7.5, 9.0, 'Cần cải thiện kỹ năng đọc'),
+  (4, 3, 8.5, 9.0, 8.0, 7.5, NULL);  -- Hoàng Long - Lê Trung Khang đánh giá
 
 -- ============================================================
 -- SEED DATA — Nhật ký hoạt động mẫu
@@ -565,73 +569,118 @@ INSERT INTO `activity_logs` (`student_id`, `category`, `title`, `description`) V
 -- SEED DATA — Cấu hình học phí mẫu
 -- ============================================================
 INSERT INTO `fee_configs` (`class_id`, `fee_type`, `name`, `amount`, `billing_cycle`, `effective_from`, `created_by`) VALUES
-(NULL,  'tuition', 'Học phí tháng 4/2026',     1500000, 'monthly', '2026-04-01', 1),
-(NULL,  'meal',    'Tiền ăn (tính theo ngày)',   25000,  'daily',   '2026-04-01', 1),
-(NULL,  'other',   'Phí cơ sở vật chất Q2/2026', 200000, 'monthly', '2026-04-01', 1);
+(NULL, 'tuition', 'Học phí tháng 4/2026',      1500000, 'monthly', '2026-04-01', 1),
+(NULL, 'meal',    'Tiền ăn (tính theo ngày)',    25000,  'daily',   '2026-04-01', 1),
+(NULL, 'other',   'Phí cơ sở vật chất Q2/2026', 200000, 'monthly', '2026-04-01', 1);
 
 -- ============================================================
--- SEED DATA — Hóa đơn mẫu tháng 4/2026 (3 học sinh, 20 ngày ăn)
+-- SEED DATA — Hóa đơn mẫu tháng 4/2026 (4 học sinh, đủ cả 3 lớp)
+-- student 1,2 = Lớp Bướm Vui | 3 = Lớp Sao Sáng | 4 = Lớp IT
 -- ============================================================
 INSERT INTO `invoices` (`student_id`, `month`, `tuition_amount`, `meal_days`, `meal_daily_rate`, `other_fees`, `amount_paid`, `status`, `due_date`, `created_by`) VALUES
 (1, '2026-04', 1500000, 18, 25000, 200000, 1700000, 'partial', '2026-04-15', 1),
 (2, '2026-04', 1500000, 20, 25000, 200000, 0,       'pending', '2026-04-15', 1),
-(3, '2026-04', 1500000, 15, 25000, 200000, 2075000, 'paid',    '2026-04-15', 1);
+(3, '2026-04', 1500000, 15, 25000, 200000, 2075000, 'paid',    '2026-04-15', 1),
+(4, '2026-04', 1500000, 16, 25000, 200000, 0,       'pending', '2026-04-15', 1);
 
 -- ============================================================
--- SEED DATA — Lịch uống thuốc mẫu (học sinh 1 đang uống kháng sinh)
+-- SEED DATA — Lịch uống thuốc mẫu
 -- ============================================================
 INSERT INTO `medication_schedules` (`student_id`, `medication_name`, `dosage`, `frequency`, `time_morning`, `time_noon`, `start_date`, `end_date`, `prescription_note`, `is_active`, `created_by`) VALUES
-(1, 'Amoxicillin 250mg', '1 gói pha với nước ấm', 'twice_daily', '07:30:00', '11:30:00', '2026-04-08', '2026-04-14', 'Kháng sinh theo đơn BS. Nguyễn - Bệnh viện Nhi', 1, 4),
-(2, 'Vitamin D3 400IU',  '1 viên nhai',           'once_daily',  '07:30:00', NULL,       '2026-04-01', NULL,         'Bổ sung vitamin D theo chỉ định',                1, 4);
+(1, 'Amoxicillin 250mg', '1 gói pha với nước ấm', 'twice_daily', '07:30:00', '11:30:00', '2026-04-08', '2026-04-14', 'Kháng sinh theo đơn BS. Nguyễn - Bệnh viện Nhi', 1, 5),
+(2, 'Vitamin D3 400IU',  '1 viên nhai',           'once_daily',  '07:30:00', NULL,       '2026-04-01', NULL,         'Bổ sung vitamin D theo chỉ định',                1, 5);
 
 -- ============================================================
--- SEED DATA — Thông báo mẫu (cho phụ huynh id 4 và 5)
+-- SEED DATA — Thông báo mẫu
+-- recipient: 5=parent@school.com, 6=parent2@school.com, 1=admin
 -- ============================================================
 INSERT INTO `notifications` (`recipient_user_id`, `type`, `title`, `body`, `link_url`, `is_read`, `related_id`) VALUES
-(4, 'invoice',    'Hóa đơn tháng 4/2026',             'Hóa đơn tháng 4/2026 đã được tạo. Số tiền cần thanh toán: 500,000 ₫',              '/parent/invoices', 0, 1),
-(4, 'medication', 'Nhắc thuốc: Amoxicillin',           'Lê Quốc Duy cần uống Amoxicillin lúc 11:30 hôm nay',                               '/parent/dashboard', 0, 1),
-(4, 'attendance', 'Điểm danh hôm nay',                 'Lê Quốc Duy đã có mặt tại lớp Bướm Vui.',                                          '/parent/dashboard', 1, NULL),
-(5, 'invoice',    'Hóa đơn tháng 4/2026 đã thanh toán','Hóa đơn tháng 4/2026 của Trần Bảo Châu đã được thanh toán đầy đủ.',                '/parent/invoices',  0, 3),
-(1, 'announcement','Họp phụ huynh cuối tháng',         'Kính mời phụ huynh tham dự buổi họp tổng kết tháng 4 lúc 17h ngày 30/04/2026.',    NULL,               0, NULL);
+(5, 'invoice',    'Hóa đơn tháng 4/2026',              'Hóa đơn tháng 4/2026 đã được tạo. Số tiền cần thanh toán: 500,000 đ',            '/parent/invoices',  0, 1),
+(5, 'medication', 'Nhắc thuốc: Amoxicillin',            'Lê Quốc Duy cần uống Amoxicillin lúc 11:30 hôm nay',                             '/parent/dashboard', 0, 1),
+(5, 'attendance', 'Điểm danh hôm nay',                  'Lê Quốc Duy đã có mặt tại lớp Bướm Vui.',                                        '/parent/dashboard', 1, NULL),
+(6, 'invoice',    'Hóa đơn tháng 4/2026 đã thanh toán', 'Hóa đơn tháng 4/2026 của Trần Bảo Châu đã được thanh toán đầy đủ.',              '/parent/invoices',  0, 3),
+(1, 'announcement','Họp phụ huynh cuối tháng',          'Kính mời phụ huynh tham dự buổi họp tổng kết tháng 4 lúc 17h ngày 30/04/2026.', NULL,                0, NULL);
+
+-- ============================================================
+-- SEED DATA — Hồ sơ sức khoẻ học sinh (BMI cho admin dashboard)
+-- BMI = weight / (height/100)^2
+-- Ngưỡng mầm non: <14.5=thiếu cân, 14.5-17.4=bình thường, >=17.5=thừa cân
+-- ============================================================
+INSERT INTO `health_records` (`student_id`, `weight`, `height`, `heart_rate`, `bmi_value`, `doctor_note`, `logged_at`) VALUES
+(1, 18.5, 108.0, 90, 15.87, 'Sức khoẻ tốt, phát triển đúng chuẩn',              '2026-04-01 08:00:00'),
+(2, 17.2, 110.0, 88, 14.21, 'Cân nặng hơi thấp, cần theo dõi',                  '2026-04-01 08:15:00'),
+(3, 22.0, 112.0, 92, 17.54, 'Cân nặng hơi cao. Khuyến nghị điều chỉnh chế độ ăn','2026-04-01 08:30:00'),
+(4, 19.0, 109.0, 86, 15.99, 'Sức khoẻ bình thường',                              '2026-04-01 08:45:00'),
+(1, 18.8, 108.5, 91, 15.98, 'Tăng cân đều, ổn định',                             '2026-04-08 08:00:00'),
+(4, 19.2, 109.5, 87, 16.00, 'Ổn định',                                           '2026-04-08 08:30:00');
+
+-- ============================================================
+-- SEED DATA — Đánh giá phụ huynh (feedbacks)
+-- teacher_id: 1=Trần Ngọc Ánh, 2=Nguyễn Văn Minh, 3=Lê Trung Khang
+-- parent_user_id: 5=parent@school.com, 6=parent2@school.com
+-- ============================================================
+INSERT INTO `feedbacks` (`parent_user_id`, `teacher_id`, `student_id`, `rating`, `comment`, `submitted_at`) VALUES
+(5, 1, 1, 5.0, 'Cô Ánh rất nhiệt tình và tận tâm với các con. Con tôi rất thích đến lớp!', '2026-04-05 18:30:00'),
+(5, 1, 2, 4.5, 'Giáo viên chuyên nghiệp, luôn thông báo tình hình của bé kịp thời.',        '2026-04-06 19:00:00'),
+(6, 3, 3, 4.0, 'Thầy Khang dạy bé rất bài bản. Bé có nhiều tiến bộ trong tháng này.',      '2026-04-07 20:00:00');
+
+-- ============================================================
+-- FIX: Đồng bộ 2 chiều teacher_id <-> class_id sau khi INSERT xong
+-- classrooms.teacher_id và teachers.class_id phải khớp nhau
+-- Chạy cuối cùng để đảm bảo dữ liệu nhất quán
+-- ============================================================
+UPDATE `classrooms` SET `teacher_id` = 1 WHERE `id` = 1;  -- Lớp Bướm Vui -> Trần Ngọc Ánh  (teacher id=1)
+UPDATE `classrooms` SET `teacher_id` = 2 WHERE `id` = 2;  -- Lớp Sao Sáng -> Nguyễn Văn Minh (teacher id=2)
+UPDATE `classrooms` SET `teacher_id` = 3 WHERE `id` = 3;  -- Lớp IT        -> Lê Trung Khang  (teacher id=3)
+
+UPDATE `teachers` SET `class_id` = 1 WHERE `id` = 1;  -- Trần Ngọc Ánh   -> Lớp Bướm Vui (classroom id=1)
+UPDATE `teachers` SET `class_id` = 2 WHERE `id` = 2;  -- Nguyễn Văn Minh -> Lớp Sao Sáng (classroom id=2)
+UPDATE `teachers` SET `class_id` = 3 WHERE `id` = 3;  -- Lê Trung Khang  -> Lớp IT        (classroom id=3)
+
+-- Bật lại kiểm tra khoá ngoại
+SET FOREIGN_KEY_CHECKS = 1;
 
 -- ============================================================
 -- Giải thích ý nghĩa từng bảng đối với đề tài:
 --
--- users              → Xác thực đăng nhập (3 vai trò: Admin, Giáo viên, Phụ huynh)
--- teachers           → Hồ sơ giáo viên, chuyên môn giảng dạy
--- classrooms         → Lớp học mầm non, phân công giáo viên, sĩ số
--- students           → Học sinh, thông tin dị ứng, liên kết phụ huynh & lớp học
--- skill_assessments  → Đánh giá 4 tiêu chí phát triển: nhận thức, xã hội, vận động, cảm xúc
--- health_records     → Theo dõi sức khoẻ định kỳ: cân nặng, chiều cao, BMI, nhịp tim
--- activity_logs      → Nhật ký hoạt động hàng ngày của học sinh
--- feedbacks          → Phản hồi 2 chiều: phụ huynh đánh giá giáo viên/nhà trường
--- attendance         → Điểm danh mỗi ngày (học sinh × ngày) — UNIQUE để tránh trùng
--- authorized_pickups → Danh sách người được ủy quyền đón trẻ
--- fee_configs        → Cấu hình học phí theo loại (học phí, tiền ăn, phí khác)
--- invoices           → Hóa đơn học phí mỗi tháng mỗi học sinh (tự động tính)
--- payments           → Lịch sử ghi nhận thanh toán hóa đơn
--- notifications      → Hệ thống thông báo 2 chiều (Admin ↔ Phụ huynh ↔ Giáo viên)
--- medication_schedules → Lịch uống thuốc kê đơn, phụ huynh nhập
--- medication_logs    → Nhật ký giáo viên xác nhận đã cho uống thuốc mỗi lần
+-- users                -> Xác thực đăng nhập (3 vai trò: Admin, Giáo viên, Phụ huynh)
+-- teachers             -> Hồ sơ giáo viên, chuyên môn giảng dạy
+-- classrooms           -> Lớp học mầm non, phân công giáo viên, sĩ số
+-- students             -> Học sinh, thông tin dị ứng, liên kết phụ huynh & lớp học
+-- skill_assessments    -> Đánh giá 4 tiêu chí phát triển
+-- health_records       -> Theo dõi sức khoẻ định kỳ: cân nặng, chiều cao, BMI, nhịp tim
+-- activity_logs        -> Nhật ký hoạt động hàng ngày của học sinh
+-- feedbacks            -> Phản hồi 2 chiều: phụ huynh đánh giá giáo viên/nhà trường
+-- attendance           -> Điểm danh mỗi ngày (học sinh x ngày) - UNIQUE
+-- authorized_pickups   -> Danh sách người được ủy quyền đón trẻ
+-- fee_configs          -> Cấu hình học phí theo loại (học phí, tiền ăn, phí khác)
+-- invoices             -> Hóa đơn học phí mỗi tháng mỗi học sinh (tự động tính)
+-- payments             -> Lịch sử ghi nhận thanh toán hóa đơn
+-- notifications        -> Hệ thống thông báo 2 chiều
+-- medication_schedules -> Lịch uống thuốc kê đơn, phụ huynh nhập
+-- medication_logs      -> Nhật ký giáo viên xác nhận đã cho uống thuốc mỗi lần
 -- ============================================================
 
 -- ============================================================
 -- HƯỚNG DẪN SỬ DỤNG SAU KHI CHẠY SCRIPT NÀY:
 -- -----------------------------------------------------------
 -- Admin:        admin@school.com    / password123
--- Giáo viên 1: teacher@school.com  / password123  (Trần Ngọc Ánh - Lớp Bướm Vui)
+-- Giáo viên 1: teacher@school.com  / password123  (Trần Ngọc Ánh  - Lớp Bướm Vui)
 -- Giáo viên 2: teacher2@school.com / password123  (Nguyễn Văn Minh - Lớp Sao Sáng)
+-- Giáo viên 3: teacher3@school.com / password123  (Lê Trung Khang  - Lớp IT)
 -- Phụ huynh 1: parent@school.com   / password123  (con: Lê Quốc Duy, Nguyễn Thị Mai)
 -- Phụ huynh 2: parent2@school.com  / password123  (con: Trần Bảo Châu)
 --
--- ĐỂ LINK CON (phụ huynh 1 - Lê Quốc Duy):
+-- DE LINK CON (phụ huynh 1 - Lê Quốc Duy):
 --   Họ tên: Lê Quốc Duy
 --   Ngày sinh: 2020-05-15
 --   Lớp: Lớp Bướm Vui
 --
--- DỮ LIỆU MẪU:
---   - 3 hóa đơn tháng 4/2026 (partial, pending, paid)
+-- DU LIEU MAU (sau khi chạy 1 lần):
+--   - 4 hóa đơn tháng 4/2026 (partial, pending x2, paid) - đủ cả 3 lớp
+--   - 6 hồ sơ sức khoẻ (2 đợt đo cho 4 học sinh)
+--   - 3 đánh giá phụ huynh (đúng teacher_id)
 --   - 2 đơn thuốc đang hoạt động
---   - 5 thông báo (3 cho phụ huynh 1, 2 cho phụ huynh 2 và admin)
+--   - 5 thông báo
+--   - Teacher <-> Classroom đồng bộ hoàn toàn 2 chiều
 -- ============================================================
-

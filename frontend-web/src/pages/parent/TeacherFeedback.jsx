@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { useOutletContext } from "react-router-dom";
 import api from "../../api/axiosClient";
 import { useLang } from "../../contexts/LangContext";
 import { useToast } from "../../components/Toast";
 
 export default function TeacherFeedback() {
+  const { activeStudent } = useOutletContext();
   const { lang } = useLang();
   const vi = lang === "vi";
   const toast = useToast();
@@ -21,17 +23,13 @@ export default function TeacherFeedback() {
   useEffect(() => {
     const load = async () => {
       try {
-        // Lấy con của phụ huynh
-        const childRes = await api.get("/parent/my-children");
-        const children = childRes.data || [];
-        if (children.length === 0) {
+        if (!activeStudent) {
           setLoading(false);
           return;
         }
-        const child = children[0];
 
         // Lấy hồ sơ học sinh (bao gồm classTeacher)
-        const recordRes = await api.get(`/parent/student/${child.id}/records`);
+        const recordRes = await api.get(`/parent/student/${activeStudent.id}/records`);
         if (recordRes.data && !recordRes.data.error) {
           setStudent(recordRes.data.student);
           setTeacher(recordRes.data.classTeacher || null);
@@ -46,7 +44,7 @@ export default function TeacherFeedback() {
       }
     };
     load();
-  }, []);
+  }, [activeStudent]);
 
   const starLabels = vi
     ? ["", "Rất Tệ", "Tệ", "Bình Thường", "Tốt", "Xuất Sắc"]

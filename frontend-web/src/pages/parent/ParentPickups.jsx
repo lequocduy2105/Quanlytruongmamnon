@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useOutletContext } from "react-router-dom";
 import api from "../../api/axiosClient";
 
 function fmtDate(d) {
@@ -12,8 +13,7 @@ function isExpired(validUntil) {
 }
 
 export default function ParentPickups() {
-  const [children, setChildren] = useState([]);
-  const [selectedChildId, setSelectedChildId] = useState(null);
+  const { activeStudent } = useOutletContext();
   const [pickups, setPickups] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
@@ -29,23 +29,8 @@ export default function ParentPickups() {
   });
 
   useEffect(() => {
-    fetchChildren();
-  }, []);
-
-  useEffect(() => {
-    if (selectedChildId) fetchPickups(selectedChildId);
-  }, [selectedChildId]);
-
-  const fetchChildren = async () => {
-    try {
-      const res = await api.get("/parent/my-children");
-      const list = res.data || [];
-      setChildren(list);
-      if (list.length > 0) setSelectedChildId(list[0].id);
-    } catch {
-      setChildren([]);
-    }
-  };
+    if (activeStudent) fetchPickups(activeStudent.id);
+  }, [activeStudent]);
 
   const fetchPickups = async (studentId) => {
     setLoading(true);
@@ -81,8 +66,8 @@ export default function ParentPickups() {
   const handleDelete = async (id) => {
     if (!window.confirm("Xoá ủy quyền này?")) return;
     try {
-      await api.delete(`/parent/student/${selectedChildId}/pickup/${id}`);
-      fetchPickups(selectedChildId);
+      await api.delete(`/parent/student/${activeStudent.id}/pickup/${id}`);
+      fetchPickups(activeStudent.id);
     } catch {
       alert("Không thể xoá. Vui lòng thử lại.");
     }
@@ -94,12 +79,12 @@ export default function ParentPickups() {
     setSaving(true);
     try {
       if (editId) {
-        await api.put(`/parent/student/${selectedChildId}/pickup/${editId}`, form);
+        await api.put(`/parent/student/${activeStudent.id}/pickup/${editId}`, form);
       } else {
-        await api.post(`/parent/student/${selectedChildId}/pickups`, form);
+        await api.post(`/parent/student/${activeStudent.id}/pickups`, form);
       }
       setShowForm(false);
-      fetchPickups(selectedChildId);
+      fetchPickups(activeStudent.id);
     } catch {
       alert("Lỗi khi lưu. Vui lòng thử lại.");
     } finally {
@@ -134,7 +119,7 @@ export default function ParentPickups() {
         </div>
         <button
           onClick={openAdd}
-          disabled={!selectedChildId}
+          disabled={!activeStudent}
           className="flex items-center gap-2 bg-cyan-800 hover:bg-cyan-900 text-white font-bold px-5 py-2.5 rounded-2xl transition-colors shadow disabled:opacity-50"
         >
           <span className="material-symbols-outlined text-[18px]">person_add</span>
@@ -157,24 +142,7 @@ export default function ParentPickups() {
         </div>
       </div>
 
-      {/* ─── Child Selector ─── */}
-      {children.length > 1 && (
-        <div className="flex gap-3">
-          {children.map((c) => (
-            <button
-              key={c.id}
-              onClick={() => setSelectedChildId(c.id)}
-              className={`px-5 py-2 rounded-2xl font-bold text-sm transition-all ${
-                selectedChildId === c.id
-                  ? "bg-cyan-800 text-white shadow"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
-              }`}
-            >
-              {c.full_name}
-            </button>
-          ))}
-        </div>
-      )}
+      {/* Removed Child Selector Since Gatekeeper Handles It */}
 
       {/* ─── Add/Edit Modal ─── */}
       {showForm && (

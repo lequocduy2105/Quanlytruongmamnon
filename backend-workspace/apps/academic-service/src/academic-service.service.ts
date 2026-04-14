@@ -15,9 +15,17 @@ import { Payment } from './entities/payment.entity';
 import { Notification, NotificationType } from './entities/notification.entity';
 import { MedicationSchedule } from './entities/medication-schedule.entity';
 import { MedicationLog } from './entities/medication-log.entity';
-import { IncidentReport, IncidentType, IncidentSeverity } from './entities/incident-report.entity';
+import {
+  IncidentReport,
+  IncidentType,
+  IncidentSeverity,
+} from './entities/incident-report.entity';
 import { LeaveRequest, LeaveStatus } from './entities/leave-request.entity';
-import { SupportTicket, TicketCategory, TicketStatus } from './entities/support-ticket.entity';
+import {
+  SupportTicket,
+  TicketCategory,
+  TicketStatus,
+} from './entities/support-ticket.entity';
 import { DailyMenu } from './entities/daily-menu.entity';
 
 @Injectable()
@@ -73,16 +81,47 @@ export class AcademicServiceService {
     });
   }
 
+  /** Teacher lookup by primary key ID (for gatekeeper contexts) */
+  async getTeacherById(teacherId: number) {
+    return this.teacherRepo.findOne({
+      where: { id: teacherId },
+      relations: ['classroom'],
+    });
+  }
+
+  /**
+   * Lookup classroom mà teacher đang phụ trách, dựa trên classrooms.teacher_id.
+   * Dùng raw SQL để tránh mọi vấn đề mapping TypeORM relation.
+   * Đây là nguồn dữ liệu chính xác nhất.
+   */
+  async getClassroomByTeacherId(teacherId: number) {
+    const rows: { id: number; name: string; teacher_id: number }[] =
+      await this.classRepo.manager.query(
+        'SELECT id, name, teacher_id FROM classrooms WHERE teacher_id = ? LIMIT 1',
+        [teacherId],
+      );
+    if (!rows || rows.length === 0) return null;
+    return { id: rows[0].id, name: rows[0].name };
+  }
+
   /**
    * Lấy thông tin lớp + danh sách học sinh mà giáo viên phụ trách.
    * Dùng teacher.classId thay vì heuristic cũ.
    */
-  async getTeacherClass(userId: number) {
-    const teacher = await this.teacherRepo.findOne({ where: { userId } });
-    if (!teacher || !teacher.classId) return null;
+  async getTeacherClass(userId?: number, teacherId?: number) {
+    let teacher: Teacher | null = null;
 
+    if (teacherId) {
+      teacher = await this.teacherRepo.findOne({ where: { id: teacherId } });
+    } else if (userId) {
+      teacher = await this.teacherRepo.findOne({ where: { userId } });
+    }
+
+    if (!teacher) return null;
+
+    // Use classroom's teacher relation because teacher.classId might be inconsistently null in DB
     const classroom = await this.classRepo.findOne({
-      where: { id: teacher.classId },
+      where: [{ id: teacher.classId ?? undefined }, { teacher: { id: teacher.id } }],
       relations: ['students'],
     });
     return classroom;
@@ -179,21 +218,19 @@ export class AcademicServiceService {
   }
 
   /** Tạo thực đơn ngày mới + tự động phát hiện xung đột dị ứng */
-  async createDailyMenu(
-    data: {
-      menu_date: string;
-      classId?: number | null;
-      breakfast_main?: string;
-      breakfast_ingredients?: string;
-      lunch_main?: string;
-      lunch_soup?: string;
-      lunch_ingredients?: string;
-      snack_main?: string;
-      snack_ingredients?: string;
-      notes?: string;
-      createdBy: number;
-    },
-  ) {
+  async createDailyMenu(data: {
+    menu_date: string;
+    classId?: number | null;
+    breakfast_main?: string;
+    breakfast_ingredients?: string;
+    lunch_main?: string;
+    lunch_soup?: string;
+    lunch_ingredients?: string;
+    snack_main?: string;
+    snack_ingredients?: string;
+    notes?: string;
+    createdBy: number;
+  }) {
     const menu = this.dailyMenuRepo.create(data);
     const saved = await this.dailyMenuRepo.save(menu);
 
@@ -244,7 +281,11 @@ export class AcademicServiceService {
       .andWhere('s.allergy_tags IS NOT NULL')
       .getMany();
 
-    const warnings: { studentName: string; allergen: string; severity: string }[] = [];
+    const warnings: {
+      studentName: string;
+      allergen: string;
+      severity: string;
+    }[] = [];
     const ingredientLower = allIngredients.toLowerCase();
 
     for (const student of students) {
@@ -296,7 +337,53 @@ export class AcademicServiceService {
       assessments,
       deficiencies,
       rating,
+      ratingCount: feedbackList.length,
     };
+  }
+
+  /**
+   * getAllFeedbacks — Lấy toàn bộ đánh giá phụ huynh kèm thông tin giáo viên/học sinh
+   */
+  async getAllFeedbacks() {
+    const feedbacks = await this.feedbackRepo.find({
+      order: { submittedAt: 'DESC' },
+    });
+
+    // Gắn tên giáo viên và học sinh nếu có
+    const enriched = await Promise.all(
+      feedbacks.map(async (f) => {
+        let teacherName: string | null = null;
+        let studentName: string | null = null;
+
+        if (f.teacherId) {
+          const teacher = await this.teacherRepo.findOne({
+            where: { id: f.teacherId },
+            select: ['full_name'],
+          });
+          teacherName = teacher?.full_name ?? null;
+        }
+        if (f.studentId) {
+          const student = await this.studentRepo.findOne({
+            where: { id: f.studentId },
+            select: ['full_name'],
+          });
+          studentName = student?.full_name ?? null;
+        }
+
+        return {
+          id: f.id,
+          rating: Number(f.rating),
+          comment: f.comment,
+          teacherId: f.teacherId,
+          teacherName,
+          studentId: f.studentId,
+          studentName,
+          submittedAt: f.submittedAt,
+        };
+      }),
+    );
+
+    return enriched;
   }
 
   async getClasses() {
@@ -312,7 +399,7 @@ export class AcademicServiceService {
   }
 
   async getTeachers() {
-    return this.teacherRepo.find();
+    return this.teacherRepo.find({ relations: ['classroom'] });
   }
 
   async getStudents() {
@@ -403,8 +490,15 @@ export class AcademicServiceService {
     return this.studentRepo.save(student);
   }
 
-  async getTeacherDashboard(userId: number) {
-    const teacher = await this.teacherRepo.findOne({ where: { userId } });
+  async getTeacherDashboard(userId?: number, teacherId?: number) {
+    // Ưu tiên teacherId nếu có (gatekeeper bằng tên, không cần userId link)
+    let teacher: Teacher | null = null;
+    if (teacherId) {
+      teacher = await this.teacherRepo.findOne({ where: { id: teacherId } });
+    } else if (userId) {
+      teacher = await this.teacherRepo.findOne({ where: { userId } });
+    }
+
     if (!teacher)
       return {
         attendance: { present: 0, absent: 0, late: 0 },
@@ -679,7 +773,6 @@ export class AcademicServiceService {
     return this.activityLogRepo.save(log);
   }
 
-
   async createClassroom(data: {
     class_name: string;
     age_group: string;
@@ -695,7 +788,15 @@ export class AcademicServiceService {
       max_capacity: data.capacity,
       teacher: teacher || undefined,
     });
-    return this.classRepo.save(classroom);
+    const savedClassroom = await this.classRepo.save(classroom);
+    
+    // Sync teacher class_id
+    if (teacher) {
+      teacher.classId = savedClassroom.id;
+      await this.teacherRepo.save(teacher);
+    }
+    
+    return savedClassroom;
   }
 
   async createTeacher(data: { full_name: string; specializations?: string }) {
@@ -755,12 +856,28 @@ export class AcademicServiceService {
     if (data.capacity !== undefined) classroom.max_capacity = data.capacity;
     if (data.teacher_id !== undefined) {
       if (data.teacher_id === null) {
+        if (classroom.teacher) {
+          classroom.teacher.classId = null;
+          await this.teacherRepo.save(classroom.teacher);
+        }
         classroom.teacher = null as any;
       } else {
         const teacher = await this.teacherRepo.findOne({
           where: { id: data.teacher_id },
         });
+        
+        // Remove old teacher's class_id if assigning a new teacher
+        if (classroom.teacher && classroom.teacher.id !== data.teacher_id) {
+          classroom.teacher.classId = null;
+          await this.teacherRepo.save(classroom.teacher);
+        }
+
         classroom.teacher = teacher || (null as any);
+        
+        if (teacher) {
+          teacher.classId = classroom.id;
+          await this.teacherRepo.save(teacher);
+        }
       }
     }
 
@@ -1040,6 +1157,30 @@ export class AcademicServiceService {
     return this.feeConfigRepo.find({ order: { createdAt: 'DESC' } });
   }
 
+  /** Cập nhật cấu hình học phí */
+  async updateFeeConfig(
+    id: number,
+    data: {
+      name?: string;
+      amount?: number;
+      billingCycle?: string;
+      effectiveFrom?: string;
+      effectiveUntil?: string | null;
+      note?: string | null;
+    },
+  ) {
+    await this.feeConfigRepo.update(id, data as any);
+    return this.feeConfigRepo.findOne({ where: { id } });
+  }
+
+  /** Xoá cấu hình học phí */
+  async deleteFeeConfig(id: number) {
+    const existing = await this.feeConfigRepo.findOne({ where: { id } });
+    if (!existing) return { success: false, message: 'Không tìm thấy cấu hình.' };
+    await this.feeConfigRepo.remove(existing);
+    return { success: true };
+  }
+
   /** Tạo cấu hình học phí mới */
   async createFeeConfig(data: {
     classId?: number | null;
@@ -1177,33 +1318,145 @@ export class AcademicServiceService {
     };
   }
 
+
   /**
    * Tạo hóa đơn hàng loạt cho tất cả học sinh trong 1 tháng.
+   * Tự động đọc tuitionAmount và mealDailyRate từ bảng fee_configs.
    */
   async generateMonthlyInvoices(data: {
     month: string;
-    tuitionAmount: number;
-    mealDailyRate: number;
+    tuitionAmount?: number;   // optional override
+    mealDailyRate?: number;   // optional override
     dueDate?: string | null;
     createdBy?: number | null;
   }) {
-    const students = await this.studentRepo.find({ select: ['id'] });
+    // Đọc fee config từ DB (ưu tiên config mới nhất còn hiệu lực)
+    const today = new Date().toISOString().slice(0, 10);
+    const allConfigs = await this.feeConfigRepo.find({
+      order: { createdAt: 'DESC' },
+    });
+
+    // Lấy học phí hàng tháng (tuition)
+    const tuitionConfig = allConfigs.find(
+      (c) =>
+        c.feeType === 'tuition' &&
+        c.billingCycle === 'monthly' &&
+        c.effectiveFrom <= data.month + '-01' &&
+        (c.effectiveUntil === null || c.effectiveUntil >= data.month + '-01'),
+    );
+    // Lấy tiền ăn hàng ngày (meal)
+    const mealConfig = allConfigs.find(
+      (c) =>
+        c.feeType === 'meal' &&
+        c.billingCycle === 'daily' &&
+        c.effectiveFrom <= data.month + '-01' &&
+        (c.effectiveUntil === null || c.effectiveUntil >= data.month + '-01'),
+    );
+
+    const tuitionAmount =
+      data.tuitionAmount ?? Number(tuitionConfig?.amount ?? 1500000);
+    const mealDailyRate =
+      data.mealDailyRate ?? Number(mealConfig?.amount ?? 25000);
+
+    // Tính due date mặc định: ngày 15 tháng tiếp theo
+    const [yr, mo] = data.month.split('-');
+    const nextMonth = mo === '12'
+      ? `${Number(yr) + 1}-01`
+      : `${yr}-${String(Number(mo) + 1).padStart(2, '0')}`;
+    const defaultDueDate = data.dueDate ?? `${nextMonth}-15`;
+
+    const students = await this.studentRepo.find({ select: ['id', 'full_name'] });
     const results = await Promise.all(
       students.map((s) =>
         this.upsertInvoice({
           studentId: s.id,
           month: data.month,
-          tuitionAmount: data.tuitionAmount,
-          mealDailyRate: data.mealDailyRate,
-          dueDate: data.dueDate,
+          tuitionAmount,
+          mealDailyRate,
+          dueDate: defaultDueDate,
           createdBy: data.createdBy,
         }),
       ),
     );
     const created = results.filter((r) => r.action === 'created').length;
     const updated = results.filter((r) => r.action === 'updated').length;
-    return { success: true, total: students.length, created, updated };
+    return {
+      success: true,
+      total: students.length,
+      created,
+      updated,
+      tuitionAmount,
+      mealDailyRate,
+      usedConfig: {
+        tuition: tuitionConfig?.name ?? '(mặc định)',
+        meal: mealConfig?.name ?? '(mặc định)',
+      },
+    };
   }
+
+  /**
+   * Lấy hóa đơn theo lớp (giáo viên / BGH xem theo lớp).
+   */
+  async getInvoicesByClass(classId: number, month: string) {
+    // Lấy học sinh của lớp
+    const students = await this.studentRepo.find({
+      where: { classroom: { id: classId } },
+      select: ['id', 'full_name'],
+      relations: ['classroom'],
+    });
+    if (students.length === 0) return [];
+
+    const studentIds = students.map((s) => s.id);
+    const studentMap = new Map(students.map((s) => [s.id, s.full_name]));
+
+    const invoices = await this.invoiceRepo
+      .createQueryBuilder('inv')
+      .where('inv.studentId IN (:...ids)', { ids: studentIds })
+      .andWhere('inv.month = :month', { month })
+      .orderBy('inv.studentId', 'ASC')
+      .getMany();
+
+    return invoices.map((inv) => ({
+      ...inv,
+      studentName: studentMap.get(inv.studentId) ?? `Học sinh #${inv.studentId}`,
+    }));
+  }
+
+  /**
+   * Tổng hợp tài chính của một lớp trong một tháng (giáo viên báo cáo BGH).
+   */
+  async getClassFinanceSummary(classId: number, month: string) {
+    const invoices = await this.getInvoicesByClass(classId, month);
+    const classroom = await this.classRepo.findOne({
+      where: { id: classId },
+      relations: ['teacher'],
+    });
+
+    const totalBilled = invoices.reduce((s, i) => s + Number(i.totalAmount ?? 0), 0);
+    const totalCollected = invoices.reduce((s, i) => s + Number(i.amountPaid), 0);
+    const totalRemaining = totalBilled - totalCollected;
+    return {
+      classId,
+      className: classroom?.name ?? `Lớp #${classId}`,
+      teacherName: classroom?.teacher?.full_name ?? null,
+      month,
+      totalStudents: invoices.length,
+      statusBreakdown: {
+        paid: invoices.filter((i) => i.status === 'paid').length,
+        partial: invoices.filter((i) => i.status === 'partial').length,
+        pending: invoices.filter((i) => i.status === 'pending').length,
+        overdue: invoices.filter((i) => i.status === 'overdue').length,
+      },
+      totalBilled,
+      totalCollected,
+      totalRemaining,
+      collectionRate:
+        totalBilled > 0 ? Math.round((totalCollected / totalBilled) * 100) : 0,
+      invoices,
+    };
+  }
+
+
 
   /** Ghi nhận thanh toán hóa đơn */
   async recordPayment(data: {
@@ -1434,7 +1687,9 @@ export class AcademicServiceService {
   }) {
     let studentId = data.studentId;
     if (!studentId) {
-      const schedule = await this.medScheduleRepo.findOne({ where: { id: data.scheduleId } });
+      const schedule = await this.medScheduleRepo.findOne({
+        where: { id: data.scheduleId },
+      });
       if (!schedule) throw new Error('Medication schedule not found');
       studentId = schedule.studentId;
     }
@@ -1504,13 +1759,21 @@ export class AcademicServiceService {
     const saved = await this.incidentRepo.save(incident);
 
     // Lấy tên bé để đưa vào nội dung thông báo
-    const student = await this.studentRepo.findOne({ where: { id: data.studentId } });
+    const student = await this.studentRepo.findOne({
+      where: { id: data.studentId },
+    });
     const studentName = student?.full_name ?? 'Học sinh';
     const severityLabel: Record<IncidentSeverity, string> = {
-      LOW: '🟢 Nhẹ', MEDIUM: '🟡 Trung bình', HIGH: '🟠 Nghiêm trọng', EMERGENCY: '🔴 Khẩn cấp',
+      LOW: '🟢 Nhẹ',
+      MEDIUM: '🟡 Trung bình',
+      HIGH: '🟠 Nghiêm trọng',
+      EMERGENCY: '🔴 Khẩn cấp',
     };
     const typeLabel: Record<IncidentType, string> = {
-      INJURY: 'Chấn thương', ILLNESS: 'Ốm/Sốt', BEHAVIOR: 'Hành vi', OTHER: 'Khác',
+      INJURY: 'Chấn thương',
+      ILLNESS: 'Ốm/Sốt',
+      BEHAVIOR: 'Hành vi',
+      OTHER: 'Khác',
     };
 
     const notifTitle = `Sự cố: ${typeLabel[data.incidentType]} (${severityLabel[data.severity]})`;
@@ -1518,14 +1781,16 @@ export class AcademicServiceService {
 
     // Notify parent
     if (data.parentUserId) {
-      await this.notifRepo.save(this.notifRepo.create({
-        recipientUserId: data.parentUserId,
-        type: 'incident' as NotificationType,
-        title: notifTitle,
-        body: notifBody,
-        relatedId: saved.id,
-        linkUrl: `/parent/incidents`,
-      }));
+      await this.notifRepo.save(
+        this.notifRepo.create({
+          recipientUserId: data.parentUserId,
+          type: 'incident' as NotificationType,
+          title: notifTitle,
+          body: notifBody,
+          relatedId: saved.id,
+          linkUrl: `/parent/incidents`,
+        }),
+      );
     }
 
     // Notify all admins
@@ -1562,7 +1827,11 @@ export class AcademicServiceService {
     });
   }
 
-  async getIncidentsAdmin(filters: { severity?: string; studentId?: number; limit?: number }) {
+  async getIncidentsAdmin(filters: {
+    severity?: string;
+    studentId?: number;
+    limit?: number;
+  }) {
     const qb = this.incidentRepo
       .createQueryBuilder('inc')
       .leftJoinAndSelect('inc.student', 'student')
@@ -1570,8 +1839,10 @@ export class AcademicServiceService {
       .leftJoinAndSelect('inc.teacher', 'teacher')
       .orderBy('inc.createdAt', 'DESC');
 
-    if (filters.severity) qb.andWhere('inc.severity = :sev', { sev: filters.severity });
-    if (filters.studentId) qb.andWhere('inc.studentId = :sid', { sid: filters.studentId });
+    if (filters.severity)
+      qb.andWhere('inc.severity = :sev', { sev: filters.severity });
+    if (filters.studentId)
+      qb.andWhere('inc.studentId = :sid', { sid: filters.studentId });
     if (filters.limit) qb.limit(filters.limit);
 
     return qb.getMany();
@@ -1644,7 +1915,9 @@ export class AcademicServiceService {
     });
     const saved = await this.leaveRequestRepo.save(lr);
 
-    const student = await this.studentRepo.findOne({ where: { id: data.studentId } });
+    const student = await this.studentRepo.findOne({
+      where: { id: data.studentId },
+    });
     const studentName = student?.full_name ?? 'Học sinh';
 
     // Notify admins về đơn mới
@@ -1687,7 +1960,9 @@ export class AcademicServiceService {
       where: { teacher: { id: teacherId } },
       relations: ['students'],
     });
-    const studentIds = classrooms.flatMap((c) => c.students?.map((s) => s.id) ?? []);
+    const studentIds = classrooms.flatMap(
+      (c) => c.students?.map((s) => s.id) ?? [],
+    );
     if (!studentIds.length) return [];
 
     return this.leaveRequestRepo
@@ -1705,7 +1980,8 @@ export class AcademicServiceService {
       relations: ['student'],
     });
     if (!lr) return { success: false, message: 'Không tìm thấy đơn xin nghỉ.' };
-    if (lr.status !== 'PENDING') return { success: false, message: 'Đơn đã được xử lý rồi.' };
+    if (lr.status !== 'PENDING')
+      return { success: false, message: 'Đơn đã được xử lý rồi.' };
 
     const weekdays = this.countWeekdays(lr.startDate, lr.endDate);
 
@@ -1739,16 +2015,22 @@ export class AcademicServiceService {
     }
 
     // Notify parent
-    await this.notifRepo.save(this.notifRepo.create({
-      recipientUserId: lr.requestedBy,
-      type: 'leave_request' as NotificationType,
-      title: `Đơn xin nghỉ đã được duyệt ✅`,
-      body: `Đơn nghỉ của ${lr.student?.full_name ?? ''} từ ${lr.startDate} đến ${lr.endDate} đã được BGH phê duyệt.`,
-      relatedId: lr.id,
-      linkUrl: `/parent/leave-requests`,
-    }));
+    await this.notifRepo.save(
+      this.notifRepo.create({
+        recipientUserId: lr.requestedBy,
+        type: 'leave_request' as NotificationType,
+        title: `Đơn xin nghỉ đã được duyệt ✅`,
+        body: `Đơn nghỉ của ${lr.student?.full_name ?? ''} từ ${lr.startDate} đến ${lr.endDate} đã được BGH phê duyệt.`,
+        relatedId: lr.id,
+        linkUrl: `/parent/leave-requests`,
+      }),
+    );
 
-    return { success: true, mealsDeducted: weekdays, refundAmount: lr.refundAmount };
+    return {
+      success: true,
+      mealsDeducted: weekdays,
+      refundAmount: lr.refundAmount,
+    };
   }
 
   async rejectLeaveRequest(id: number, adminUserId: number, note?: string) {
@@ -1757,7 +2039,8 @@ export class AcademicServiceService {
       relations: ['student'],
     });
     if (!lr) return { success: false, message: 'Không tìm thấy đơn xin nghỉ.' };
-    if (lr.status !== 'PENDING') return { success: false, message: 'Đơn đã được xử lý rồi.' };
+    if (lr.status !== 'PENDING')
+      return { success: false, message: 'Đơn đã được xử lý rồi.' };
 
     lr.status = 'REJECTED';
     lr.reviewedBy = adminUserId;
@@ -1765,14 +2048,18 @@ export class AcademicServiceService {
     lr.reviewNote = note ?? null;
     await this.leaveRequestRepo.save(lr);
 
-    await this.notifRepo.save(this.notifRepo.create({
-      recipientUserId: lr.requestedBy,
-      type: 'leave_request' as NotificationType,
-      title: `Đơn xin nghỉ không được duyệt ❌`,
-      body: note ? `Lý do: ${note}` : `Đơn nghỉ của ${lr.student?.full_name ?? ''} không được phê duyệt.`,
-      relatedId: lr.id,
-      linkUrl: `/parent/leave-requests`,
-    }));
+    await this.notifRepo.save(
+      this.notifRepo.create({
+        recipientUserId: lr.requestedBy,
+        type: 'leave_request' as NotificationType,
+        title: `Đơn xin nghỉ không được duyệt ❌`,
+        body: note
+          ? `Lý do: ${note}`
+          : `Đơn nghỉ của ${lr.student?.full_name ?? ''} không được phê duyệt.`,
+        relatedId: lr.id,
+        linkUrl: `/parent/leave-requests`,
+      }),
+    );
 
     return { success: true };
   }
@@ -1855,16 +2142,22 @@ export class AcademicServiceService {
 
     // Notify parent về cập nhật
     const statusLabel: Record<TicketStatus, string> = {
-      OPEN: 'Mới tiếp nhận', IN_PROGRESS: 'Đang xử lý', RESOLVED: 'Đã giải quyết ✅', CLOSED: 'Đã đóng',
+      OPEN: 'Mới tiếp nhận',
+      IN_PROGRESS: 'Đang xử lý',
+      RESOLVED: 'Đã giải quyết ✅',
+      CLOSED: 'Đã đóng',
     };
-    await this.notifRepo.save(this.notifRepo.create({
-      recipientUserId: ticket.parentId,
-      type: 'ticket' as NotificationType,
-      title: `Ticket #${ticket.id}: ${statusLabel[data.status]}`,
-      body: data.resolutionNote ?? `Trạng thái ticket của bạn đã được cập nhật.`,
-      relatedId: ticket.id,
-      linkUrl: `/parent/tickets`,
-    }));
+    await this.notifRepo.save(
+      this.notifRepo.create({
+        recipientUserId: ticket.parentId,
+        type: 'ticket' as NotificationType,
+        title: `Ticket #${ticket.id}: ${statusLabel[data.status]}`,
+        body:
+          data.resolutionNote ?? `Trạng thái ticket của bạn đã được cập nhật.`,
+        relatedId: ticket.id,
+        linkUrl: `/parent/tickets`,
+      }),
+    );
 
     return { success: true };
   }
@@ -1873,7 +2166,10 @@ export class AcademicServiceService {
     const ticket = await this.ticketRepo.findOne({ where: { id, parentId } });
     if (!ticket) return { success: false, message: 'Không tìm thấy ticket.' };
     if (ticket.status !== 'RESOLVED') {
-      return { success: false, message: 'Chỉ đánh giá được ticket đã giải quyết.' };
+      return {
+        success: false,
+        message: 'Chỉ đánh giá được ticket đã giải quyết.',
+      };
     }
     ticket.parentRating = Math.min(5, Math.max(1, rating));
     await this.ticketRepo.save(ticket);

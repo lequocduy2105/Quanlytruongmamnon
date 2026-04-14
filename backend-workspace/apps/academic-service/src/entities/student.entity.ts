@@ -57,15 +57,30 @@ export class Student {
 
   // ─── Liên hệ khẩn cấp ────────────────────────────────────────────────────
   /** Tên người liên hệ khẩn cấp (có thể khác số PH đăng ký) */
-  @Column({ name: 'emergency_contact_name', type: 'varchar', length: 100, nullable: true })
+  @Column({
+    name: 'emergency_contact_name',
+    type: 'varchar',
+    length: 100,
+    nullable: true,
+  })
   emergency_contact_name!: string | null;
 
   /** SĐT người liên hệ khẩn cấp */
-  @Column({ name: 'emergency_contact_phone', type: 'varchar', length: 20, nullable: true })
+  @Column({
+    name: 'emergency_contact_phone',
+    type: 'varchar',
+    length: 20,
+    nullable: true,
+  })
   emergency_contact_phone!: string | null;
 
   /** Quan hệ với học sinh: Ba/Mẹ/Ông/Bà... */
-  @Column({ name: 'emergency_contact_relation', type: 'varchar', length: 50, nullable: true })
+  @Column({
+    name: 'emergency_contact_relation',
+    type: 'varchar',
+    length: 50,
+    nullable: true,
+  })
   emergency_contact_relation!: string | null;
 
   // ─── Thông tin y tế cơ bản ────────────────────────────────────────────────

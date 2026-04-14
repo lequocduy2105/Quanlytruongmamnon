@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useOutletContext } from "react-router-dom";
 import { AreaChart, Area, ResponsiveContainer, XAxis, Tooltip } from "recharts";
 import api from "../../api/axiosClient";
 import { useLang } from "../../contexts/LangContext";
@@ -7,6 +7,7 @@ import { useLang } from "../../contexts/LangContext";
 export default function ComprehensiveRecord() {
   const { lang } = useLang();
   const vi = lang === "vi";
+  const { activeStudent } = useOutletContext();
 
   const [data, setData] = useState({
     student: null,
@@ -19,13 +20,11 @@ export default function ComprehensiveRecord() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const childrenRes = await api.get("/parent/my-children");
-        const children = childrenRes.data || [];
-        if (children.length === 0) {
+        if (!activeStudent) {
           setLoading(false);
           return;
         }
-        const studentId = children[0].id;
+        const studentId = activeStudent.id;
         const [recordsRes, vitalsRes] = await Promise.all([
           api.get(`/parent/student/${studentId}/records`),
           api.get(`/health/vitals?studentId=${studentId}`),
@@ -42,7 +41,7 @@ export default function ComprehensiveRecord() {
       }
     };
     fetchData();
-  }, []);
+  }, [activeStudent]);
 
   if (loading)
     return (

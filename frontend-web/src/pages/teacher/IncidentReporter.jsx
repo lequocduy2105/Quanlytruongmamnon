@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useOutletContext } from "react-router-dom";
 import axiosClient from "../../api/axiosClient";
 
 const INCIDENT_TYPES = [
@@ -25,6 +26,7 @@ const SEVERITY_BADGE = {
 const TYPE_ICON = { INJURY: "personal_injury", ILLNESS: "sick", BEHAVIOR: "psychology", OTHER: "report_problem" };
 
 export default function IncidentReporter() {
+  const { activeTeacher } = useOutletContext();
   const [students, setStudents] = useState([]);
   const [incidents, setIncidents] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -47,7 +49,7 @@ export default function IncidentReporter() {
       try {
         const [studRes, incRes] = await Promise.all([
           axiosClient.get("/academic/students"),
-          axiosClient.get("/teacher/incidents"),
+          axiosClient.get(`/teacher/incidents?teacherId=${activeTeacher?.id || ""}`),
         ]);
         setStudents(studRes.data || []);
         setIncidents(incRes.data || []);
@@ -69,7 +71,7 @@ export default function IncidentReporter() {
     setSubmitting(true);
     setError("");
     try {
-      await axiosClient.post("/teacher/incidents", {
+      await axiosClient.post(`/teacher/incidents?teacherId=${activeTeacher?.id || ""}`, {
         studentId: Number(form.studentId),
         incidentType: form.incidentType,
         severity: form.severity,
@@ -79,7 +81,7 @@ export default function IncidentReporter() {
       setSuccessMsg("✅ Biên bản sự cố đã được gửi. Phụ huynh và BGH đã được thông báo.");
       setForm({ studentId: "", incidentType: "INJURY", severity: "LOW", description: "", firstAidTaken: "" });
       setShowForm(false);
-      const res = await axiosClient.get("/teacher/incidents");
+      const res = await axiosClient.get(`/teacher/incidents?teacherId=${activeTeacher?.id || ""}`);
       setIncidents(res.data || []);
       setTimeout(() => setSuccessMsg(""), 4000);
     } catch {

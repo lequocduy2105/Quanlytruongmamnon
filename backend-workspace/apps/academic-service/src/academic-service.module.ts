@@ -64,7 +64,7 @@ const ALL_ENTITIES = [
         // synchronize tắt để tránh lỗi typeorm_metadata — schema đã được tạo qua seed script
         synchronize: false,
         entities: ALL_ENTITIES,
-        logging: true,  // bật full logging tạm để debug SQL lỗi
+        logging: true, // bật full logging tạm để debug SQL lỗi
       }),
     }),
 

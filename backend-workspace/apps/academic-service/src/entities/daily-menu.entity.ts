@@ -31,7 +31,12 @@ export class DailyMenu {
   classroom!: Classroom | null;
 
   // ─── Bữa sáng ──────────────────────────────────────────────────────────────
-  @Column({ name: 'breakfast_main', type: 'varchar', length: 300, nullable: true })
+  @Column({
+    name: 'breakfast_main',
+    type: 'varchar',
+    length: 300,
+    nullable: true,
+  })
   breakfast_main!: string | null;
 
   @Column({ name: 'breakfast_ingredients', type: 'text', nullable: true })

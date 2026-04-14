@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axiosClient from '../../api/axiosClient';
+import { useOutletContext } from 'react-router-dom';
 
 /**
  * TeacherPickupCheck — Màn hình đón trẻ cho giáo viên
@@ -26,6 +27,7 @@ const SEVERITY_BADGE = {
 };
 
 export default function TeacherPickupCheck() {
+  const { activeTeacher } = useOutletContext();
   const [pickups, setPickups] = useState([]);
   const [myClass, setMyClass] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -45,8 +47,8 @@ export default function TeacherPickupCheck() {
     try {
       setError(null);
       const [classRes, pickupsRes] = await Promise.all([
-        axiosClient.get('/teacher/my-class'),
-        axiosClient.get('/teacher/class-pickups'),
+        axiosClient.get(`/teacher/my-class?teacherId=${activeTeacher?.id || ''}`),
+        axiosClient.get(`/teacher/class-pickups?teacherId=${activeTeacher?.id || ''}`),
       ]);
       setMyClass(classRes.data);
       setPickups(pickupsRes.data || []);

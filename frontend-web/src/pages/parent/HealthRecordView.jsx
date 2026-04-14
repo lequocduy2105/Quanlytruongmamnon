@@ -9,28 +9,25 @@ import {
 } from "recharts";
 import api from "../../api/axiosClient";
 import { useLang } from "../../contexts/LangContext";
+import { useOutletContext } from "react-router-dom";
 
 export default function HealthRecordView() {
   const { lang } = useLang();
   const vi = lang === "vi";
+  const { activeStudent } = useOutletContext();
 
   const [data, setData] = useState([]);
-  const [student, setStudent] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchVitals = async () => {
       try {
-        const childrenRes = await api.get("/parent/my-children");
-        const children = childrenRes.data || [];
-        if (children.length === 0) {
+        if (!activeStudent) {
           setLoading(false);
           return;
         }
-        const child = children[0];
-        setStudent(child);
 
-        const res = await api.get(`/health/vitals?studentId=${child.id}`);
+        const res = await api.get(`/health/vitals?studentId=${activeStudent.id}`);
         setData(res.data || []);
       } catch (e) {
         console.error("Vitals error", e);
@@ -40,7 +37,7 @@ export default function HealthRecordView() {
       }
     };
     fetchVitals();
-  }, []);
+  }, [activeStudent]);
 
   const latestVital = data.length > 0 ? data[data.length - 1] : null;
 

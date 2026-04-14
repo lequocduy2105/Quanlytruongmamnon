@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import axiosClient from "../../api/axiosClient";
 import { useLang } from "../../contexts/LangContext";
 import { useToast } from "../../components/Toast";
@@ -562,6 +562,8 @@ export default function TeacherDashboard() {
   const vi = lang === "vi";
   const navigate = useNavigate();
   const toast = useToast();
+  // Lấy activeTeacher từ TeacherLayout context
+  const { activeTeacher } = useOutletContext();
 
   const [dashData, setDashData] = useState(null);
   const [students, setStudents] = useState([]);
@@ -618,26 +620,33 @@ export default function TeacherDashboard() {
   })();
 
   const fetchAll = useCallback(async () => {
+    if (!activeTeacher) return;
     try {
-      const [dashRes, classRes, medRes] = await Promise.all([
-        axiosClient.get("/teacher/dashboard"),
-        axiosClient.get("/teacher/my-class"),
-        axiosClient.get("/teacher/medications-today").catch(() => ({ data: [] }))
+      const [dashRes, medRes] = await Promise.all([
+        // Truyền teacherId để backend tìm đúng giáo viên (không phụ thuộc JWT userId)
+        axiosClient.get(`/teacher/dashboard?teacherId=${activeTeacher.id}`),
+        axiosClient.get(`/teacher/medications-today?teacherId=${activeTeacher.id}`).catch(() => ({ data: [] })),
       ]);
+
+
+      // Điểm danh, thông báo & thuốc từ dashboard
       const dash = dashRes.data || {};
       setDashData(dash);
       setAttendance(dash.attendance || { present: 0, absent: 0, late: 0 });
-
-      const classData = classRes.data || {};
-      setMyClass(classData);
-      setStudents(classData.students || []);
       setMedicationsToday(medRes.data || []);
+
+      // Fetch học sinh từ class của giáo viên này (truyền teacherId để backend tìm)
+      const classRes = await axiosClient.get(`/teacher/my-class?teacherId=${activeTeacher.id}`);
+      const myClassData = classRes.data || {};
+      setMyClass(myClassData);
+      setStudents(myClassData.students || []);
+
     } catch (err) {
       console.error("Teacher dashboard error:", err);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [activeTeacher]);
 
   useEffect(() => {
     fetchAll();

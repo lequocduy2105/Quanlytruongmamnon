@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useOutletContext } from "react-router-dom";
 import axiosClient from "../../api/axiosClient";
 
 const SEVERITY_CONFIG = {
@@ -16,18 +17,7 @@ const TYPE_LABEL = {
 };
 
 export default function ParentIncidents() {
-  const [children, setChildren] = useState([]);
-  const [selectedChildId, setSelectedChildId] = useState(null);
-  const selectedChild = children.find((c) => c.id === selectedChildId);
-
-  useEffect(() => {
-    axiosClient.get("/parent/students").then((res) => {
-      if (res.data?.length > 0) {
-        setChildren(res.data);
-        setSelectedChildId(res.data[0].id);
-      }
-    }).catch(() => {});
-  }, []);
+  const { activeStudent: selectedChild } = useOutletContext();
 
   const [incidents, setIncidents] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -80,23 +70,7 @@ export default function ParentIncidents() {
 
   return (
     <div className="space-y-6">
-      {children.length > 1 && (
-        <div className="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm flex gap-2 overflow-x-auto">
-          {children.map(child => (
-            <button
-              key={child.id}
-              onClick={() => setSelectedChildId(child.id)}
-              className={`px-4 py-2 rounded-xl text-sm font-bold whitespace-nowrap transition-all ${
-                selectedChildId === child.id
-                  ? "bg-cyan-100 text-cyan-800"
-                  : "bg-slate-50 text-slate-500 hover:bg-slate-100"
-              }`}
-            >
-              {child.full_name}
-            </button>
-          ))}
-        </div>
-      )}
+      {/* Removed Child Selector Since Gatekeeper Handles It */}
 
       {/* Header */}
       <div>

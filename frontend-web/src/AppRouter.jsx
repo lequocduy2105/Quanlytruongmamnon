@@ -48,6 +48,7 @@ import ParentIncidents from "./pages/parent/ParentIncidents";
 import ParentLeaveRequests from "./pages/parent/ParentLeaveRequests";
 import ParentSupportTickets from "./pages/parent/ParentSupportTickets";
 import TeacherPickupCheck from "./pages/teacher/TeacherPickupCheck";
+import TeacherFinance from "./pages/teacher/TeacherFinance";
 
 export default function AppRouter() {
   return (
@@ -101,6 +102,7 @@ export default function AppRouter() {
               <Route path="medications" element={<MedicationManager />} />
               <Route path="pickup-check" element={<TeacherPickupCheck />} />
               <Route path="incidents" element={<IncidentReporter />} />
+              <Route path="finance" element={<TeacherFinance />} />
             </Route>
 
             {/* ── Parent Routes (PARENT only) ── */}
