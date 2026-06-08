@@ -1,7 +1,8 @@
-import { Injectable, UnauthorizedException, Inject } from '@nestjs/common';
+import { Injectable, UnauthorizedException, Inject, ConflictException } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { JwtService } from '@nestjs/jwt';
 import { firstValueFrom } from 'rxjs';
+import { UpdateStudentDto } from './dto/update-student.dto';
 
 @Injectable()
 export class ApiGatewayService {
@@ -30,6 +31,7 @@ export class ApiGatewayService {
       access_token: this.jwtService.sign(payload),
       role: user.role,
       userId: user.id,
+      mustChangePassword: user.mustChangePassword,
     };
   }
 
@@ -158,34 +160,66 @@ export class ApiGatewayService {
     );
   }
 
-  linkChild(data: {
-    guardianUserId: number;
-    full_name: string;
-    date_of_birth: string;
-    class_name: string;
-  }) {
-    return firstValueFrom(
-      this.academicClient.send({ cmd: 'link_child' }, data),
-    );
-  }
-
   createTeacher(data: { full_name: string; specializations?: string }) {
     return firstValueFrom(
       this.academicClient.send({ cmd: 'create_teacher' }, data),
     );
   }
 
-  updateStudent(
+  async updateStudent(
     id: number,
-    data: {
-      full_name?: string;
-      class_id?: number | null;
-      allergy_tags?: string[];
-    },
+    data: UpdateStudentDto,
   ) {
-    return firstValueFrom(
-      this.academicClient.send({ cmd: 'update_student' }, { id, ...data }),
+    const { parent_email, ...studentData } = data;
+
+    // Cập nhật thông tin học sinh
+    const result = await firstValueFrom(
+      this.academicClient.send({ cmd: 'update_student' }, { id, ...studentData }),
     );
+
+    // Nếu có parent_email, xử lý cập nhật email tài khoản phụ huynh
+    if (parent_email && parent_email.trim()) {
+      // 1. Lấy thông tin học sinh để biết guardianUserId
+      const student = await firstValueFrom(
+        this.academicClient.send({ cmd: 'get_student_by_id' }, { id }),
+      );
+
+      if (student?.guardianUserId) {
+        // 2. Lấy email hiện tại của tài khoản phụ huynh
+        const currentParent = await firstValueFrom(
+          this.authClient.send({ cmd: 'find_user_by_id' }, { id: student.guardianUserId }),
+        ).catch(() => null);
+
+        const currentEmail = currentParent?.email || '';
+        const newEmail = parent_email.trim().toLowerCase();
+
+        // 3. Chỉ update nếu email thực sự thay đổi
+        if (currentEmail.toLowerCase() !== newEmail) {
+          // 4. Kiểm tra email mới đã có ai dùng chưa
+          const existingUser = await firstValueFrom(
+            this.authClient.send({ cmd: 'find_user_by_email' }, { email: newEmail }),
+          ).catch(() => null);
+
+          if (existingUser && existingUser.id !== student.guardianUserId) {
+            throw new ConflictException('Email phụ huynh mới đã được sử dụng bởi tài khoản khác.');
+          }
+
+          // 5. Thực hiện cập nhật email
+          const updateResult = await firstValueFrom(
+            this.authClient.send(
+              { cmd: 'update_user_email' },
+              { userId: student.guardianUserId, newEmail },
+            ),
+          );
+
+          if (!updateResult?.success) {
+            throw new Error(updateResult?.error || 'Không thể cập nhật email phụ huynh.');
+          }
+        }
+      }
+    }
+
+    return result;
   }
 
   updateClassroom(
@@ -355,9 +389,24 @@ export class ApiGatewayService {
     );
   }
 
+  processPaymentWebhook(data: { reference_code: string; amount: number }) {
+    return firstValueFrom(
+      this.academicClient.send({ cmd: 'process_payment_webhook' }, data),
+    );
+  }
+
   recordPayment(data: object) {
     return firstValueFrom(
       this.academicClient.send({ cmd: 'record_payment' }, data),
+    );
+  }
+
+  payInvoice(invoiceId: number, note?: string, receivedBy?: number | null) {
+    return firstValueFrom(
+      this.academicClient.send(
+        { cmd: 'pay_invoice' },
+        { invoiceId, note, receivedBy },
+      ),
     );
   }
 
@@ -409,16 +458,16 @@ export class ApiGatewayService {
     );
   }
 
-  // ─── Medications (MISSING-03) ────────────────────────────────────
+  // ─── Medications — routed to health-service ─────────────────────────────
   getMedicationsToday() {
     return firstValueFrom(
-      this.academicClient.send({ cmd: 'get_medications_today' }, {}),
+      this.healthClient.send({ cmd: 'get_medications_today' }, {}),
     );
   }
 
   getStudentMedications(studentId: number) {
     return firstValueFrom(
-      this.academicClient.send(
+      this.healthClient.send(
         { cmd: 'get_student_medications' },
         { studentId },
       ),
@@ -427,13 +476,13 @@ export class ApiGatewayService {
 
   createMedication(data: object) {
     return firstValueFrom(
-      this.academicClient.send({ cmd: 'create_medication' }, data),
+      this.healthClient.send({ cmd: 'create_medication' }, data),
     );
   }
 
   logMedicationGiven(scheduleId: number, data: object) {
     return firstValueFrom(
-      this.academicClient.send(
+      this.healthClient.send(
         { cmd: 'log_medication_given' },
         { scheduleId, ...data },
       ),
@@ -442,7 +491,7 @@ export class ApiGatewayService {
 
   getMedicationLogs(studentId: number) {
     return firstValueFrom(
-      this.academicClient.send({ cmd: 'get_medication_logs' }, { studentId }),
+      this.healthClient.send({ cmd: 'get_medication_logs' }, { studentId }),
     );
   }
 
@@ -469,17 +518,17 @@ export class ApiGatewayService {
     );
   }
 
-  // ─── Incident Reports ───────────────────────────────────────────────────────
+  // ─── Incident Reports — routed to health-service ────────────────────────────
 
   createIncidentReport(data: Record<string, unknown>) {
     return firstValueFrom(
-      this.academicClient.send({ cmd: 'create_incident_report' }, data),
+      this.healthClient.send({ cmd: 'create_incident_report' }, data),
     );
   }
 
   getIncidentsByTeacher(teacherId: number) {
     return firstValueFrom(
-      this.academicClient.send(
+      this.healthClient.send(
         { cmd: 'get_incidents_by_teacher' },
         { teacherId },
       ),
@@ -488,7 +537,7 @@ export class ApiGatewayService {
 
   getIncidentsByStudent(studentId: number) {
     return firstValueFrom(
-      this.academicClient.send(
+      this.healthClient.send(
         { cmd: 'get_incidents_by_student' },
         { studentId },
       ),
@@ -501,13 +550,13 @@ export class ApiGatewayService {
     limit?: number;
   }) {
     return firstValueFrom(
-      this.academicClient.send({ cmd: 'get_incidents_admin' }, filters),
+      this.healthClient.send({ cmd: 'get_incidents_admin' }, filters),
     );
   }
 
   acknowledgeIncident(id: number, parentUserId: number) {
     return firstValueFrom(
-      this.academicClient.send(
+      this.healthClient.send(
         { cmd: 'acknowledge_incident' },
         { id, parentUserId },
       ),
@@ -516,7 +565,7 @@ export class ApiGatewayService {
 
   reviewIncident(id: number, adminUserId: number) {
     return firstValueFrom(
-      this.academicClient.send({ cmd: 'review_incident' }, { id, adminUserId }),
+      this.healthClient.send({ cmd: 'review_incident' }, { id, adminUserId }),
     );
   }
 
@@ -614,6 +663,16 @@ export class ApiGatewayService {
     );
   }
 
+  /**
+   * Plan B: QueryBuilder hardened roster — INNER JOIN SQL thuần.
+   * Không bao giờ trả học sinh sai lớp.
+   */
+  getTeacherRoster(userId: number) {
+    return firstValueFrom(
+      this.academicClient.send({ cmd: 'get_teacher_roster' }, { userId }),
+    );
+  }
+
   getClassPickupsToday(classId: number) {
     return firstValueFrom(
       this.academicClient.send({ cmd: 'get_class_pickups_today' }, { classId }),
@@ -622,7 +681,7 @@ export class ApiGatewayService {
 
   getMedicationsByClass(classId: number) {
     return firstValueFrom(
-      this.academicClient.send(
+      this.healthClient.send(
         { cmd: 'get_medications_by_class' },
         { classId },
       ),
@@ -662,4 +721,302 @@ export class ApiGatewayService {
       this.academicClient.send({ cmd: 'update_daily_menu' }, { id, ...data }),
     );
   }
+
+  // ─── Lesson Content Handlers (E-Learning) ───────────────────────────────────
+
+  createLesson(classId: number, data: any, createdBy: number) {
+    return firstValueFrom(
+      this.academicClient.send(
+        { cmd: 'create_lesson' },
+        { ...data, classId, createdBy },
+      ),
+    );
+  }
+
+  getLessonsByClass(classId: number) {
+    return firstValueFrom(
+      this.academicClient.send({ cmd: 'get_lessons_by_class' }, { classId }),
+    );
+  }
+
+  updateLesson(id: number, updateData: any) {
+    return firstValueFrom(
+      this.academicClient.send({ cmd: 'update_lesson' }, { id, updateData }),
+    );
+  }
+
+  deleteLesson(id: number) {
+    return firstValueFrom(
+      this.academicClient.send({ cmd: 'delete_lesson' }, { id }),
+    );
+  }
+
+  // ─── Generic Academic Forwarder ──────────────────────────────────────────────
+
+  /**
+   * Helper tổng quát để forward bất kỳ command nào tới academic-service.
+   * Dùng cho các tính năng mới (soft delete, enroll...) mà không cần tạo method riêng.
+   *
+   * @param cmd   - Message pattern command (VD: 'deactivate_student')
+   * @param data  - Payload data (object)
+   */
+  sendToAcademic(cmd: string, data: Record<string, unknown>) {
+    return firstValueFrom(this.academicClient.send({ cmd }, data));
+  }
+
+  async onboardTeacher(data: {
+    full_name: string;
+    phone_number: string;
+    specializations?: string;
+  }) {
+    let createdUser: any = null;
+    try {
+      createdUser = await firstValueFrom(
+        this.authClient.send(
+          { cmd: 'create_user' },
+          {
+            email: data.phone_number,
+            password: '123456',
+            role: 'TEACHER',
+          },
+        ),
+      );
+
+      const profile = await firstValueFrom(
+        this.academicClient.send(
+          { cmd: 'create_teacher_profile' },
+          {
+            userId: createdUser.id,
+            full_name: data.full_name,
+            specializations: data.specializations,
+          },
+        ),
+      );
+
+      if (profile && profile.error) {
+        throw new Error(profile.error);
+      }
+
+      return { success: true, user: createdUser, teacher: profile };
+    } catch (error) {
+      if (createdUser && createdUser.id) {
+        try {
+          await firstValueFrom(
+            this.authClient.send(
+              { cmd: 'rollback_user' },
+              { userId: createdUser.id },
+            ),
+          );
+        } catch (rollbackError) {
+          console.error('Failed to rollback user:', rollbackError);
+        }
+      }
+      throw error;
+    }
+  }
+
+  async enrollStudentWithSaga(data: {
+    student_name: string;
+    dob: string;
+    parent_name: string;
+    parent_email: string;
+    class_id?: number;
+    allergy_tags?: string[];
+    is_special_needs?: boolean;
+    isAdminOverride?: boolean;
+    override_grade_level?: 'mam' | 'choi' | 'la';
+  }) {
+    let parentUser = await firstValueFrom(
+      this.authClient.send(
+        { cmd: 'find_user_by_email' },
+        { email: data.parent_email },
+      ),
+    );
+
+    let isNewUser = false;
+    let tempPassword = '';
+    if (!parentUser) {
+      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      for (let i = 0; i < 6; i++) {
+        tempPassword += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+
+      parentUser = await firstValueFrom(
+        this.authClient.send(
+          { cmd: 'create_user' },
+          {
+            email: data.parent_email,
+            password: tempPassword,
+            role: 'PARENT',
+            mustChangePassword: true,
+          },
+        ),
+      );
+      isNewUser = true;
+    }
+
+    try {
+      const studentResult = await firstValueFrom(
+        this.academicClient.send(
+          { cmd: 'enroll_student' },
+          {
+            full_name: data.student_name,
+            date_of_birth: data.dob,
+            class_id: data.class_id,
+            allergy_tags: data.allergy_tags,
+            guardianUserId: parentUser.id,
+            is_special_needs: data.is_special_needs,
+            isAdminOverride: data.isAdminOverride,
+            override_grade_level: data.override_grade_level,
+          },
+        ),
+      );
+
+      if (studentResult && studentResult.error) {
+        throw new Error(studentResult.error);
+      }
+
+      return {
+        success: true,
+        parent: parentUser,
+        student: studentResult.student,
+        ageInfo: studentResult.ageInfo,
+        expectedGradeLevel: studentResult.expectedGradeLevel,
+        tempPassword: isNewUser ? tempPassword : '',
+      };
+    } catch (error) {
+      if (isNewUser && parentUser && parentUser.id) {
+        try {
+          await firstValueFrom(
+            this.authClient.send(
+              { cmd: 'rollback_user' },
+              { userId: parentUser.id },
+            ),
+          );
+        } catch (rollbackError) {
+          console.error('Failed to rollback parent user:', rollbackError);
+        }
+      }
+      throw error;
+    }
+  }
+
+  async checkEmailExists(email: string): Promise<boolean> {
+    return firstValueFrom(
+      this.authClient.send({ cmd: 'check_email_exists' }, { email }),
+    );
+  }
+
+  async createAuthUser(payload: { email: string; password?: string; role: string; mustChangePassword?: boolean }) {
+    return firstValueFrom(
+      this.authClient.send({ cmd: 'create_user' }, payload),
+    );
+  }
+
+  async rollbackAuthUser(userId: number) {
+    return firstValueFrom(
+      this.authClient.send({ cmd: 'rollback_user' }, { userId }),
+    );
+  }
+
+  async createTeacherProfile(payload: { userId: number; full_name: string; specializations?: string }) {
+    return firstValueFrom(
+      this.academicClient.send({ cmd: 'create_teacher_profile' }, payload),
+    );
+  }
+
+  async changePasswordFirstTime(userId: number, oldPassword: string, newPassword: string) {
+    return firstValueFrom(
+      this.authClient.send(
+        { cmd: 'change_password_first_time' },
+        { userId, oldPassword, newPassword },
+      ),
+    );
+  }
+
+  async resetTeacherPassword(teacherId: number) {
+    const teacher = await firstValueFrom(
+      this.academicClient.send({ cmd: 'get_teacher_by_id' }, { teacherId }),
+    );
+    if (!teacher) {
+      throw new Error('Không tìm thấy giáo viên.');
+    }
+    if (!teacher.userId) {
+      throw new Error('Giáo viên này không liên kết với tài khoản người dùng.');
+    }
+
+    // Generate a random 6-character temporary password
+    const newTempPassword = Math.random().toString(36).substring(2, 8).toUpperCase();
+
+    const result = await firstValueFrom(
+      this.authClient.send(
+        { cmd: 'reset_password' },
+        { userId: teacher.userId, newPassword: newTempPassword },
+      ),
+    );
+
+    if (!result || !result.success) {
+      throw new Error(result?.error || 'Không thể cấp lại mật khẩu.');
+    }
+
+    return {
+      success: true,
+      newTempPassword,
+    };
+  }
+
+  async getStudentById(id: number) {
+    const student = await firstValueFrom(
+      this.academicClient.send({ cmd: 'get_student_by_id' }, { id }),
+    );
+    if (!student) {
+      throw new Error('Không tìm thấy học sinh.');
+    }
+
+    let parent_email = '';
+    if (student.guardianUserId) {
+      const parentUser = await firstValueFrom(
+        this.authClient.send({ cmd: 'find_user_by_id' }, { id: student.guardianUserId }),
+      ).catch(() => null);
+      if (parentUser) {
+        parent_email = parentUser.email;
+      }
+    }
+
+    return {
+      ...student,
+      parent_email,
+    };
+  }
+
+  async resetParentPassword(studentId: number) {
+    const student = await firstValueFrom(
+      this.academicClient.send({ cmd: 'get_student_by_id' }, { id: studentId }),
+    );
+    if (!student) {
+      throw new Error('Không tìm thấy học sinh.');
+    }
+    if (!student.guardianUserId) {
+      throw new Error('Học sinh này chưa được liên kết với tài khoản phụ huynh.');
+    }
+
+    const newTempPassword = Math.random().toString(36).substring(2, 8).toUpperCase();
+
+    const result = await firstValueFrom(
+      this.authClient.send(
+        { cmd: 'reset_password' },
+        { userId: student.guardianUserId, newPassword: newTempPassword },
+      ),
+    );
+
+    if (!result || !result.success) {
+      throw new Error(result?.error || 'Không thể cấp lại mật khẩu phụ huynh.');
+    }
+
+    return {
+      success: true,
+      newTempPassword,
+    };
+  }
 }
+

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axiosClient from "../../api/axiosClient";
+import BaseModal from "../../components/BaseModal";
 
 const CATEGORY_LABEL = {
   BILLING: "Học phí", SAFETY: "An toàn", CURRICULUM: "Giảng dạy",
@@ -107,16 +108,37 @@ export default function TicketManager() {
       </div>
 
       {/* Ticket response modal */}
-      {selectedTicket && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-lg shadow-2xl">
-            <h3 className="text-lg font-black text-slate-800 mb-1">#{selectedTicket.id} — {selectedTicket.subject}</h3>
-            <p className="text-xs text-slate-400 mb-4">Phụ huynh: {selectedTicket.parentId}</p>
-            <div className="bg-slate-50 rounded-xl p-4 mb-4 text-sm text-slate-700">
+      <BaseModal
+        isOpen={!!selectedTicket}
+        onClose={() => { setSelectedTicket(null); setNote(""); }}
+        title={selectedTicket ? `#${selectedTicket.id} — ${selectedTicket.subject}` : ""}
+        subtitle={selectedTicket ? `Phụ huynh: ${selectedTicket.parentId}` : ""}
+        maxWidth="max-w-lg"
+        footer={
+          <>
+            <button
+              onClick={() => { setSelectedTicket(null); setNote(""); }}
+              className="px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-bold text-sm transition-colors"
+            >
+              Hủy
+            </button>
+            <button
+              onClick={handleUpdate}
+              disabled={selectedTicket && processing === selectedTicket.id}
+              className="px-6 py-2.5 bg-violet-600 hover:bg-violet-700 text-white rounded-xl font-bold text-sm transition-colors disabled:opacity-50"
+            >
+              {selectedTicket && processing === selectedTicket.id ? "Đang cập nhật..." : "💾 Lưu & thông báo PH"}
+            </button>
+          </>
+        }
+      >
+        {selectedTicket && (
+          <div className="space-y-4">
+            <div className="bg-slate-50 rounded-xl p-4 text-sm text-slate-700">
               {selectedTicket.content}
             </div>
 
-            <div className="mb-4">
+            <div>
               <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
                 Cập nhật trạng thái
               </label>
@@ -131,7 +153,7 @@ export default function TicketManager() {
               </select>
             </div>
 
-            <div className="mb-4">
+            <div>
               <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
                 Nội dung phản hồi cho phụ huynh
               </label>
@@ -139,29 +161,13 @@ export default function TicketManager() {
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 rows={3}
-                className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm outline-none resize-none"
+                className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm outline-none resize-none bg-slate-50"
                 placeholder="Nhập phản hồi chi tiết để PH hiểu rõ cách xử lý..."
               />
             </div>
-
-            <div className="flex gap-3">
-              <button
-                onClick={handleUpdate}
-                disabled={processing === selectedTicket.id}
-                className="flex-1 py-3 bg-violet-600 text-white rounded-xl font-bold text-sm hover:bg-violet-700 disabled:opacity-50"
-              >
-                {processing === selectedTicket.id ? "Đang cập nhật..." : "💾 Lưu & thông báo PH"}
-              </button>
-              <button
-                onClick={() => { setSelectedTicket(null); setNote(""); }}
-                className="px-6 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold text-sm"
-              >
-                Hủy
-              </button>
-            </div>
           </div>
-        </div>
-      )}
+        )}
+      </BaseModal>
 
       {/* Ticket list */}
       <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">

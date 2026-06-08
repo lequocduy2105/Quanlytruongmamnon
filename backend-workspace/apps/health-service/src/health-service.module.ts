@@ -5,6 +5,16 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { HealthServiceController } from './health-service.controller';
 import { HealthServiceService } from './health-service.service';
 import { HealthRecord } from './entities/health-record.entity';
+import { MedicationSchedule } from './entities/medication-schedule.entity';
+import { MedicationLog } from './entities/medication-log.entity';
+import { IncidentReport } from './entities/incident-report.entity';
+
+const HEALTH_ENTITIES = [
+  HealthRecord,
+  MedicationSchedule,
+  MedicationLog,
+  IncidentReport,
+];
 
 @Module({
   imports: [
@@ -23,13 +33,25 @@ import { HealthRecord } from './entities/health-record.entity';
         username: config.get('DB_USERNAME', 'root'),
         password: config.get('DB_PASSWORD', ''),
         database: config.get('DB_NAME', 'kindergarten_db'),
-        synchronize: process.env.NODE_ENV !== 'production',
-        entities: [HealthRecord],
+        charset: 'utf8mb4',
+        // Fix encoding tiếng Việt: buộc mysql2 driver dùng UTF8MB4 ở tầng kết nối TCP
+        extra: {
+          charset: 'UTF8MB4',
+          connectionLimit: 10,
+          waitForConnections: true,
+          enableKeepAlive: true,
+          keepAliveInitialDelay: 10000,
+        },
+        retryAttempts: 10,
+        retryDelay: 3000,
+        // synchronize: false — schema đã được tạo qua init.sql
+        synchronize: false,
+        entities: HEALTH_ENTITIES,
         logging: false,
       }),
     }),
 
-    TypeOrmModule.forFeature([HealthRecord]),
+    TypeOrmModule.forFeature(HEALTH_ENTITIES),
   ],
   controllers: [HealthServiceController],
   providers: [HealthServiceService],

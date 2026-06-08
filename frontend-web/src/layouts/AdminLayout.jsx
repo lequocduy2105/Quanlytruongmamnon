@@ -57,7 +57,7 @@ export default function AdminLayout() {
   return (
     <div className="bg-surface text-on-surface font-body min-h-screen flex">
       {/* ─── Sidebar ─── */}
-      <aside className="hidden md:flex flex-col h-screen w-64 fixed left-0 top-0 bg-slate-50 border-r border-surface-container py-6 z-40">
+      <aside className="hidden md:flex flex-col h-screen w-64 flex-shrink-0 fixed left-0 top-0 bg-slate-50 border-r border-surface-container py-6 z-40">
         {/* Brand */}
         <div className="px-6 mb-8 flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white shadow-sm">

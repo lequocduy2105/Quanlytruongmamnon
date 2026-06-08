@@ -15,20 +15,22 @@ export function AuthProvider({ children }) {
 
   const login = useCallback(async (email, password) => {
     const response = await axiosClient.post("/login", { email, password });
-    const { access_token, role, userId } = response.data;
+    const { access_token, role, userId, mustChangePassword } = response.data;
 
     localStorage.setItem("access_token", access_token);
     localStorage.setItem("user_role", role);
     localStorage.setItem("user_id", userId);
+    localStorage.setItem("mustChangePassword", String(Boolean(mustChangePassword)));
 
     setUser({ token: access_token, role, userId });
-    return role; // Return role so caller can redirect
+    return { role, mustChangePassword }; // Return both so caller can handle redirect
   }, []);
 
   const logout = useCallback(() => {
     localStorage.removeItem("access_token");
     localStorage.removeItem("user_role");
     localStorage.removeItem("user_id");
+    localStorage.removeItem("mustChangePassword");
     setUser(null);
   }, []);
 

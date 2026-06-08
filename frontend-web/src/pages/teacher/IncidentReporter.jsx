@@ -47,11 +47,17 @@ export default function IncidentReporter() {
     const load = async () => {
       setLoading(true);
       try {
-        const [studRes, incRes] = await Promise.all([
-          axiosClient.get("/academic/students"),
-          axiosClient.get(`/teacher/incidents?teacherId=${activeTeacher?.id || ""}`),
+        // Zero-Trust: CHỈ lấy học sinh từ lớp giáo viên phụ trách
+        // TUYỆT ĐỐI không gọi /academic/students (endpoint Admin — trả về toàn bộ DB)
+        const [classRes, incRes] = await Promise.all([
+          axiosClient.get('/teacher/my-roster'),
+          axiosClient.get('/teacher/incidents'),
         ]);
-        setStudents(studRes.data || []);
+        // Nếu GV chưa có lớp → empty state, không rò rỉ dữ liệu
+        const classStudents = classRes.data?.error
+          ? []
+          : (classRes.data?.students || []);
+        setStudents(classStudents);
         setIncidents(incRes.data || []);
       } catch {
         setError("Không thể tải dữ liệu.");
@@ -71,7 +77,7 @@ export default function IncidentReporter() {
     setSubmitting(true);
     setError("");
     try {
-      await axiosClient.post(`/teacher/incidents?teacherId=${activeTeacher?.id || ""}`, {
+      await axiosClient.post('/teacher/incidents', {
         studentId: Number(form.studentId),
         incidentType: form.incidentType,
         severity: form.severity,
@@ -81,7 +87,7 @@ export default function IncidentReporter() {
       setSuccessMsg("✅ Biên bản sự cố đã được gửi. Phụ huynh và BGH đã được thông báo.");
       setForm({ studentId: "", incidentType: "INJURY", severity: "LOW", description: "", firstAidTaken: "" });
       setShowForm(false);
-      const res = await axiosClient.get(`/teacher/incidents?teacherId=${activeTeacher?.id || ""}`);
+      const res = await axiosClient.get('/teacher/incidents');
       setIncidents(res.data || []);
       setTimeout(() => setSuccessMsg(""), 4000);
     } catch {

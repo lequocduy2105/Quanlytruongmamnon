@@ -10,7 +10,9 @@ const ROLE_HOME = {
 
 const DEMO_ACCOUNTS = [
   { label: "Admin", email: "admin@school.com", role: "ADMIN" },
-  { label: "Teacher", email: "teacher@school.com", role: "TEACHER" },
+  { label: "Cô Ánh (Bướm Vui)", email: "teacher@school.com", role: "TEACHER" },
+  { label: "Thầy Minh (Sao Sáng)", email: "teacher2@school.com", role: "TEACHER" },
+  { label: "Thầy Khang (Lớp IT)", email: "teacher3@school.com", role: "TEACHER" },
   { label: "Parent", email: "parent@school.com", role: "PARENT" },
 ];
 
@@ -36,8 +38,12 @@ export default function LoginPage() {
 
     setIsLoading(true);
     try {
-      const role = await login(form.email, form.password);
-      navigate(ROLE_HOME[role] || "/admin/dashboard", { replace: true });
+      const { role, mustChangePassword } = await login(form.email, form.password);
+      if (mustChangePassword) {
+        navigate("/teacher/change-password", { replace: true });
+      } else {
+        navigate(ROLE_HOME[role] || "/admin/dashboard", { replace: true });
+      }
     } catch (err) {
       const message =
         err?.response?.data?.message || "Email hoặc mật khẩu không đúng.";
@@ -163,13 +169,13 @@ export default function LoginPage() {
             <p className="text-xs font-bold uppercase tracking-widest text-slate-400 text-center mb-4">
               TÀI KHOẢN DEMO (Mật khẩu: password123)
             </p>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 gap-2">
               {DEMO_ACCOUNTS.map(({ label, email, role }) => (
                 <button
-                  key={role}
+                  key={email}
                   type="button"
                   onClick={() => fillDemo(email)}
-                  className="py-2.5 px-3 text-xs font-bold rounded-xl border border-slate-200 text-slate-600 hover:bg-primary hover:text-white hover:border-primary transition-all text-center"
+                  className="py-2.5 px-2 text-xs font-bold rounded-xl border border-slate-200 text-slate-600 hover:bg-primary hover:text-white hover:border-primary transition-all text-center truncate"
                 >
                   {label}
                 </button>

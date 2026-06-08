@@ -13,6 +13,7 @@ import TeacherLayout from "./layouts/TeacherLayout";
 import TeacherDashboard from "./pages/teacher/TeacherDashboard";
 import HealthTrackerList from "./pages/teacher/HealthTrackerList";
 import SkillAssessment from "./pages/teacher/SkillAssessment";
+import TeacherELearning from "./pages/teacher/TeacherELearning";
 
 // Parent Bound
 import ParentLayout from "./layouts/ParentLayout";
@@ -42,6 +43,7 @@ export default function App() {
           <Route path="dashboard" element={<TeacherDashboard />} />
           <Route path="health" element={<HealthTrackerList />} />
           <Route path="assessments" element={<SkillAssessment />} />
+          <Route path="e-learning" element={<TeacherELearning />} />
         </Route>
 
         {/* Parent Bounds */}

@@ -172,8 +172,11 @@ export default function ClassReports() {
   const classStudents = students.filter((s) => {
     if (!selectedClass) return true;
     const matchClass =
+      s.classId === selectedClass.id ||
       s.classroom_id === selectedClass.id ||
       s.classroom?.id === selectedClass.id ||
+      s.className === selectedClass.class_name ||
+      s.className === selectedClass.name ||
       s.classroom?.class_name === selectedClass.class_name ||
       s.classroom?.name === selectedClass.class_name;
     const matchSearch = s.full_name
@@ -260,8 +263,11 @@ export default function ClassReports() {
               const isActive = selectedClass?.id === cls.id;
               const studentCount = students.filter(
                 (s) =>
+                  s.classId === cls.id ||
                   s.classroom_id === cls.id ||
                   s.classroom?.id === cls.id ||
+                  s.className === cls.class_name ||
+                  s.className === cls.name ||
                   s.classroom?.name === cls.class_name,
               ).length;
               return (
@@ -513,9 +519,7 @@ export default function ClassReports() {
                             <span className="material-symbols-outlined text-[16px] text-primary">
                               class
                             </span>
-                            {selected.classroom?.class_name ||
-                              selected.classroom?.name ||
-                              (vi ? "Chưa phân lớp" : "Unassigned")}
+                            {(selected.className && selected.className !== 'Chưa có lớp' && selected.className !== 'Chưa phân lớp') ? selected.className : (vi ? "Chưa phân lớp" : "Unassigned")}
                           </span>
                           {selected.date_of_birth && (
                             <span className="flex items-center gap-1">

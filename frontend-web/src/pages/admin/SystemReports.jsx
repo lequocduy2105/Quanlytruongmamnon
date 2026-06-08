@@ -312,19 +312,15 @@ export default function SystemReports() {
         setDeficiencyDetails(deficiencyRes.data || []);
         setFeedbacks(feedbacksRes.data || []);
 
-        const teacherCount = {};
-        (assessmentsRes.data || []).forEach((a) => {
-          const tid = a.teacher?.id || a.teacherId;
-          if (tid) teacherCount[tid] = (teacherCount[tid] || 0) + 1;
-        });
         const teacherData = (teachersRes.data || [])
           .map((t) => ({
             id: t.id,
             name: t.full_name,
             spec: t.specializations || "General",
-            assessments: teacherCount[t.id] || 0,
+            averageRating: Number(t.averageRating || 0),
+            reviewCount: Number(t.reviewCount || 0),
           }))
-          .sort((a, b) => b.assessments - a.assessments)
+          .sort((a, b) => b.averageRating - a.averageRating)
           .slice(0, 6);
         setTeachers(teacherData);
         setLastUpdated(new Date());
@@ -443,7 +439,7 @@ export default function SystemReports() {
   const teacherBarData = teachers.map((t) => ({
     name: t.name.split(" ").slice(-2).join(" "),
     fullName: t.name,
-    total: t.assessments,
+    averageRating: t.averageRating,
   }));
 
   const ratingAvg =
@@ -933,8 +929,8 @@ export default function SystemReports() {
             </h3>
             <p className="text-xs text-slate-500 mt-0.5">
               {vi
-                ? "So danh gia ky nang thuc hien boi tung giao vien"
-                : "Skill assessments conducted per teacher"}
+                ? "Danh gia trung binh tu phu huynh gui cho giao vien"
+                : "Average parent feedback rating per teacher"}
             </p>
           </div>
           <span className="text-xs font-bold bg-slate-100 text-slate-500 px-2 py-1 rounded-full">
@@ -961,7 +957,8 @@ export default function SystemReports() {
                     tick={{ fontSize: 11, fill: "#94a3b8" }}
                     axisLine={false}
                     tickLine={false}
-                    allowDecimals={false}
+                    domain={[0, 5]}
+                    ticks={[0, 1, 2, 3, 4, 5]}
                   />
                   <YAxis
                     type="category"
@@ -973,8 +970,8 @@ export default function SystemReports() {
                   />
                   <Tooltip content={<CustomBarTooltip />} />
                   <Bar
-                    dataKey="total"
-                    name={vi ? "Danh Gia KN" : "Assessments"}
+                    dataKey="averageRating"
+                    name={vi ? "Danh Gia PH" : "Parent Rating"}
                     radius={[0, 6, 6, 0]}
                     maxBarSize={22}
                   >
@@ -1010,7 +1007,7 @@ export default function SystemReports() {
                     <p className="text-[11px] text-slate-400">{t.spec}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-lg font-black text-primary font-headline">{t.assessments}</p>
+                    <p className="text-lg font-black text-primary font-headline">{t.reviewCount || 0}</p>
                     <p className="text-[10px] text-slate-400">{vi ? "danh gia" : "assess."}</p>
                   </div>
                 </div>

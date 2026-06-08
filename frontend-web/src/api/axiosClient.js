@@ -22,7 +22,8 @@ axiosClient.interceptors.request.use(
 axiosClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const isLoginRequest = error.config?.url?.endsWith("/login");
+    if (error.response?.status === 401 && !isLoginRequest) {
       // Clear stale token and redirect to login
       localStorage.removeItem("access_token");
       localStorage.removeItem("user_role");

@@ -9,18 +9,21 @@ export enum UserRole {
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @Column({ unique: true })
-  email: string;
+  email!: string;
 
   @Column()
-  password_hash: string;
+  password_hash!: string;
 
   @Column({
     type: 'enum',
     enum: UserRole,
     default: UserRole.PARENT,
   })
-  role: UserRole;
+  role!: UserRole;
+
+  @Column({ name: 'must_change_password', type: 'boolean', default: true })
+  mustChangePassword!: boolean;
 }

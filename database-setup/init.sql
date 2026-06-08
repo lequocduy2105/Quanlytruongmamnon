@@ -4,6 +4,11 @@
 -- Chạy file này trong MySQL Workbench để reset hoàn toàn DB
 -- ============================================================
 
+-- Bắt buộc đặt TRƯỚC TIÊN: đảm bảo connection dùng utf8mb4
+-- Nếu thiếu dòng này, tiếng Việt sẽ bị ghi sai encoding vào DB
+SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci;
+SET CHARACTER SET utf8mb4;
+
 -- Tắt kiểm tra khoá ngoại tạm thời để DROP dễ dàng
 SET FOREIGN_KEY_CHECKS = 0;
 
@@ -62,6 +67,12 @@ CREATE TABLE `classrooms` (
     `max_capacity` INT NOT NULL DEFAULT 25
                    COMMENT 'Sĩ số tối đa',
     `teacher_id`   INT NULL,
+    `grade_level`  VARCHAR(20) NULL
+                   COMMENT 'Khối lớp VD: MAM, CHOI, LA',
+    `academic_year` VARCHAR(20) NULL
+                   COMMENT 'Niên khóa VD: 2023-2024',
+    `status`       VARCHAR(20) NOT NULL DEFAULT 'active'
+                   COMMENT 'active, archived',
     `created_at`   DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     FOREIGN KEY (`teacher_id`) REFERENCES `teachers`(`id`) ON DELETE SET NULL
@@ -90,8 +101,17 @@ CREATE TABLE `students` (
     `blood_type`        VARCHAR(5) NULL COMMENT 'Nhóm máu: A+/A-/B+/AB+/O+...',
     `medical_notes`     TEXT NULL COMMENT 'Ghi chú sức khoẻ đặc biệt (bệnh nền...)',
     `date_of_birth`     DATE NULL,
+    `enrollment_date`   DATE NULL
+                        COMMENT 'Ngày nhập học',
+    `status`            VARCHAR(20) NOT NULL DEFAULT 'active'
+                        COMMENT 'active, inactive, graduated',
+    `withdrawal_reason` TEXT NULL
+                        COMMENT 'Lý do nghỉ học (nếu có)',
+    `is_special_needs`  BOOLEAN NOT NULL DEFAULT FALSE
+                        COMMENT 'Học sinh diện đặc biệt (hỗ trợ nhập học quá tuổi)',
     `created_at`        DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
+    INDEX `idx_students_fullname_dob` (`full_name`, `date_of_birth`),
     FOREIGN KEY (`class_id`) REFERENCES `classrooms`(`id`) ON DELETE SET NULL,
     FOREIGN KEY (`guardian_user_id`) REFERENCES `users`(`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -527,10 +547,10 @@ INSERT INTO `teachers` (`full_name`, `specializations`, `user_id`, `is_active`) 
 -- classroom id=2 → teacher_id=2 (Nguyễn Văn Minh)
 -- classroom id=3 → teacher_id=3 (Lê Trung Khang)
 -- ============================================================
-INSERT INTO `classrooms` (`name`, `age_group`, `max_capacity`, `teacher_id`) VALUES
-('Lớp Bướm Vui', '4-5 tuổi', 20, 1),
-('Lớp Sao Sáng', '5-6 tuổi', 20, 2),
-('Lớp IT',        '4-5 tuổi', 20, 3);
+INSERT INTO `classrooms` (`name`, `age_group`, `max_capacity`, `teacher_id`, `grade_level`, `academic_year`, `status`) VALUES
+('Lớp Bướm Vui', '4-5 tuổi', 20, 1, 'CHOI', '2023-2024', 'active'),
+('Lớp Sao Sáng', '5-6 tuổi', 20, 2, 'LA',   '2023-2024', 'active'),
+('Lớp IT',        '4-5 tuổi', 20, 3, 'CHOI', '2023-2024', 'active');
 
 -- Gán lớp cho giáo viên (sau khi classrooms đã có ID)
 UPDATE `teachers` SET `class_id` = 1 WHERE `id` = 1; -- Trần Ngọc Ánh  phụ trách Lớp Bướm Vui
@@ -542,11 +562,11 @@ UPDATE `teachers` SET `class_id` = 3 WHERE `id` = 3; -- Lê Trung Khang  phụ t
 -- class_id: 1=Lớp Bướm Vui, 2=Lớp Sao Sáng, 3=Lớp IT
 -- guardian_user_id: 5=parent@school.com, 6=parent2@school.com
 -- ============================================================
-INSERT INTO `students` (`full_name`, `class_id`, `guardian_user_id`, `allergy_tags`, `allergy_severity`, `emergency_contact_name`, `emergency_contact_phone`, `emergency_contact_relation`, `blood_type`, `date_of_birth`) VALUES
-('Lê Quốc Duy',   1, 5, 'Hải sản',           'SEVERE',       'Lê Văn Hùng',   '0901 234 567', 'Ba',  'O+', '2020-05-15'),
-('Nguyễn Thị Mai', 1, 5, NULL,                 'NONE',         'Nguyễn Thị Lan','0912 345 678', 'Mẹ',  'A+', '2020-08-20'),
-('Trần Bảo Châu', 2, 6, 'Đậu phộng,Sữa bò',  'ANAPHYLACTIC', 'Trần Mạnh Hùng','0933 456 789', 'Ba',  'B+', '2019-11-10'),
-('Hoàng Long',     3, NULL, NULL,               'NONE',         'Hoàng Văn Bình','0944 567 890', 'Ba',  'A+', '2020-03-22');
+INSERT INTO `students` (`full_name`, `class_id`, `guardian_user_id`, `allergy_tags`, `allergy_severity`, `emergency_contact_name`, `emergency_contact_phone`, `emergency_contact_relation`, `blood_type`, `date_of_birth`, `status`, `is_special_needs`) VALUES
+('Lê Quốc Duy',   1, 5, 'Hải sản',           'SEVERE',       'Lê Văn Hùng',   '0901 234 567', 'Ba',  'O+', '2020-05-15', 'active', false),
+('Nguyễn Thị Mai', 1, 5, NULL,                 'NONE',         'Nguyễn Thị Lan','0912 345 678', 'Mẹ',  'A+', '2020-08-20', 'active', false),
+('Trần Bảo Châu', 2, 6, 'Đậu phộng,Sữa bò',  'ANAPHYLACTIC', 'Trần Mạnh Hùng','0933 456 789', 'Ba',  'B+', '2019-11-10', 'active', false),
+('Hoàng Long',     3, NULL, NULL,               'NONE',         'Hoàng Văn Bình','0944 567 890', 'Ba',  'A+', '2020-03-22', 'active', false);
 
 -- ============================================================
 -- SEED DATA — Mẫu đánh giá kỹ năng
@@ -636,6 +656,32 @@ UPDATE `classrooms` SET `teacher_id` = 3 WHERE `id` = 3;  -- Lớp IT        -> 
 UPDATE `teachers` SET `class_id` = 1 WHERE `id` = 1;  -- Trần Ngọc Ánh   -> Lớp Bướm Vui (classroom id=1)
 UPDATE `teachers` SET `class_id` = 2 WHERE `id` = 2;  -- Nguyễn Văn Minh -> Lớp Sao Sáng (classroom id=2)
 UPDATE `teachers` SET `class_id` = 3 WHERE `id` = 3;  -- Lê Trung Khang  -> Lớp IT        (classroom id=3)
+
+-- ============================================================
+-- TABLE: lesson_contents (managed by academic-service)
+-- Nội dung bài học / tài liệu e-learning do giáo viên tạo
+-- ============================================================
+CREATE TABLE IF NOT EXISTS `lesson_contents` (
+    `id`          INT NOT NULL AUTO_INCREMENT,
+    `title`       VARCHAR(255) NOT NULL
+                  COMMENT 'Tiêu đề bài học',
+    `description` TEXT NULL
+                  COMMENT 'Mô tả nội dung bài học',
+    `content_url` VARCHAR(500) NULL
+                  COMMENT 'URL video / link tài liệu online',
+    `file_url`    VARCHAR(500) NULL
+                  COMMENT 'URL file đính kèm (PDF, DOCX...)',
+    `class_id`    INT NOT NULL
+                  COMMENT 'Lớp học sở hữu bài học này',
+    `created_by`  INT NOT NULL
+                  COMMENT 'teacher user_id tạo bài học',
+    `created_at`  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at`  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    INDEX `IDX_lesson_class` (`class_id`),
+    INDEX `IDX_lesson_created` (`created_at`),
+    FOREIGN KEY (`class_id`) REFERENCES `classrooms`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Bật lại kiểm tra khoá ngoại
 SET FOREIGN_KEY_CHECKS = 1;

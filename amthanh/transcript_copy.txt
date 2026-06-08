@@ -1,0 +1,892 @@
+﻿=== TOÀN VĂN ===
+
+ Nó chỉ xóa được những cái Những cái vì co mà không có khóa ngoại thôi Không có tham gia vô bản nào hết á Thì mới được xóa Còn nếu như mà nó có tham gia vô bản rồi á Là nó sẽ chuyển trạng thái thôi Chứ nó không có xóa đâu em Cái mà đơn giản nhất mà dễ hiểu cái đó Là em thấy những cái dòng điện thoại đi Những cái dòng điện thoại máy tính cũ Của các cái ví dụ như điện thoại di động Cái gì á Điện máy xanh đồ đó Thì nó có xóa dữ liệu không? Không Nó chỉ nói là sản phẩm đó ngừng kinh doanh Chứ nó không có nói là cái sản phẩm đó nó xóa Sản phẩm xóa thì mai mốt là Ủa cái người đó mua cái sản phẩm đó là sản phẩm gì? Đúng không? Nên tham gia khóa ngoại là thứ nhất Database nó ràng Ràng buộc nó không cho xóa Bạn xóa là bạn ép nó xóa luôn tất cả các dữ liệu liên quan Hay là bạn chỉ cần chuyển cái trạng thái của cái sản phẩm đó Hoặc là đối với mình đó là chuyển cái học sinh đó đó Là bây giờ hồi xưa là nó có học trường mình đó Nhưng mà hiện tại thì nó không học Giống như mai mốt mấy bạn sau khi tốt nghiệp xong đi Thì mấy bạn sẽ trở thành cái trạng thái là inactive tại Hoa Sen Nhưng mà khi bạn về trường Điển hành đứng đó bạn Bây giờ nè Cô học Đại học Hoa Sen Ớ Đại học khoa tự nhiên Năm 2000 khóa 2000 Năm vừa rồi là năm 2025 Cô về trường cô xuất được bản điểm 25 năm sau cô về trường cô vẫn xuất được bản điểm Nhưng mà cái trạng thái của cô là không có học Nên đừng nhau bạn chức năng xóa Thật ra nói xóa đi chăng nữa là chỉ là chuyển trạng thái rồi Cái chức năng xóa đó cũng không Cái nào dễ dễ mà cũng vừa vừa đó Để bạn có thể ghi điểm Chứ còn em nói em giao bạn nè Em giao bạn báo cáo Em giao bạn PowerPoint Em giao bạn Grannet Em giao bạn kiểm thử Những cái đó Những cái đó bạn không ghi điểm được Điểm của bạn không cao được Giáo viên nào khó khó dập cho bạn chết luôn Tại vì cái đó đồ án chuyên ngành mà Đúng không? Những cái đó có liên quan tới chuyên ngành không? Có Ở trong đây mới có, ngoài kia là không có Đúng không? Kể cả Grannet nó liên quan tí xíu xíu nhưng mà thật ra không ai Không xài được bao nhiêu á Xài cao nào 40% 40-50% là tối đa chứ không xài được... Thường Grannet trừ khi mình tự thiết kế hoặc là cái thiết kế chuyên nghiệp thì mình xài được Còn hiện tại mà cái bạn yếu mà đi thiết kế Grannet Mà kêu bạn backend giỏi hơn xài thì gần như là không có xài nhiều được Rồi cái kiểm thử thì phải bài bản này kia đó Thêm cho bạn ví dụ như chức năng gì gì đó Là hướng dẫn bạn làm, bây giờ là hướng dẫn bạn từng bước từng bước Cái học thuật của em là làm gì trên đó dạ? Nhà học thuật đó là kiểu tạo lớp luôn Chỉ số rồi, phân công, lớp viên Em có làm cái dạng lên thờ khá biểu không? Bài học giống như em mời lên đi nghe Chưa có cô Ờ nếu như mà em mời lên đi nghe là không có kiểu gì hết á... mà rảnh mình hướng tới cái đó ha có nghĩa là rảnh đó là mình hướng tới cái chuyện mà mình xây dựng một cái giống như mờ learning không cần phải làm online nhưng mà cũng là đưa bài học lên em thấy mờ learning không ở phía giáo viên thôi em khỏi làm ở phía học sinh cũng được em hiểu không em mờ learning em có thể đưa cái gì lên đưa nội dung bài học lên rồi đưa video lên đưa file lên đưa link lên đưa text lên đúng không cái này em làm trường mệnh non á cô em cũng không có hướng gì tới đó lắm thì ý cô nói là dư thời gian á dư thời gian thật ra không phải đâu dư thời gian em vẫn làm có nghĩa là cái buổi học ngày hôm đó mình học cái gì đó em dạ dạ dạ em hình dung thôi á dứ thời gian thìua thôi nó là bộ đồngources phèn trong em học nghỉ rồi dưới mình mình tập NT tập về đi người Cột Nhưng mà tại vì nếu như em lên cái thời khóa biểu mà cơ bản giống như là sát tiếng Việt, chiều toán gì gì đó Thì cũng bình thường thôi, cái thời khóa biểu đó là cũng bình thường thôi Nhưng mà em nghĩ em đưa lên cái kiểu của em Marlonine á Em thấy nó hợp lý hơn Nhưng mà cái Marlonine gọi tiếng nó cũng chưa có hợp ý với cô tí Là nếu như mà cô sẽ xây dựng tầng 1 là nó nằm ở dưới cuối Rồi bây giờ mình add topic đúng không? Thì nó sẽ lên trên của tầng 1 Có nghĩa là của cô gần là nó sẽ ở trên Còn cái nào xa là nó sẽ ở dưới Em hiểu, hiểu với cô Tầng 15 sẽ ở trên, tầng 1 sẽ ở dưới Tại vì người ta vô trang web, người ta muốn coi là coi bài học của ngày hôm nay Bài học của tuần này chứ người ta không có nhu cầu coi của những tuần trước Đúng không? Dạ đúng rồi Nên đó là cái em Marlonine cải tiến Đúng là nó có gom lại, nó có cải tiến một ít Nhưng mà vẫn chưa hợp lý lắm Ờ Đấy, giờ em phát triển thêm Rồi Ừ Ừ Ừ Ừ Ừ Ừ Ờ Cô có thêm ý kiến gì không cô? Để con về nhà con fix lại Ờ Cái học viên hồi nãy á Thêm lớp đồ này cho nợ đó Học vật hả cô? Ờ Rồi phân công giáo viên đồ như thế nào? Dạ Rồi Rồi Rồi Rồi Rồi Rồi Rồi Rồi bởi vì như vậy nè thường á thường nó sẽ ít sự xáo trộn có nghĩa là năm nay nó học lớp mầm đúng không thì tất cả những em bé đó năm sau sẽ lên lớp tròi lớp mầm ví dụ như lớp mầm 1 thì nó sẽ lên tròi 1 mầm 2 sẽ lên tròi 2 rồi tròi 2 thì sẽ lên lá 2 và khi như vậy là mình gọi là mình approve nguyên 1 lớp chứ không phải không phải chuyển từng bé em hình dung không rồi tiếp nhận học viên mới là không phải chỉ có bé lớp mầm mới được tiếp nhận có những bé người ta gia đình người ta 3 tuổi người ta còn ở nhà được có ông bà chăm có gì đó người ta chưa cho đi học thì 3 tuổi nó không đi học 4 tuổi nó không đi học tới 5 tuổi người ta mới cho ra đi học lớp lá vẫn được nên cái tiếp nhận là cái phải ràng về mặt mặt tuổi em hình dung ơ mấy tuổi thì sẽ vô được lớp gì 3 tuổi là sẽ vô được lớp mầm 4 tuổi sẽ vô được lớp tròi 5 tuổi sẽ vô được lớp lá không có cái trường học đó là không được lớp lá trường học là 5 tuổi đi vô lớp mầm có nhưng mà nó lại như vậy nè nó có trường hợp đó là trường hợp gọi là sinh viên cá biệt thứ nhất là nó bị tự kỷ nó bị thiểu thang á nhưng mà khi đó đó là chỉ có quyền admin mới thêm được hay chưa thế nào đó thì em em thử suy nghĩ thử nha có nghĩa là em thử suy nghĩ thử nha mình đã gặp được hơn 1 tuần rồi vẫn có trường học đặc biệt nhớ tại vì cái trường mà bé nhà cô học ó là trường sơn sơ dạy phải nói là 90 phần trăm đa số hết gần hết là sơn nguyên trường á là một khối 9 lớp nguyên trường là 9 lớp 3 lớp mầm 3 lớp tròi 3 lớp lá nhưng mà chỉ có một lớp dậy là 3 cô mà chỉ có 1 lớp dậy là 3 cô Nói chung là dưới 5 cô là cô ở ngoài thôi Có nghĩa là sơ hết Nên đó là có nhận cả trẻ đặc biệt nữa Nên có trường hợp đó là nếu như bé hòa đồng được Thì cho bé vô học chung Còn không là sẽ có lớp đặc biệt Còn nếu như bé chậm phát triển Thì vẫn có tình huống đó Có nghĩa là em hình dung bệnh đau Bệnh đau thì nó có nhiều cấp độ Chứ nó không phải là nỗi đau là không thể đi học được Nó sẽ có nhiều phương tiện Cấp độ là ví dụ chứ Bạn cô có đứa bé Nó nay là 1 tuổi 20 tháng 10 20 tháng 10 thì tới tháng 10 này nó mới làm 2 tuổi Thì nó khoảng tuổi rưỡi Nó 1 tuổi rưỡi nhưng thật sự ra nó vẫn nhận biết được Nó vẫn chơi được Nhưng nó tầm cỡ em bé dưới 1 tuổi Có nghĩa là nó chậm phát triển Thôi nhưng nó vẫn biết nha Nó vẫn biết đòi mẹ Vẫn biết đòi bú Vẫn biết chơi Nhưng mà nó chậm phát triển thôi Nên những bé đó là thay vì là Cô nói là 5 tuổi thì thay vì nó học lớp lá Thì 5 tuổi nó sẽ có thể vô lớp mầm À Thì em có thể giải thích khi phản biện Em làm Xong rồi có thể giải thích khi phản biện Dạ rồi ạ Rồi còn nhiều đó là nhiều lắm rồi Dạ Làm đi rồi có gì hỏi cô tiếp Dạ ok, cảm ơn cô ạ À không có gì Cô mong mừng mấy ngày Dạ bye bye cô Cô sống khỏe ạ Ok Thế tôi ạ
+
+=== CHI TIẾT TỪNG ĐOẠN ===
+
+[00:00.00 --> 00:01.88]
+Nó chỉ xóa được những cái
+
+[00:03.24 --> 00:05.64]
+Những cái vì co mà không có khóa ngoại thôi
+
+[00:05.64 --> 00:08.20]
+Không có tham gia vô bản nào hết á
+
+[00:08.20 --> 00:09.64]
+Thì mới được xóa
+
+[00:10.28 --> 00:13.62]
+Còn nếu như mà nó có tham gia vô bản rồi á
+
+[00:13.62 --> 00:16.24]
+Là nó sẽ chuyển trạng thái thôi
+
+[00:16.24 --> 00:17.42]
+Chứ nó không có xóa đâu em
+
+[00:20.02 --> 00:22.50]
+Cái mà đơn giản nhất mà dễ hiểu cái đó
+
+[00:22.50 --> 00:25.96]
+Là em thấy những cái dòng điện thoại đi
+
+[00:25.96 --> 00:28.44]
+Những cái dòng điện thoại máy tính cũ
+
+[00:28.44 --> 00:31.34]
+Của các cái ví dụ như điện thoại di động
+
+[00:32.58 --> 00:33.38]
+Cái gì á
+
+[00:33.94 --> 00:35.16]
+Điện máy xanh đồ đó
+
+[00:35.16 --> 00:36.94]
+Thì nó có xóa dữ liệu không?
+
+[00:37.18 --> 00:37.62]
+Không
+
+[00:38.74 --> 00:41.10]
+Nó chỉ nói là sản phẩm đó ngừng kinh doanh
+
+[00:42.72 --> 00:45.22]
+Chứ nó không có nói là cái sản phẩm đó nó xóa
+
+[00:45.80 --> 00:47.50]
+Sản phẩm xóa thì mai mốt là
+
+[00:48.16 --> 00:50.56]
+Ủa cái người đó mua cái sản phẩm đó là sản phẩm gì?
+
+[00:52.36 --> 00:52.90]
+Đúng không?
+
+[00:54.24 --> 00:57.02]
+Nên tham gia khóa ngoại là thứ nhất
+
+[00:57.50 --> 00:58.32]
+Database nó ràng
+
+[00:58.32 --> 00:59.44]
+Ràng buộc nó không cho xóa
+
+[01:00.00 --> 01:04.28]
+Bạn xóa là bạn ép nó xóa luôn tất cả các dữ liệu liên quan
+
+[01:04.80 --> 01:09.40]
+Hay là bạn chỉ cần chuyển cái trạng thái của cái sản phẩm đó
+
+[01:10.10 --> 01:12.66]
+Hoặc là đối với mình đó là chuyển cái học sinh đó đó
+
+[01:12.66 --> 01:15.26]
+Là bây giờ hồi xưa là nó có học trường mình đó
+
+[01:15.26 --> 01:17.28]
+Nhưng mà hiện tại thì nó không học
+
+[01:18.04 --> 01:20.34]
+Giống như mai mốt mấy bạn sau khi tốt nghiệp xong đi
+
+[01:20.34 --> 01:25.86]
+Thì mấy bạn sẽ trở thành cái trạng thái là inactive tại Hoa Sen
+
+[01:26.48 --> 01:27.60]
+Nhưng mà khi bạn về trường
+
+[01:27.60 --> 01:28.84]
+Điển hành đứng đó bạn
+
+[01:28.84 --> 01:30.20]
+Bây giờ nè
+
+[01:30.20 --> 01:31.64]
+Cô học Đại học Hoa Sen
+
+[01:31.64 --> 01:33.46]
+Ớ Đại học khoa tự nhiên
+
+[01:33.46 --> 01:35.44]
+Năm 2000 khóa 2000
+
+[01:36.34 --> 01:38.40]
+Năm vừa rồi là năm 2025
+
+[01:40.12 --> 01:42.16]
+Cô về trường cô xuất được bản điểm
+
+[01:42.16 --> 01:45.60]
+25 năm sau cô về trường cô vẫn xuất được bản điểm
+
+[01:48.38 --> 01:50.42]
+Nhưng mà cái trạng thái của cô là không có học
+
+[01:51.48 --> 01:53.46]
+Nên đừng nhau bạn chức năng xóa
+
+[01:53.46 --> 01:57.34]
+Thật ra nói xóa đi chăng nữa là chỉ là chuyển trạng thái rồi
+
+[01:58.36 --> 02:00.20]
+Cái chức năng xóa đó cũng không
+
+[02:00.20 --> 02:02.50]
+Cái nào dễ dễ mà cũng vừa vừa đó
+
+[02:02.50 --> 02:04.40]
+Để bạn có thể ghi điểm
+
+[02:04.40 --> 02:06.40]
+Chứ còn em nói em giao bạn nè
+
+[02:06.40 --> 02:08.60]
+Em giao bạn báo cáo
+
+[02:08.60 --> 02:10.76]
+Em giao bạn PowerPoint
+
+[02:11.46 --> 02:13.04]
+Em giao bạn Grannet
+
+[02:13.58 --> 02:15.48]
+Em giao bạn kiểm thử
+
+[02:17.68 --> 02:18.56]
+Những cái đó
+
+[02:18.56 --> 02:20.46]
+Những cái đó bạn không ghi điểm được
+
+[02:20.46 --> 02:21.76]
+Điểm của bạn không cao được
+
+[02:22.92 --> 02:25.50]
+Giáo viên nào khó khó dập cho bạn chết luôn
+
+[02:27.88 --> 02:29.64]
+Tại vì cái đó đồ án chuyên ngành mà
+
+[02:30.38 --> 02:30.94]
+Đúng không?
+
+[02:31.54 --> 02:33.26]
+Những cái đó có liên quan tới chuyên ngành không?
+
+[02:33.78 --> 02:34.18]
+Có
+
+[02:36.88 --> 02:39.68]
+Ở trong đây mới có, ngoài kia là không có
+
+[02:40.94 --> 02:41.54]
+Đúng không?
+
+[02:44.12 --> 02:48.06]
+Kể cả Grannet nó liên quan tí xíu xíu nhưng mà thật ra không ai
+
+[02:48.06 --> 02:49.82]
+Không xài được bao nhiêu á
+
+[02:50.52 --> 02:52.38]
+Xài cao nào 40%
+
+[02:53.84 --> 02:56.66]
+40-50% là tối đa chứ không xài được...
+
+[02:57.84 --> 03:03.84]
+Thường Grannet trừ khi mình tự thiết kế hoặc là cái thiết kế chuyên nghiệp thì mình xài được
+
+[03:03.84 --> 03:08.10]
+Còn hiện tại mà cái bạn yếu mà đi thiết kế Grannet
+
+[03:08.10 --> 03:13.48]
+Mà kêu bạn backend giỏi hơn xài thì gần như là không có xài nhiều được
+
+[03:13.48 --> 03:17.18]
+Rồi cái kiểm thử thì phải bài bản này kia đó
+
+[03:21.00 --> 03:23.52]
+Thêm cho bạn ví dụ như chức năng gì gì đó
+
+[03:23.52 --> 03:27.58]
+Là hướng dẫn bạn làm, bây giờ là hướng dẫn bạn từng bước từng bước
+
+[03:32.32 --> 03:34.80]
+Cái học thuật của em là làm gì trên đó dạ?
+
+[03:34.80 --> 03:36.48]
+Nhà học thuật đó là kiểu tạo lớp luôn
+
+[03:41.70 --> 03:44.16]
+Chỉ số rồi, phân công, lớp viên
+
+[03:44.74 --> 03:47.60]
+Em có làm cái dạng lên thờ khá biểu không?
+
+[03:50.06 --> 03:51.84]
+Bài học giống như em mời lên đi nghe
+
+[03:53.84 --> 03:54.56]
+Chưa có cô
+
+[03:56.54 --> 03:57.58]
+Ờ nếu như mà em mời lên đi nghe là không có kiểu gì hết á...
+
+[03:57.58 --> 03:57.58]
+
+
+[03:57.58 --> 03:57.58]
+
+
+[03:57.58 --> 03:57.58]
+
+
+[03:57.58 --> 03:59.14]
+mà rảnh mình hướng tới cái đó ha
+
+[03:59.76 --> 04:04.82]
+có nghĩa là rảnh đó là mình hướng tới cái chuyện mà mình xây dựng một cái giống như mờ learning
+
+[04:05.58 --> 04:06.74]
+không cần phải làm online
+
+[04:07.58 --> 04:09.32]
+nhưng mà cũng là đưa bài học lên
+
+[04:09.32 --> 04:11.00]
+em thấy mờ learning không
+
+[04:11.58 --> 04:14.50]
+ở phía giáo viên thôi em khỏi làm ở phía học sinh cũng được
+
+[04:15.88 --> 04:16.94]
+em hiểu không
+
+[04:16.94 --> 04:19.40]
+em mờ learning em có thể đưa cái gì lên
+
+[04:19.92 --> 04:21.34]
+đưa nội dung bài học lên
+
+[04:23.06 --> 04:25.68]
+rồi đưa video lên đưa file lên
+
+[04:26.90 --> 04:29.40]
+đưa link lên đưa text lên
+
+[04:32.60 --> 04:33.20]
+đúng không
+
+[04:33.20 --> 04:34.80]
+cái này em làm trường mệnh non á cô
+
+[04:34.80 --> 04:37.12]
+em cũng không có hướng gì tới đó lắm
+
+[04:38.78 --> 04:41.34]
+thì ý cô nói là dư thời gian á
+
+[04:41.34 --> 04:43.58]
+dư thời gian thật ra không phải đâu
+
+[04:44.68 --> 04:46.94]
+dư thời gian em vẫn làm có nghĩa là
+
+[04:48.94 --> 04:51.44]
+cái buổi học ngày hôm đó mình học cái gì đó em
+
+[04:51.44 --> 04:52.24]
+dạ dạ dạ
+
+[04:53.26 --> 04:54.22]
+em hình dung thôi
+
+[05:06.32 --> 05:15.70]
+á dứ thời gian thìua thôi
+
+[05:15.70 --> 05:15.70]
+
+
+[05:15.70 --> 05:15.70]
+
+
+[05:15.70 --> 05:15.70]
+
+
+[05:15.70 --> 05:16.22]
+nó là bộ đồngources
+
+[05:18.82 --> 05:20.60]
+phèn trong em
+
+[05:20.60 --> 05:21.16]
+học nghỉ rồi
+
+[05:21.16 --> 05:23.88]
+dưới mình
+
+[05:23.88 --> 05:24.46]
+mình tập NT
+
+[05:24.46 --> 05:25.22]
+tập về đi
+
+[05:25.22 --> 05:25.66]
+người Cột
+
+[05:28.46 --> 05:36.30]
+Nhưng mà tại vì nếu như em lên cái thời khóa biểu mà cơ bản giống như là sát tiếng Việt, chiều toán gì gì đó
+
+[05:37.50 --> 05:40.78]
+Thì cũng bình thường thôi, cái thời khóa biểu đó là cũng bình thường thôi
+
+[05:40.78 --> 05:45.96]
+Nhưng mà em nghĩ em đưa lên cái kiểu của em Marlonine á
+
+[05:47.42 --> 05:49.00]
+Em thấy nó hợp lý hơn
+
+[05:49.00 --> 05:53.56]
+Nhưng mà cái Marlonine gọi tiếng nó cũng chưa có hợp ý với cô tí
+
+[05:54.68 --> 06:00.28]
+Là nếu như mà cô sẽ xây dựng tầng 1 là nó nằm ở dưới cuối
+
+[06:00.94 --> 06:03.16]
+Rồi bây giờ mình add topic đúng không?
+
+[06:03.26 --> 06:05.14]
+Thì nó sẽ lên trên của tầng 1
+
+[06:05.14 --> 06:07.86]
+Có nghĩa là của cô gần là nó sẽ ở trên
+
+[06:08.40 --> 06:10.40]
+Còn cái nào xa là nó sẽ ở dưới
+
+[06:10.40 --> 06:11.60]
+Em hiểu, hiểu với cô
+
+[06:12.68 --> 06:15.22]
+Tầng 15 sẽ ở trên, tầng 1 sẽ ở dưới
+
+[06:18.00 --> 06:22.90]
+Tại vì người ta vô trang web, người ta muốn coi là coi bài học của ngày hôm nay
+
+[06:24.06 --> 06:27.72]
+Bài học của tuần này chứ người ta không có nhu cầu coi của những tuần trước
+
+[06:28.82 --> 06:29.48]
+Đúng không?
+
+[06:29.56 --> 06:30.10]
+Dạ đúng rồi
+
+[06:31.32 --> 06:33.64]
+Nên đó là cái em Marlonine cải tiến
+
+[06:34.24 --> 06:38.42]
+Đúng là nó có gom lại, nó có cải tiến một ít
+
+[06:39.08 --> 06:40.94]
+Nhưng mà vẫn chưa hợp lý lắm
+
+[06:44.62 --> 06:45.08]
+Ờ
+
+[06:48.72 --> 06:50.14]
+Đấy, giờ em phát triển thêm
+
+[06:51.50 --> 06:51.96]
+Rồi
+
+[06:51.96 --> 06:52.54]
+Ừ
+
+[06:52.54 --> 06:53.10]
+Ừ
+
+[06:53.10 --> 06:53.50]
+Ừ
+
+[06:53.50 --> 06:53.54]
+Ừ
+
+[06:53.54 --> 06:53.54]
+
+
+[06:53.54 --> 06:53.54]
+
+
+[06:53.54 --> 06:53.54]
+
+
+[06:53.54 --> 06:53.54]
+
+
+[06:53.54 --> 06:53.54]
+
+
+[06:53.54 --> 06:53.54]
+
+
+[06:53.54 --> 06:53.54]
+
+
+[06:53.54 --> 06:53.54]
+
+
+[06:53.54 --> 06:53.54]
+
+
+[06:53.54 --> 06:53.54]
+
+
+[06:53.54 --> 06:53.54]
+
+
+[06:53.54 --> 06:53.54]
+
+
+[06:53.54 --> 06:53.54]
+
+
+[06:53.54 --> 06:53.54]
+
+
+[06:53.54 --> 06:53.54]
+
+
+[06:53.54 --> 06:53.54]
+
+
+[06:53.54 --> 06:53.54]
+
+
+[06:53.56 --> 06:54.08]
+Ừ
+
+[06:57.56 --> 06:57.96]
+Ừ
+
+[07:00.76 --> 07:01.16]
+Ờ
+
+[07:01.16 --> 07:03.14]
+Cô có thêm ý kiến gì không cô?
+
+[07:03.24 --> 07:04.48]
+Để con về nhà con fix lại
+
+[07:07.26 --> 07:07.66]
+Ờ
+
+[07:08.76 --> 07:10.62]
+Cái học viên hồi nãy á
+
+[07:10.62 --> 07:12.14]
+Thêm lớp đồ này cho nợ đó
+
+[07:12.14 --> 07:13.00]
+Học vật hả cô?
+
+[07:14.00 --> 07:14.40]
+Ờ
+
+[07:16.32 --> 07:18.46]
+Rồi phân công giáo viên đồ như thế nào?
+
+[07:18.74 --> 07:19.14]
+Dạ
+
+[07:19.14 --> 07:19.28]
+Rồi
+
+[07:19.28 --> 07:19.52]
+Rồi
+
+[07:22.00 --> 07:22.40]
+Rồi
+
+[07:22.40 --> 07:22.80]
+Rồi
+
+[07:22.80 --> 07:22.94]
+Rồi
+
+[07:22.94 --> 07:23.08]
+Rồi
+
+[07:23.08 --> 07:23.52]
+Rồi
+
+[07:23.52 --> 07:23.52]
+
+
+[07:23.52 --> 07:23.54]
+Rồi
+
+[07:23.54 --> 07:23.54]
+
+
+[07:23.54 --> 07:23.54]
+
+
+[07:23.54 --> 07:23.54]
+
+
+[07:23.54 --> 07:23.54]
+
+
+[07:23.54 --> 07:23.54]
+
+
+[07:23.54 --> 07:23.54]
+
+
+[07:23.54 --> 07:23.54]
+
+
+[07:23.54 --> 07:23.54]
+
+
+[07:24.48 --> 07:25.52]
+bởi vì như vậy nè
+
+[07:27.06 --> 07:27.64]
+thường á
+
+[07:29.20 --> 07:29.96]
+thường nó sẽ
+
+[07:29.96 --> 07:31.50]
+ít sự xáo trộn
+
+[07:31.50 --> 07:32.22]
+có nghĩa là
+
+[07:32.90 --> 07:34.76]
+năm nay nó học lớp mầm đúng không
+
+[07:34.76 --> 07:36.88]
+thì tất cả những em bé đó
+
+[07:36.88 --> 07:38.66]
+năm sau sẽ lên lớp tròi
+
+[07:41.76 --> 07:43.68]
+lớp mầm ví dụ như lớp mầm 1
+
+[07:43.68 --> 07:45.48]
+thì nó sẽ lên tròi 1
+
+[07:45.48 --> 07:46.92]
+mầm 2 sẽ lên tròi 2
+
+[07:47.90 --> 07:50.10]
+rồi tròi 2 thì sẽ lên lá 2
+
+[07:51.04 --> 07:52.28]
+và khi như vậy
+
+[07:52.28 --> 07:53.94]
+là mình gọi là mình approve
+
+[07:53.94 --> 07:55.72]
+nguyên 1 lớp chứ không phải
+
+[07:55.72 --> 07:57.90]
+không phải chuyển
+
+[07:57.90 --> 07:58.92]
+từng bé
+
+[07:59.94 --> 08:01.00]
+em hình dung không
+
+[08:01.00 --> 08:05.36]
+rồi tiếp nhận
+
+[08:05.36 --> 08:06.88]
+học viên mới
+
+[08:07.50 --> 08:10.20]
+là không phải chỉ có bé lớp mầm
+
+[08:10.20 --> 08:11.00]
+mới được tiếp nhận
+
+[08:11.00 --> 08:14.08]
+có những bé người ta gia đình người ta 3 tuổi
+
+[08:14.08 --> 08:15.68]
+người ta còn ở nhà được
+
+[08:15.68 --> 08:17.96]
+có ông bà chăm có gì đó
+
+[08:17.96 --> 08:19.02]
+người ta chưa cho đi học
+
+[08:19.64 --> 08:21.42]
+thì 3 tuổi nó không đi học
+
+[08:21.42 --> 08:22.74]
+4 tuổi nó không đi học
+
+[08:22.74 --> 08:25.32]
+tới 5 tuổi người ta mới cho ra đi học lớp lá
+
+[08:26.18 --> 08:27.06]
+vẫn được
+
+[08:28.76 --> 08:32.40]
+nên cái tiếp nhận là cái phải ràng về mặt
+
+[08:33.50 --> 08:34.46]
+mặt tuổi
+
+[08:35.70 --> 08:36.60]
+em hình dung ơ
+
+[08:38.68 --> 08:40.78]
+mấy tuổi thì sẽ vô được lớp gì
+
+[08:42.02 --> 08:44.24]
+3 tuổi là sẽ vô được lớp mầm
+
+[08:44.24 --> 08:46.56]
+4 tuổi sẽ vô được lớp tròi
+
+[08:46.56 --> 08:48.08]
+5 tuổi sẽ vô được lớp lá
+
+[08:49.90 --> 08:51.40]
+không có cái trường học đó là không được lớp lá
+
+[08:51.40 --> 08:51.40]
+
+
+[08:51.42 --> 08:53.00]
+trường học là 5 tuổi đi vô lớp mầm
+
+[08:54.34 --> 08:56.62]
+có nhưng mà nó lại như vậy nè
+
+[08:57.18 --> 08:58.82]
+nó có trường hợp đó là trường hợp
+
+[08:59.62 --> 09:01.54]
+gọi là sinh viên cá biệt
+
+[09:01.54 --> 09:04.80]
+thứ nhất là nó bị tự kỷ
+
+[09:04.80 --> 09:08.06]
+nó bị thiểu thang á
+
+[09:10.08 --> 09:11.74]
+nhưng mà khi đó đó
+
+[09:11.74 --> 09:15.16]
+là chỉ có quyền admin mới thêm được
+
+[09:15.16 --> 09:16.86]
+hay chưa thế nào đó thì em
+
+[09:17.42 --> 09:19.72]
+em thử suy nghĩ thử nha
+
+[09:19.72 --> 09:21.40]
+có nghĩa là em thử suy nghĩ thử nha
+
+[09:21.40 --> 09:21.40]
+
+
+[09:21.40 --> 09:21.40]
+
+
+[09:21.40 --> 09:21.40]
+
+
+[09:21.40 --> 09:21.40]
+
+
+[09:22.08 --> 09:22.64]
+mình đã gặp được hơn 1 tuần rồi
+
+[09:22.64 --> 09:22.64]
+
+
+[09:22.64 --> 09:24.36]
+vẫn có trường học đặc biệt nhớ
+
+[09:24.36 --> 09:27.54]
+tại vì cái trường mà bé nhà cô học ó
+
+[09:27.54 --> 09:28.48]
+là trường sơn
+
+[09:29.38 --> 09:32.06]
+sơ dạy phải nói là 90 phần trăm
+
+[09:34.22 --> 09:36.68]
+đa số hết gần hết là sơn
+
+[09:36.68 --> 09:40.00]
+nguyên trường á là một khối
+
+[09:40.00 --> 09:41.80]
+9 lớp nguyên trường là 9 lớp
+
+[09:41.80 --> 09:44.80]
+3 lớp mầm 3 lớp tròi 3 lớp lá
+
+[09:46.02 --> 09:49.40]
+nhưng mà chỉ có một lớp dậy là 3 cô
+
+[09:50.14 --> 09:51.40]
+mà chỉ có 1 lớp dậy là 3 cô
+
+[09:51.40 --> 09:51.40]
+
+
+[09:51.40 --> 09:51.40]
+
+
+[09:53.10 --> 10:00.32]
+Nói chung là dưới 5 cô là cô ở ngoài thôi
+
+[10:02.42 --> 10:03.84]
+Có nghĩa là sơ hết
+
+[10:06.34 --> 10:10.62]
+Nên đó là có nhận cả trẻ đặc biệt nữa
+
+[10:13.12 --> 10:19.02]
+Nên có trường hợp đó là nếu như bé hòa đồng được
+
+[10:19.02 --> 10:21.36]
+Thì cho bé vô học chung
+
+[10:21.36 --> 10:24.10]
+Còn không là sẽ có lớp đặc biệt
+
+[10:25.38 --> 10:29.36]
+Còn nếu như bé chậm phát triển
+
+[10:29.36 --> 10:31.38]
+Thì vẫn có tình huống đó
+
+[10:31.38 --> 10:35.70]
+Có nghĩa là em hình dung bệnh đau
+
+[10:38.34 --> 10:40.86]
+Bệnh đau thì nó có nhiều cấp độ
+
+[10:40.86 --> 10:44.68]
+Chứ nó không phải là nỗi đau là không thể đi học được
+
+[10:46.84 --> 10:49.00]
+Nó sẽ có nhiều phương tiện
+
+[10:49.02 --> 10:50.38]
+Cấp độ là ví dụ chứ
+
+[10:51.94 --> 10:53.44]
+Bạn cô có đứa bé
+
+[10:54.90 --> 10:59.28]
+Nó nay là 1 tuổi 20 tháng 10
+
+[10:59.28 --> 11:03.62]
+20 tháng 10 thì tới tháng 10 này nó mới làm 2 tuổi
+
+[11:03.62 --> 11:05.60]
+Thì nó khoảng tuổi rưỡi
+
+[11:06.24 --> 11:10.00]
+Nó 1 tuổi rưỡi nhưng thật sự ra nó vẫn nhận biết được
+
+[11:10.00 --> 11:10.84]
+Nó vẫn chơi được
+
+[11:10.84 --> 11:14.58]
+Nhưng nó tầm cỡ em bé dưới 1 tuổi
+
+[11:16.94 --> 11:19.00]
+Có nghĩa là nó chậm phát triển
+
+[11:19.02 --> 11:20.60]
+Thôi nhưng nó vẫn biết nha
+
+[11:20.60 --> 11:22.28]
+Nó vẫn biết đòi mẹ
+
+[11:22.28 --> 11:23.42]
+Vẫn biết đòi bú
+
+[11:23.42 --> 11:24.42]
+Vẫn biết chơi
+
+[11:25.72 --> 11:27.28]
+Nhưng mà nó chậm phát triển thôi
+
+[11:27.28 --> 11:29.74]
+Nên những bé đó là thay vì là
+
+[11:30.62 --> 11:32.80]
+Cô nói là 5 tuổi thì thay vì nó học lớp lá
+
+[11:32.80 --> 11:36.10]
+Thì 5 tuổi nó sẽ có thể vô lớp mầm
+
+[11:37.56 --> 11:38.04]
+À
+
+[11:38.56 --> 11:41.18]
+Thì em có thể giải thích khi phản biện
+
+[11:41.18 --> 11:42.40]
+Em làm
+
+[11:43.48 --> 11:45.60]
+Xong rồi có thể giải thích khi phản biện
+
+[11:45.60 --> 11:46.84]
+Dạ rồi ạ
+
+[11:51.76 --> 11:53.60]
+Rồi còn nhiều đó là nhiều lắm rồi
+
+[11:54.20 --> 11:54.70]
+Dạ
+
+[11:54.70 --> 11:56.60]
+Làm đi rồi có gì hỏi cô tiếp
+
+[11:56.60 --> 11:58.28]
+Dạ ok, cảm ơn cô ạ
+
+[11:59.02 --> 12:00.20]
+À không có gì
+
+[12:01.00 --> 12:02.06]
+Cô mong mừng mấy ngày
+
+[12:02.06 --> 12:03.28]
+Dạ bye bye cô
+
+[12:05.12 --> 12:06.92]
+Cô sống khỏe ạ
+
+[12:06.92 --> 12:07.90]
+Ok
+
+[12:08.44 --> 12:09.44]
+Thế tôi ạ
+
+

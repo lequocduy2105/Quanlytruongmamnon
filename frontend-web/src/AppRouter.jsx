@@ -26,6 +26,8 @@ import TeacherDashboard from "./pages/teacher/TeacherDashboard";
 import HealthTrackerList from "./pages/teacher/HealthTrackerList";
 import SkillAssessment from "./pages/teacher/SkillAssessment";
 import MedicationManager from "./pages/teacher/MedicationManager";
+import TeacherELearning from "./pages/teacher/TeacherELearning";
+import TeacherChangePassword from "./pages/teacher/TeacherChangePassword";
 
 // ─── Admin Pages (extra) ────────────────────────────────────
 import FinanceManagement from "./pages/admin/FinanceManagement";
@@ -39,6 +41,7 @@ import TeacherFeedback from "./pages/parent/TeacherFeedback";
 import ParentInvoices from "./pages/parent/ParentInvoices";
 import ParentMedications from "./pages/parent/ParentMedications";
 import ParentPickups from "./pages/parent/ParentPickups";
+import ParentChangePassword from "./pages/parent/ParentChangePassword";
 // ─── NEW: Workflow Modules ──────────────────────────────────
 import IncidentReporter from "./pages/teacher/IncidentReporter";
 import IncidentDashboard from "./pages/admin/IncidentDashboard";
@@ -103,6 +106,8 @@ export default function AppRouter() {
               <Route path="pickup-check" element={<TeacherPickupCheck />} />
               <Route path="incidents" element={<IncidentReporter />} />
               <Route path="finance" element={<TeacherFinance />} />
+              <Route path="elearning" element={<TeacherELearning />} />
+              <Route path="change-password" element={<TeacherChangePassword />} />
             </Route>
 
             {/* ── Parent Routes (PARENT only) ── */}
@@ -125,7 +130,7 @@ export default function AppRouter() {
               <Route path="incidents"        element={<ParentIncidents />} />
               <Route path="leave-requests"   element={<ParentLeaveRequests />} />
               <Route path="tickets"          element={<ParentSupportTickets />} />
-
+              <Route path="change-password"  element={<ParentChangePassword />} />
             </Route>
 
             {/* ── 404 catch-all ── */}

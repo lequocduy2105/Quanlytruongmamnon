@@ -1,14 +1,15 @@
-import React, { useState } from "react";
-import { Outlet, Link, useLocation, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Outlet, Link, useLocation, useNavigate, Navigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { useLang } from "../contexts/LangContext";
 import LangToggle from "../components/LangToggle";
 import NotificationBell from "../components/NotificationBell";
-import TeacherSearchScreen from "../pages/teacher/components/TeacherSearchScreen";
+import api from "../api/axiosClient";
 
 export default function TeacherLayout() {
   // ─── Gatekeeper state ───────────────────────────────────────────────────────
   const [activeTeacher, setActiveTeacher] = useState(null);
+  const [loadingProfile, setLoadingProfile] = useState(true);
 
   const { pathname } = useLocation();
   const { logout } = useAuth();
@@ -32,51 +33,87 @@ export default function TeacherLayout() {
     { to: "/teacher/pickup-check", icon: "directions_car", label: "Đón Trẻ Cuối Ngày" },
     { to: "/teacher/incidents", icon: "add_alert", label: "Biên Bản Sự Cố" },
     { to: "/teacher/finance", icon: "payments", label: "Học Phí Lớp" },
+    { to: "/teacher/e-learning", icon: "menu_book", label: "E-Learning" },
   ];
 
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await api.get("/teacher/profile");
+        if (res.data && !res.data.error) {
+          setActiveTeacher(res.data);
+        } else {
+          console.error("No teacher profile associated with this account.");
+          logout();
+          navigate("/login", { replace: true });
+        }
+      } catch (err) {
+        console.error("Auto-fetching teacher profile failed:", err);
+        logout();
+        navigate("/login", { replace: true });
+      } finally {
+        setLoadingProfile(false);
+      }
+    };
+    fetchProfile();
+  }, [logout, navigate]);
 
   const handleLogout = () => {
     logout();
     navigate("/login", { replace: true });
   };
 
-  const handleTeacherFound = (teacher) => {
-    setActiveTeacher(teacher);
-  };
 
-  // ─── GATEKEEPER ─────────────────────────────────────────────────────────────
-  // Nếu chưa xác nhận danh tính giáo viên, hiển thị màn hình tìm kiếm
-  if (!activeTeacher) {
+
+  if (loadingProfile) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col relative">
-        {/* Header nhẹ cho màn hình xác thực */}
-        <header className="h-16 px-8 flex justify-between items-center bg-white border-b border-slate-200">
-          <div className="flex items-center gap-2">
-            <span className="material-symbols-outlined text-primary text-2xl">
-              school
-            </span>
-            <span className="font-extrabold text-cyan-900 font-headline">
-              The Atelier
-            </span>
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider ml-1">
-              · Teacher Portal
-            </span>
-          </div>
-          <div className="flex items-center gap-4">
-            <LangToggle />
-            <button
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="flex items-center gap-3 text-slate-400">
+          <span className="material-symbols-outlined animate-spin text-primary">
+            progress_activity
+          </span>
+          <span className="font-semibold text-sm">
+            {vi ? "Đang xác thực tài khoản..." : "Verifying session..."}
+          </span>
+        </div>
+      </div>
+    );
+  }
+
+  // If no active teacher after loading, return null (redirection handles this case)
+  if (!activeTeacher) {
+    return null;
+  }
+
+  const isMustChange = localStorage.getItem("mustChangePassword") === "true";
+
+  if (isMustChange) {
+    if (pathname !== "/teacher/change-password") {
+      return <Navigate to="/teacher/change-password" replace />;
+    }
+
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 relative overflow-hidden">
+        {/* Background decoration */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute -top-40 -right-40 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl" />
+          <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-secondary/5 rounded-full blur-3xl" />
+        </div>
+        
+        <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-100 p-8">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-bold text-primary font-headline">
+              {vi ? "Đổi mật khẩu lần đầu" : "Change Password First Time"}
+            </h2>
+            <button 
               onClick={handleLogout}
-              className="text-xs font-bold text-error flex items-center gap-1"
+              className="text-xs font-bold text-error flex items-center gap-1 hover:bg-error-container/30 px-3 py-1.5 rounded-lg transition-colors"
             >
-              <span className="material-symbols-outlined text-[16px]">
-                logout
-              </span>
-              {vi ? "Đăng xuất" : "Logout"}
+              <span className="material-symbols-outlined text-[16px]">logout</span>
+              {t("logout")}
             </button>
           </div>
-        </header>
-        <div className="flex-1 w-full bg-slate-50 relative z-10 overflow-y-auto">
-          <TeacherSearchScreen onFound={handleTeacherFound} vi={vi} />
+          <Outlet context={{ activeTeacher }} />
         </div>
       </div>
     );
@@ -100,7 +137,7 @@ export default function TeacherLayout() {
   return (
     <div className="min-h-screen bg-surface flex text-on-surface">
       {/* ─── Sidebar ─── */}
-      <aside className="w-64 fixed left-0 top-0 h-screen bg-slate-50 border-r border-slate-100 z-50 flex flex-col py-6">
+      <aside className="w-64 shrink-0 fixed left-0 top-0 h-screen bg-slate-50 border-r border-slate-100 z-50 flex flex-col py-6">
         {/* Brand */}
         <div className="px-6 mb-6 flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-primary-container flex items-center justify-center text-white shadow-sm">

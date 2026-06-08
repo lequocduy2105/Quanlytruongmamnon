@@ -10,12 +10,18 @@ import {
   Request,
   ForbiddenException,
   Query,
+  BadRequestException,
+  UnauthorizedException,
+  ConflictException,
+  Headers,
 } from '@nestjs/common';
 import { ApiGatewayService } from './api-gateway.service';
+import * as crypto from 'crypto';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { RolesGuard } from './auth/roles.guard';
 import { Roles } from './auth/roles.decorator';
 import { firstValueFrom } from 'rxjs';
+import { UpdateStudentDto } from './dto/update-student.dto';
 
 @Controller('api')
 export class ApiGatewayController {
@@ -28,6 +34,34 @@ export class ApiGatewayController {
   @Post('login')
   login(@Body() body: { email: string; password: string }) {
     return this.apiGatewayService.login(body.email, body.password);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('auth/change-password-first-time')
+  async changePasswordFirstTime(
+    @Request() req: any,
+    @Body() body: { oldPassword?: string; newPassword?: string },
+  ) {
+    if (!body?.oldPassword || !body?.newPassword) {
+      throw new BadRequestException('Mật khẩu cũ và mật khẩu mới là bắt buộc.');
+    }
+    if (body.newPassword.length < 6) {
+      throw new BadRequestException('Mật khẩu mới phải có ít nhất 6 ký tự.');
+    }
+    if (body.oldPassword === body.newPassword) {
+      throw new BadRequestException('Mật khẩu mới không được trùng với mật khẩu cũ.');
+    }
+    
+    const res = await this.apiGatewayService.changePasswordFirstTime(
+      req.user.userId,
+      body.oldPassword,
+      body.newPassword,
+    );
+    
+    if (!res.success) {
+      throw new BadRequestException(res.error || 'Thay đổi mật khẩu thất bại.');
+    }
+    return res;
   }
 
   /**
@@ -57,6 +91,17 @@ export class ApiGatewayController {
   @Get('academic/teachers')
   getTeachers() {
     return this.apiGatewayService.getTeachers();
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Post('academic/teachers/:id/reset-password')
+  resetTeacherPassword(@Param('id') id: string) {
+    const teacherId = parseInt(id, 10);
+    if (isNaN(teacherId)) {
+      throw new BadRequestException('ID giáo viên không hợp lệ.');
+    }
+    return this.apiGatewayService.resetTeacherPassword(teacherId);
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -92,14 +137,11 @@ export class ApiGatewayController {
   @Get('teacher/dashboard')
   getTeacherDashboard(
     @Request() req: any,
-    @Query('teacherId') teacherId?: string,
   ) {
     return firstValueFrom(
       this.apiGatewayService['academicClient'].send(
         { cmd: 'get_teacher_dashboard' },
-        teacherId
-          ? { teacherId: Number(teacherId) } // dùng teacher.id trực tiếp
-          : { userId: req.user.userId }, // fallback JWT
+        { userId: req.user.userId }, // fallback JWT
       ),
     );
   }
@@ -232,33 +274,100 @@ export class ApiGatewayController {
     return this.apiGatewayService.getChildrenByGuardian(guardianUserId);
   }
 
-  /**
-   * POST /api/parent/link-child
-   * RBAC: PARENT only - tìm + liên kết học sinh theo tên, ngày sinh, lớp
-   */
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('PARENT')
-  @Post('parent/link-child')
-  linkChild(
-    @Request() req: any,
-    @Body()
-    body: { full_name: string; date_of_birth: string; class_name: string },
-  ) {
-    const guardianUserId: number = req.user.userId;
-    return this.apiGatewayService.linkChild({ guardianUserId, ...body });
+
+  private generatePassword(): string {
+    const length = Math.floor(Math.random() * 3) + 8; // 8 to 10
+    const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+    const numbers = '0123456789';
+    const allChars = uppercase + lowercase + numbers;
+    
+    let password = '';
+    // Ensure at least one of each class is present
+    password += uppercase[Math.floor(Math.random() * uppercase.length)];
+    password += lowercase[Math.floor(Math.random() * lowercase.length)];
+    password += numbers[Math.floor(Math.random() * numbers.length)];
+    
+    for (let i = 3; i < length; i++) {
+      password += allChars[Math.floor(Math.random() * allChars.length)];
+    }
+    
+    // Shuffle
+    return password.split('').sort(() => 0.5 - Math.random()).join('');
   }
 
   /**
    * POST /api/academic/teachers
-   * RBAC: ADMIN only - create a new teacher profile
+   * RBAC: ADMIN only - create a new teacher profile with Saga Orchestration
    */
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
   @Post('academic/teachers')
-  createTeacher(
-    @Body() teacherData: { full_name: string; specializations?: string },
+  async createTeacher(
+    @Body() teacherData: { full_name: string; email: string; phone_number: string; specializations?: string },
   ) {
-    return this.apiGatewayService.createTeacher(teacherData);
+    if (!teacherData?.email || teacherData.email.trim() === '') {
+      throw new BadRequestException('Email đăng nhập là bắt buộc và không được để trống');
+    }
+    if (!teacherData?.phone_number || teacherData.phone_number.trim() === '') {
+      throw new BadRequestException('Số điện thoại (phone_number) là bắt buộc và không được để trống');
+    }
+
+    // Pre-validation
+    const emailExists = await this.apiGatewayService.checkEmailExists(teacherData.email);
+    if (emailExists) {
+      throw new ConflictException('Email đã tồn tại');
+    }
+
+    // Generate random password
+    const tempPassword = this.generatePassword();
+
+    let createdUser: any = null;
+    try {
+      // Create user in Auth Service
+      createdUser = await this.apiGatewayService.createAuthUser({
+        email: teacherData.email,
+        password: tempPassword,
+        role: 'TEACHER',
+        mustChangePassword: true,
+      });
+
+      const userId = createdUser?.userId || createdUser?.id;
+      if (!userId) {
+        throw new Error('Không nhận được userId từ Auth Service');
+      }
+
+      // Create profile in Academic Service
+      const profile = await this.apiGatewayService.createTeacherProfile({
+        userId,
+        full_name: teacherData.full_name,
+        specializations: teacherData.specializations || 'General',
+      });
+
+      if (profile && profile.error) {
+        throw new Error(profile.error);
+      }
+
+      return {
+        success: true,
+        email: teacherData.email,
+        tempPassword,
+      };
+    } catch (error: any) {
+      console.error(`[Saga Error] Lỗi trong quá trình onboard giáo viên: ${error?.message || error}`);
+      if (createdUser) {
+        const userId = createdUser?.userId || createdUser?.id;
+        if (userId) {
+          try {
+            await this.apiGatewayService.rollbackAuthUser(userId);
+            console.log(`[Saga Rollback] Đã rollback thành công tài khoản rác ID=${userId}`);
+          } catch (rollbackError) {
+            console.error(`[Saga Rollback Error] Không thể rollback tài khoản rác ID=${userId}:`, rollbackError);
+          }
+        }
+      }
+      throw new BadRequestException(`Onboard giáo viên thất bại: ${error?.message || error}`);
+    }
   }
 
   /**
@@ -270,15 +379,23 @@ export class ApiGatewayController {
   @Put('academic/students/:id')
   updateStudent(
     @Param('id') id: string,
-    @Body()
-    data: {
-      full_name?: string;
-      class_id?: number | null;
-      allergy_tags?: string[];
-      date_of_birth?: string | null;
-    },
+    @Body() data: UpdateStudentDto,
   ) {
     return this.apiGatewayService.updateStudent(Number(id), data);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Get('academic/students/:id')
+  getStudentById(@Param('id') id: string) {
+    return this.apiGatewayService.getStudentById(Number(id));
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Post('academic/students/:id/reset-parent-password')
+  resetParentPassword(@Param('id') id: string) {
+    return this.apiGatewayService.resetParentPassword(Number(id));
   }
 
   /**
@@ -315,6 +432,132 @@ export class ApiGatewayController {
   ) {
     return this.apiGatewayService.updateTeacher(Number(id), data);
   }
+
+  /**
+   * PUT /api/academic/teachers/:id/transfer
+   * RBAC: ADMIN only - Luân chuyển giáo viên sang lớp mới (Transaction All-or-Nothing)
+   */
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Put('academic/teachers/:id/transfer')
+  transferTeacher(
+    @Param('id') id: string,
+    @Body() body: { newClassId: number },
+  ) {
+    return this.apiGatewayService.sendToAcademic('transfer_teacher', {
+      teacherId: Number(id),
+      newClassId: body.newClassId,
+    });
+  }
+
+  // ─── Soft Delete Routes ───────────────────────────────────────────────────
+
+  /**
+   * PUT /api/academic/students/:id/deactivate
+   * RBAC: ADMIN only
+   * Vô hiệu hóa học sinh (soft delete) — KHÔNG xóa DB.
+   * Chỉ chuyển status = 'inactive'. Dữ liệu điểm danh/hóa đơn vẫn còn.
+   */
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Put('academic/students/:id/deactivate')
+  deactivateStudent(
+    @Param('id') id: string,
+    @Body() body: { reason?: string },
+  ) {
+    return this.apiGatewayService.sendToAcademic('deactivate_student', {
+      id: Number(id),
+      reason: body?.reason,
+    });
+  }
+
+  /**
+   * PUT /api/academic/students/:id/restore
+   * RBAC: ADMIN only
+   * Kích hoạt lại học sinh đã nghỉ.
+   */
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Put('academic/students/:id/restore')
+  restoreStudent(@Param('id') id: string) {
+    return this.apiGatewayService.sendToAcademic('restore_student', {
+      id: Number(id),
+    });
+  }
+
+  /**
+   * PUT /api/academic/teachers/:id/deactivate
+   * RBAC: ADMIN only
+   * Vô hiệu hóa giáo viên (soft delete) — set is_active = false.
+   */
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Put('academic/teachers/:id/deactivate')
+  deactivateTeacher(@Param('id') id: string) {
+    return this.apiGatewayService.sendToAcademic('deactivate_teacher', {
+      id: Number(id),
+    });
+  }
+
+  /**
+   * PUT /api/academic/classes/:id/archive
+   * RBAC: ADMIN only
+   * Đóng/archive lớp học — KHÔNG xóa DB.
+   */
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Put('academic/classes/:id/archive')
+  archiveClassroom(@Param('id') id: string) {
+    return this.apiGatewayService.sendToAcademic('deactivate_classroom', {
+      id: Number(id),
+    });
+  }
+
+  /**
+   * POST /api/academic/classes/:id/promote
+   * RBAC: ADMIN only
+   * Lên lớp cuối năm (Batch Promote) cho toàn bộ học sinh active trong lớp.
+   */
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Post('academic/classes/:id/promote')
+  promoteClass(@Param('id') id: string) {
+    return this.apiGatewayService.sendToAcademic('promote_class', {
+      classId: Number(id),
+    });
+  }
+
+  /**
+   * POST /api/academic/students/enroll
+   * RBAC: ADMIN only
+   * Tiếp nhận học sinh mới với validation độ tuổi chuẩn Bộ GD.
+   * 3 tuổi → Lớp Mầm | 4 tuổi → Lớp Chồi | 5 tuổi → Lớp Lá
+   *
+   * Body thông thường:   { full_name, date_of_birth, class_id?, allergy_tags? }
+   * Body Admin override: { ..., isAdminOverride: true, override_grade_level: 'mam'|'choi'|'la', is_special_needs: true }
+   */
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Post('academic/students/enroll')
+  enrollStudent(
+    @Body()
+    body: {
+      student_name: string;
+      dob: string;
+      parent_name: string;
+      parent_email: string;
+      class_id?: number;
+      allergy_tags?: string[];
+      is_special_needs?: boolean;
+      isAdminOverride?: boolean;
+      override_grade_level?: 'mam' | 'choi' | 'la';
+    },
+  ) {
+    return this.apiGatewayService.enrollStudentWithSaga(body);
+  }
+
+
+  // ─── Admin Student Records ────────────────────────────────────────────────
 
   /**
    * GET /api/admin/deficiencies
@@ -365,11 +608,11 @@ export class ApiGatewayController {
       date: string;
       records: Array<{ studentId: number; status: string; note?: string }>;
     },
-    @Request() req: { user: { sub: number } },
+    @Request() req: { user: { userId: number } },
   ) {
     return this.apiGatewayService.saveAttendanceBulk({
       date: body.date,
-      createdBy: req.user.sub,
+      createdBy: req.user.userId,
       records: body.records,
     });
   }
@@ -446,7 +689,7 @@ export class ApiGatewayController {
   ) {
     return this.apiGatewayService.createPickup({
       ...body,
-      createdBy: req.user?.sub ?? null,
+      createdBy: req.user?.userId ?? null,
     });
   }
 
@@ -566,6 +809,46 @@ export class ApiGatewayController {
   }
 
   /**
+   * POST /api/finance/webhooks/payment-success
+   * Public webhook endpoint with HMAC signature verification
+   */
+  @Post('finance/webhooks/payment-success')
+  async paymentWebhook(
+    @Body() body: { reference_code: string; amount: number },
+    @Headers('x-webhook-signature') signature: string,
+  ) {
+    try {
+      if (!signature) {
+        throw new UnauthorizedException('Thiếu chữ ký xác thực webhook.');
+      }
+      if (!body?.reference_code || body.amount === undefined) {
+        throw new BadRequestException('Mã tham chiếu (reference_code) và số tiền (amount) là bắt buộc.');
+      }
+
+      const secret = process.env.WEBHOOK_SECRET || 'default_webhook_secret_key';
+      const computedSignature = crypto
+        .createHmac('sha256', secret)
+        .update(JSON.stringify(body))
+        .digest('hex');
+
+      if (signature !== computedSignature) {
+        throw new UnauthorizedException('Chữ ký xác thực webhook không hợp lệ.');
+      }
+
+      const res = await this.apiGatewayService.processPaymentWebhook(body);
+      if (!res.success) {
+        throw new BadRequestException(res.message || 'Xử lý webhook thất bại.');
+      }
+      return res;
+    } catch (error: any) {
+      if (error instanceof UnauthorizedException || error instanceof BadRequestException) {
+        throw error;
+      }
+      throw new BadRequestException(error?.message || 'Lỗi hệ thống khi xử lý webhook.');
+    }
+  }
+
+  /**
    * POST /api/finance/payments — ghi nhận thanh toán
    */
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -573,6 +856,20 @@ export class ApiGatewayController {
   @Post('finance/payments')
   recordPayment(@Body() body: object) {
     return this.apiGatewayService.recordPayment(body);
+  }
+
+  /**
+   * PUT /api/finance/invoices/:id/pay — xác nhận thanh toán toàn bộ hóa đơn
+   */
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('ADMIN')
+  @Put('finance/invoices/:id/pay')
+  payInvoice(
+    @Param('id') id: string,
+    @Body() body: { note?: string },
+    @Request() req: any,
+  ) {
+    return this.apiGatewayService.payInvoice(Number(id), body?.note, req.user.userId);
   }
 
   /**
@@ -634,14 +931,14 @@ export class ApiGatewayController {
   ) {
     // Bước 1: Lấy thông tin teacher từ userId trong JWT
     const teacher = await this.apiGatewayService.getTeacherByUserId(req.user.userId);
-    console.log('[DEBUG class-finance] userId=%s, teacher=%s', req.user.userId, JSON.stringify(teacher ? { id: teacher.id, name: teacher.full_name, classId: teacher.classId } : null));
+
     if (!teacher) {
       return { error: 'Không tìm thấy hồ sơ giáo viên.' };
     }
 
     // Bước 2: Lookup classroom từ phía classroom.teacher_id (nguồn dữ liệu đúng nhất)
     const classroom = await this.apiGatewayService.getClassroomByTeacherId(teacher.id);
-    console.log('[DEBUG class-finance] classroom=%s', JSON.stringify(classroom));
+
     if (!classroom) {
       return { error: 'Bạn chưa được phân công lớp.' };
     }
@@ -973,13 +1270,14 @@ export class ApiGatewayController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('TEACHER')
   @Post('teacher/incidents')
-  async createIncident(@Body() body: any, @Request() req: any, @Query('teacherId') teacherId?: string) {
-    const teacher = teacherId
-      ? await this.apiGatewayService.getTeacherById(Number(teacherId))
-      : await this.apiGatewayService.getTeacherByUserId(req.user.userId);
+  async createIncident(@Body() body: any, @Request() req: any) {
+    const teacher = await this.apiGatewayService.getTeacherByUserId(req.user.userId);
+    if (!teacher) {
+      throw new ForbiddenException('Không tìm thấy hồ sơ giáo viên.');
+    }
     return this.apiGatewayService.createIncidentReport({
       ...body,
-      teacherId: teacher?.id,
+      teacherId: teacher.id,
       adminUserIds: [1], // Admin user_id=1 mặc định; có thể mở rộng sau
     });
   }
@@ -988,11 +1286,12 @@ export class ApiGatewayController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('TEACHER')
   @Get('teacher/incidents')
-  async getTeacherIncidents(@Request() req: any, @Query('teacherId') teacherId?: string) {
-    const teacher = teacherId
-      ? await this.apiGatewayService.getTeacherById(Number(teacherId))
-      : await this.apiGatewayService.getTeacherByUserId(req.user.userId);
-    return this.apiGatewayService.getIncidentsByTeacher(teacher?.id ?? 0);
+  async getTeacherIncidents(@Request() req: any) {
+    const teacher = await this.apiGatewayService.getTeacherByUserId(req.user.userId);
+    if (!teacher) {
+      throw new ForbiddenException('Không tìm thấy hồ sơ giáo viên.');
+    }
+    return this.apiGatewayService.getIncidentsByTeacher(teacher.id);
   }
 
   /** GET /api/parent/student/:id/incidents — PH xem sự cố của con */
@@ -1193,11 +1492,40 @@ export class ApiGatewayController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('TEACHER')
   @Get('teacher/my-class')
-  getMyClass(@Request() req: any, @Query('teacherId') teacherId?: string) {
-    return this.apiGatewayService.getTeacherClass(
-      teacherId ? undefined : req.user.userId,
-      teacherId ? Number(teacherId) : undefined,
-    );
+  async getMyClass(@Request() req: any) {
+    const userId = req.user?.userId;
+    if (!userId) {
+      throw new UnauthorizedException('Không tìm thấy userId trong Token');
+    }
+    const result = await this.apiGatewayService.getTeacherClass(userId);
+    if (!result || (result as any).error) {
+      throw new ForbiddenException(
+        (result as any)?.error || 'Không thể lấy thông tin lớp học.',
+      );
+    }
+    return result;
+  }
+
+  /**
+   * GET /api/teacher/my-roster  (Plan B — QueryBuilder SQL hardened)
+   * Dùng INNER JOIN thuần SQL, không bao giờ trả dữ liệu sai lớp.
+   * Frontend có thể dùng endpoint này thay cho /my-class nếu cần.
+   */
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('TEACHER')
+  @Get('teacher/my-roster')
+  async getMyRoster(@Request() req: any) {
+    const userId = req.user?.userId;
+    if (!userId) {
+      throw new UnauthorizedException('Không tìm thấy userId trong Token');
+    }
+    const result = await this.apiGatewayService.getTeacherRoster(userId);
+    if (!result || (result as any).error) {
+      throw new ForbiddenException(
+        (result as any)?.error || 'Không thể lấy danh sách học sinh.',
+      );
+    }
+    return result;
   }
 
   /**
@@ -1208,11 +1536,9 @@ export class ApiGatewayController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('TEACHER')
   @Get('teacher/class-pickups')
-  async getClassPickups(@Request() req: any, @Query('teacherId') teacherId?: string) {
-    const teacher = teacherId
-      ? await this.apiGatewayService.getTeacherById(Number(teacherId))
-      : await this.apiGatewayService.getTeacherByUserId(req.user.userId);
-    if (!teacher?.classId) return [];
+  async getClassPickups(@Request() req: any) {
+    const teacher = await this.apiGatewayService.getTeacherByUserId(req.user.userId);
+    if (!teacher || !teacher.classId) return [];
     return this.apiGatewayService.getClassPickupsToday(teacher.classId);
   }
 
@@ -1224,11 +1550,9 @@ export class ApiGatewayController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('TEACHER')
   @Get('teacher/medications-today')
-  async getTeacherMedicationsToday(@Request() req: any, @Query('teacherId') teacherId?: string) {
-    const teacher = teacherId
-      ? await this.apiGatewayService.getTeacherById(Number(teacherId))
-      : await this.apiGatewayService.getTeacherByUserId(req.user.userId);
-    if (!teacher?.classId) return [];
+  async getTeacherMedicationsToday(@Request() req: any) {
+    const teacher = await this.apiGatewayService.getTeacherByUserId(req.user.userId);
+    if (!teacher || !teacher.classId) return [];
     return this.apiGatewayService.getMedicationsByClass(teacher.classId);
   }
 
@@ -1316,5 +1640,39 @@ export class ApiGatewayController {
     @Body() body: Record<string, unknown>,
   ) {
     return this.apiGatewayService.updateDailyMenu(Number(id), body);
+  }
+
+  // ─── Lesson Content Handlers (E-Learning) ───────────────────────────────────
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('TEACHER', 'ADMIN')
+  @Get('academic/classes/:id/lessons')
+  getLessonsByClass(@Param('id') id: string) {
+    return this.apiGatewayService.getLessonsByClass(Number(id));
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('TEACHER', 'ADMIN')
+  @Post('academic/classes/:id/lessons')
+  createLesson(
+    @Param('id') id: string,
+    @Body() body: any,
+    @Request() req: any,
+  ) {
+    return this.apiGatewayService.createLesson(Number(id), body, req.user.userId);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('TEACHER', 'ADMIN')
+  @Put('academic/lessons/:id')
+  updateLesson(@Param('id') id: string, @Body() body: any) {
+    return this.apiGatewayService.updateLesson(Number(id), body);
+  }
+
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('TEACHER', 'ADMIN')
+  @Delete('academic/lessons/:id')
+  deleteLesson(@Param('id') id: string) {
+    return this.apiGatewayService.deleteLesson(Number(id));
   }
 }

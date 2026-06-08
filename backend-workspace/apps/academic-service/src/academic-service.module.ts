@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ScheduleModule } from '@nestjs/schedule';
 
 import { AcademicServiceController } from './academic-service.controller';
 import { AcademicServiceService } from './academic-service.service';
+import { InvoiceCronService } from './invoice-cron.service';
 import { Teacher } from './entities/teacher.entity';
 import { Classroom } from './entities/classroom.entity';
 import { Student } from './entities/student.entity';
@@ -14,14 +16,15 @@ import { Attendance } from './entities/attendance.entity';
 import { AuthorizedPickup } from './entities/authorized-pickup.entity';
 import { FeeConfig } from './entities/fee-config.entity';
 import { Invoice } from './entities/invoice.entity';
+import { InvoiceItem } from './entities/invoice-item.entity';
 import { Payment } from './entities/payment.entity';
+import { InvoiceBatch } from './entities/invoice-batch.entity';
 import { Notification } from './entities/notification.entity';
-import { MedicationSchedule } from './entities/medication-schedule.entity';
-import { MedicationLog } from './entities/medication-log.entity';
-import { IncidentReport } from './entities/incident-report.entity';
+// MedicationSchedule, MedicationLog, IncidentReport → moved to health-service
 import { LeaveRequest } from './entities/leave-request.entity';
 import { SupportTicket } from './entities/support-ticket.entity';
 import { DailyMenu } from './entities/daily-menu.entity';
+import { LessonContent } from './entities/lesson-content.entity';
 
 const ALL_ENTITIES = [
   Teacher,
@@ -34,18 +37,20 @@ const ALL_ENTITIES = [
   AuthorizedPickup,
   FeeConfig,
   Invoice,
+  InvoiceItem,
   Payment,
+  InvoiceBatch,
   Notification,
-  MedicationSchedule,
-  MedicationLog,
-  IncidentReport,
+  // MedicationSchedule, MedicationLog, IncidentReport → health-service
   LeaveRequest,
   SupportTicket,
   DailyMenu,
+  LessonContent,
 ];
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: `${process.cwd()}/.env`,
@@ -61,16 +66,30 @@ const ALL_ENTITIES = [
         username: config.get('DB_USERNAME', 'root'),
         password: config.get('DB_PASSWORD', ''),
         database: config.get('DB_NAME', 'kindergarten_db'),
+        charset: 'utf8mb4',
+        // Fix encoding tiếng Việt: buộc mysql2 driver dùng UTF8MB4 ở tầng kết nối TCP
+        extra: {
+          charset: 'UTF8MB4',
+          // Connection pool — tự động tái sử dụng và kiểm tra kết nối còn sống
+          connectionLimit: 10,
+          waitForConnections: true,
+          enableKeepAlive: true,
+          keepAliveInitialDelay: 10000, // 10s ping giữ kết nối sống
+        },
+        // Auto-reconnect: NestJS tự thử kết nối lại nếu DB bị sập
+        retryAttempts: 10,
+        retryDelay: 3000, // thử lại mỗi 3 giây
         // synchronize tắt để tránh lỗi typeorm_metadata — schema đã được tạo qua seed script
         synchronize: false,
         entities: ALL_ENTITIES,
-        logging: true, // bật full logging tạm để debug SQL lỗi
+        // Bật SQL logging chỉ khi DEBUG_SQL=true — tắt ở production để tránh log nhạy cảm
+        logging: config.get('DEBUG_SQL', 'false') === 'true',
       }),
     }),
 
     TypeOrmModule.forFeature(ALL_ENTITIES),
   ],
   controllers: [AcademicServiceController],
-  providers: [AcademicServiceService],
+  providers: [AcademicServiceService, InvoiceCronService],
 })
 export class AcademicServiceModule {}

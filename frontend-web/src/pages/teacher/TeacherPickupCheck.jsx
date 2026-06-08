@@ -47,8 +47,8 @@ export default function TeacherPickupCheck() {
     try {
       setError(null);
       const [classRes, pickupsRes] = await Promise.all([
-        axiosClient.get(`/teacher/my-class?teacherId=${activeTeacher?.id || ''}`),
-        axiosClient.get(`/teacher/class-pickups?teacherId=${activeTeacher?.id || ''}`),
+        axiosClient.get('/teacher/my-roster'),
+        axiosClient.get('/teacher/class-pickups'),
       ]);
       setMyClass(classRes.data);
       setPickups(pickupsRes.data || []);

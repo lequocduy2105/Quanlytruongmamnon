@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { AreaChart, Area, ResponsiveContainer, XAxis, Tooltip } from "recharts";
 import api from "../../api/axiosClient";
-import { useOutletContext } from "react-router-dom";
 import { useToast } from "../../components/Toast";
 import { useLang } from "../../contexts/LangContext";
+import BaseModal from "../../components/BaseModal";
 
 export default function HealthTrackerList() {
   const toast = useToast();
-  const { activeTeacher } = useOutletContext();
   const { lang } = useLang();
   const vi = lang === "vi";
 
@@ -47,21 +46,22 @@ export default function HealthTrackerList() {
     try {
       setLoading(true);
       const [classRes, vitalsRes] = await Promise.all([
-        api.get(`/teacher/my-class?teacherId=${activeTeacher?.id || ""}`),
+        api.get('/teacher/my-roster'),
         api.get("/health/vitals"),
       ]);
-      // Chỉ hiện học sinh của lớp giáo viên phụ trách
-      const classStudents = classRes.data?.students || [];
-      if (classStudents.length > 0) {
-        setStudents(classStudents);
-        setSelectedStudent(classStudents[0]);
+
+      // Zero-Trust: CHỈ hiện học sinh của lớp giáo viên phụ trách
+      // TUYỆT ĐỐI không fallback sang /academic/students (endpoint Admin)
+      if (classRes.data?.error) {
+        // Giáo viên chưa được phân công lớp — hiện empty state
+        setStudents([]);
+        setSelectedStudent(null);
       } else {
-        // fallback: lấy tất cả nếu chưa có lớp
-        const allRes = await api.get("/academic/students");
-        const all = allRes.data || [];
-        setStudents(all);
-        if (all.length > 0) setSelectedStudent(all[0]);
+        const classStudents = classRes.data?.students || [];
+        setStudents(classStudents);
+        if (classStudents.length > 0) setSelectedStudent(classStudents[0]);
       }
+
       setVitalsData(vitalsRes.data || []);
     } catch (err) {
       console.error("Lỗi khi tải dữ liệu sức khoẻ:", err);
@@ -218,7 +218,7 @@ export default function HealthTrackerList() {
                     </p>
                     <p className="text-xs text-slate-500 font-medium truncate">
                       {vi ? "Lớp" : "Class"}:{" "}
-                      {student.classroom?.class_name || "N/A"}
+                      {student.classroom?.name || "N/A"}
                     </p>
                   </div>
                   <span
@@ -268,7 +268,7 @@ export default function HealthTrackerList() {
                         <span className="material-symbols-outlined text-[16px]">
                           domain
                         </span>
-                        {selectedStudent.classroom.class_name}
+                        {selectedStudent.classroom.name}
                       </div>
                     )}
                     {(selectedStudent.allergy_tags || []).map((tag) => (
@@ -375,8 +375,9 @@ export default function HealthTrackerList() {
                   </p>
                 </div>
               </div>
-              <div className="h-56 w-full">
-                <ResponsiveContainer width="100%" height="100%">
+              {/* Fix Recharts: wrapper div phải có height cụ thể bằng px, KHÔNG dùng % */}
+              <div style={{ width: "100%", height: 224 }}>
+                <ResponsiveContainer width="100%" height={224}>
                   <AreaChart
                     data={finalChartData}
                     margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
@@ -603,94 +604,94 @@ export default function HealthTrackerList() {
       </div>
 
       {/* Modal ghi nhận sức khoẻ */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4">
-          <div className="bg-surface-container-lowest rounded-3xl p-6 md:p-8 w-full max-w-md shadow-2xl animate-in fade-in zoom-in duration-200">
-            <h3 className="text-2xl font-bold text-primary font-headline mb-6">
-              {vi ? "Ghi Nhận Sức Khoẻ" : "Log Health Check"}
-            </h3>
-            <form onSubmit={submitVitals} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-500 mb-1">
-                    {vi ? "Cân Nặng (kg)" : "Weight (kg)"}
-                  </label>
-                  <input
-                    required
-                    type="number"
-                    step="0.1"
-                    name="weight"
-                    value={vitalForm.weight}
-                    onChange={handleVitalChange}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-500 mb-1">
-                    {vi ? "Chiều Cao (cm)" : "Height (cm)"}
-                  </label>
-                  <input
-                    required
-                    type="number"
-                    step="0.1"
-                    name="height"
-                    value={vitalForm.height}
-                    onChange={handleVitalChange}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  />
-                </div>
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-500 mb-1">
-                  {vi ? "Nhịp Tim (bpm)" : "Heart Rate (bpm)"}
-                </label>
-                <input
-                  required
-                  type="number"
-                  name="heart_rate"
-                  value={vitalForm.heart_rate}
-                  onChange={handleVitalChange}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/20"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-500 mb-1">
-                  {vi ? "Ghi Chú Bác Sĩ (tuỳ chọn)" : "Doctor Note (Optional)"}
-                </label>
-                <textarea
-                  name="doctor_note"
-                  value={vitalForm.doctor_note}
-                  onChange={handleVitalChange}
-                  rows="2"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
-                />
-              </div>
-              <div className="flex gap-3 justify-end mt-6 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className="px-5 py-2.5 font-bold text-slate-500 hover:bg-slate-100 rounded-xl transition-colors"
-                >
-                  {vi ? "Huỷ" : "Cancel"}
-                </button>
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="px-5 py-2.5 bg-primary text-white font-bold rounded-xl shadow-md hover:bg-primary/90 transition-colors disabled:opacity-50"
-                >
-                  {saving
-                    ? vi
-                      ? "Đang lưu..."
-                      : "Saving..."
-                    : vi
-                      ? "Lưu"
-                      : "Save Record"}
-                </button>
-              </div>
-            </form>
+      <BaseModal
+        isOpen={showModal}
+        onClose={() => setShowModal(false)}
+        title={vi ? "Ghi Nhận Sức Khoẻ" : "Log Health Check"}
+        footer={
+          <>
+            <button
+              type="button"
+              onClick={() => setShowModal(false)}
+              className="px-5 py-2.5 font-bold text-slate-500 hover:bg-slate-100 rounded-xl transition-colors"
+            >
+              {vi ? "Huỷ" : "Cancel"}
+            </button>
+            <button
+              type="submit"
+              form="vitals-form"
+              disabled={saving}
+              className="px-5 py-2.5 bg-primary text-white font-bold rounded-xl shadow-md hover:bg-primary/90 transition-colors disabled:opacity-50"
+            >
+              {saving
+                ? vi
+                  ? "Đang lưu..."
+                  : "Saving..."
+                : vi
+                  ? "Lưu"
+                  : "Save Record"}
+            </button>
+          </>
+        }
+      >
+        <form id="vitals-form" onSubmit={submitVitals} className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-slate-500 mb-1">
+                {vi ? "Cân Nặng (kg)" : "Weight (kg)"}
+              </label>
+              <input
+                required
+                type="number"
+                step="0.1"
+                name="weight"
+                value={vitalForm.weight}
+                onChange={handleVitalChange}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/20"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-slate-500 mb-1">
+                {vi ? "Chiều Cao (cm)" : "Height (cm)"}
+              </label>
+              <input
+                required
+                type="number"
+                step="0.1"
+                name="height"
+                value={vitalForm.height}
+                onChange={handleVitalChange}
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/20"
+              />
+            </div>
           </div>
-        </div>
-      )}
+          <div>
+            <label className="block text-xs font-bold text-slate-500 mb-1">
+              {vi ? "Nhịp Tim (bpm)" : "Heart Rate (bpm)"}
+            </label>
+            <input
+              required
+              type="number"
+              name="heart_rate"
+              value={vitalForm.heart_rate}
+              onChange={handleVitalChange}
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/20"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-slate-500 mb-1">
+              {vi ? "Ghi Chú Bác Sĩ (tuỳ chọn)" : "Doctor Note (Optional)"}
+            </label>
+            <textarea
+              name="doctor_note"
+              value={vitalForm.doctor_note}
+              onChange={handleVitalChange}
+              rows="2"
+              className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"
+            />
+          </div>
+        </form>
+      </BaseModal>
     </>
   );
 }

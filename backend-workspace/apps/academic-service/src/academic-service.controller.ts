@@ -47,6 +47,11 @@ export class AcademicServiceController {
     return this.academicServiceService.getStudents();
   }
 
+  @MessagePattern({ cmd: 'get_student_by_id' })
+  getStudentById(@Payload() data: { id: number }) {
+    return this.academicServiceService.getStudentById(data.id);
+  }
+
   @MessagePattern({ cmd: 'create_student' })
   createStudent(
     @Payload()
@@ -143,24 +148,18 @@ export class AcademicServiceController {
     );
   }
 
-  @MessagePattern({ cmd: 'link_child' })
-  linkChild(
-    @Payload()
-    payload: {
-      guardianUserId: number;
-      full_name: string;
-      date_of_birth: string;
-      class_name: string;
-    },
-  ) {
-    return this.academicServiceService.linkChild(payload);
-  }
-
   @MessagePattern({ cmd: 'create_teacher' })
   createTeacher(
     @Payload() data: { full_name: string; specializations?: string },
   ) {
     return this.academicServiceService.createTeacher(data);
+  }
+
+  @MessagePattern({ cmd: 'create_teacher_profile' })
+  createTeacherProfile(
+    @Payload() data: { userId: number; full_name: string; specializations?: string },
+  ) {
+    return this.academicServiceService.createTeacherProfile(data);
   }
 
   @MessagePattern({ cmd: 'update_student' })
@@ -172,6 +171,13 @@ export class AcademicServiceController {
       class_id?: number | null;
       allergy_tags?: string[];
       date_of_birth?: string | null;
+      allergy_severity?: string;
+      blood_type?: string;
+      emergency_contact_name?: string;
+      emergency_contact_phone?: string;
+      emergency_contact_relation?: string;
+      emergency_action?: string;
+      medical_notes?: string;
     },
   ) {
     return this.academicServiceService.updateStudent(data);
@@ -202,6 +208,79 @@ export class AcademicServiceController {
     },
   ) {
     return this.academicServiceService.updateTeacher(data);
+  }
+  @MessagePattern({ cmd: 'transfer_teacher' })
+  transferTeacher(@Payload() data: { teacherId: number; newClassId: number }) {
+    return this.academicServiceService.transferTeacher(
+      data.teacherId,
+      data.newClassId,
+    );
+  }
+
+  // ─── Soft Delete ─────────────────────────────────────────────────────────
+
+  /**
+   * Vô hiệu hóa học sinh (soft delete) — KHÔNG xóa khỏi DB.
+   * Chỉ chuyển status = 'inactive' và ghi lý do nghỉ học.
+   */
+  @MessagePattern({ cmd: 'deactivate_student' })
+  deactivateStudent(
+    @Payload() data: { id: number; reason?: string },
+  ) {
+    return this.academicServiceService.softDeleteStudent(data.id, data.reason);
+  }
+
+  /**
+   * Khôi phục học sinh đã nghỉ.
+   */
+  @MessagePattern({ cmd: 'restore_student' })
+  restoreStudent(@Payload() data: { id: number }) {
+    return this.academicServiceService.restoreStudent(data.id);
+  }
+
+  /**
+   * Vô hiệu hóa giáo viên (soft delete) — set is_active = false.
+   */
+  @MessagePattern({ cmd: 'deactivate_teacher' })
+  deactivateTeacher(@Payload() data: { id: number }) {
+    return this.academicServiceService.softDeleteTeacher(data.id);
+  }
+
+  /**
+   * Đóng/archive lớp học — KHÔNG xóa khỏi DB.
+   */
+  @MessagePattern({ cmd: 'deactivate_classroom' })
+  deactivateClassroom(@Payload() data: { id: number }) {
+    return this.academicServiceService.softDeleteClassroom(data.id);
+  }
+
+  // ─── Enroll with Age Validation ──────────────────────────────────────────
+
+  /**
+   * Tiếp nhận học sinh mới với validation độ tuổi chuẩn Bộ GD.
+   * 3 tuổi → Lớp Mầm | 4 tuổi → Lớp Chồi | 5 tuổi → Lớp Lá
+   *
+   * Admin có thể dùng isAdminOverride=true cho học sinh cá biệt.
+   */
+  @MessagePattern({ cmd: 'enroll_student' })
+  enrollStudent(
+    @Payload()
+    data: {
+      full_name: string;
+      date_of_birth: string;
+      class_id?: number;
+      allergy_tags?: string[];
+      is_special_needs?: boolean;
+      isAdminOverride?: boolean;
+      override_grade_level?: 'mam' | 'choi' | 'la';
+    },
+  ) {
+    return this.academicServiceService.enrollStudent(data);
+  }
+
+  @MessagePattern({ cmd: 'promote_class' })
+  promoteClass(@Payload() data: { classId: number }) {
+    return this.academicServiceService.promoteClass(data.classId);
   }
 
   @MessagePattern({ cmd: 'get_deficiency_details' })
@@ -362,9 +441,21 @@ export class AcademicServiceController {
     });
   }
 
+  @MessagePattern({ cmd: 'process_payment_webhook' })
+  processPaymentWebhook(@Payload() data: { reference_code: string; amount: number }) {
+    return this.academicServiceService.processPaymentWebhook(data.reference_code, data.amount);
+  }
+
   @MessagePattern({ cmd: 'record_payment' })
   recordPayment(@Payload() data: Record<string, unknown>) {
     return this.academicServiceService.recordPayment(data as any);
+  }
+
+  @MessagePattern({ cmd: 'pay_invoice' })
+  payInvoice(
+    @Payload() data: { invoiceId: number; note?: string; receivedBy?: number | null },
+  ) {
+    return this.academicServiceService.payInvoice(data.invoiceId, data.note, data.receivedBy);
   }
 
   @MessagePattern({ cmd: 'get_finance_summary' })
@@ -383,75 +474,14 @@ export class AcademicServiceController {
     );
   }
 
-  // ─── Medications (MISSING-03) ───────────────────────────────────
-  @MessagePattern({ cmd: 'get_medications_today' })
-  getMedicationsToday() {
-    return this.academicServiceService.getTodayMedications();
-  }
+  // ─── Medications → Moved to health-service ───────────────────────────────
+  // get_medications_today, get_student_medications, create_medication,
+  // log_medication_given, get_medication_logs → health-service.controller.ts
 
-  @MessagePattern({ cmd: 'get_student_medications' })
-  getStudentMedications(@Payload() data: { studentId: number }) {
-    return this.academicServiceService.getMedicationsByStudent(data.studentId);
-  }
+  // ─── Incident Reports → Moved to health-service ──────────────────────────
+  // create_incident_report, get_incidents_by_teacher, get_incidents_by_student,
+  // get_incidents_admin, acknowledge_incident, review_incident → health-service.controller.ts
 
-  @MessagePattern({ cmd: 'create_medication' })
-  createMedication(@Payload() data: Record<string, unknown>) {
-    return this.academicServiceService.createMedicationSchedule(data as any);
-  }
-
-  @MessagePattern({ cmd: 'log_medication_given' })
-  logMedicationGiven(@Payload() data: Record<string, unknown>) {
-    return this.academicServiceService.logMedicationGiven(data as any);
-  }
-
-  @MessagePattern({ cmd: 'get_medication_logs' })
-  getMedicationLogs(@Payload() data: { studentId: number }) {
-    return this.academicServiceService.getMedicationLogs(data.studentId);
-  }
-
-  // ─── Incident Reports ──────────────────────────────────────────────
-  @MessagePattern({ cmd: 'create_incident_report' })
-  createIncidentReport(@Payload() data: Record<string, unknown>) {
-    return this.academicServiceService.createIncidentReport(data as any);
-  }
-
-  @MessagePattern({ cmd: 'get_incidents_by_teacher' })
-  getIncidentsByTeacher(@Payload() data: { teacherId: number }) {
-    return this.academicServiceService.getIncidentsByTeacher(data.teacherId);
-  }
-
-  @MessagePattern({ cmd: 'get_incidents_by_student' })
-  getIncidentsByStudent(@Payload() data: { studentId: number }) {
-    return this.academicServiceService.getIncidentsByStudent(data.studentId);
-  }
-
-  @MessagePattern({ cmd: 'get_incidents_admin' })
-  getIncidentsAdmin(
-    @Payload()
-    data: {
-      severity?: string;
-      studentId?: number;
-      limit?: number;
-    },
-  ) {
-    return this.academicServiceService.getIncidentsAdmin(data);
-  }
-
-  @MessagePattern({ cmd: 'acknowledge_incident' })
-  acknowledgeIncident(@Payload() data: { id: number; parentUserId: number }) {
-    return this.academicServiceService.acknowledgeIncident(
-      data.id,
-      data.parentUserId,
-    );
-  }
-
-  @MessagePattern({ cmd: 'review_incident' })
-  reviewIncident(@Payload() data: { id: number; adminUserId: number }) {
-    return this.academicServiceService.reviewIncident(
-      data.id,
-      data.adminUserId,
-    );
-  }
 
   // ─── Leave Requests ────────────────────────────────────────────────
   @MessagePattern({ cmd: 'create_leave_request' })
@@ -534,11 +564,19 @@ export class AcademicServiceController {
   // ─── Teacher Class & Pickup Handlers ────────────────────────────────────────
 
   @MessagePattern({ cmd: 'get_teacher_class' })
-  getTeacherClass(@Payload() payload: { userId?: number; teacherId?: number }) {
+  getTeacherClass(@Payload() payload: { userId?: number }) {
     return this.academicServiceService.getTeacherClass(
       payload.userId,
-      payload.teacherId,
     );
+  }
+
+  /**
+   * Plan B — QueryBuilder SQL hardened roster.
+   * Dùng Raw SQL INNER JOIN, ép cứng WHERE tại tầng DB.
+   */
+  @MessagePattern({ cmd: 'get_teacher_roster' })
+  getTeacherRoster(@Payload() payload: { userId: number }) {
+    return this.academicServiceService.getTeacherRoster(payload.userId);
   }
 
   @MessagePattern({ cmd: 'get_class_pickups_today' })
@@ -546,10 +584,8 @@ export class AcademicServiceController {
     return this.academicServiceService.getClassPickupsToday(data.classId);
   }
 
-  @MessagePattern({ cmd: 'get_medications_by_class' })
-  getMedicationsByClass(@Payload() data: { classId: number }) {
-    return this.academicServiceService.getMedicationsByClass(data.classId);
-  }
+  // ─── Medication By Class → Moved to health-service ─────────────────────────────────
+  // get_medications_by_class → health-service.controller.ts
 
   // ─── Student Emergency Info ──────────────────────────────────────────────────
 
@@ -596,5 +632,27 @@ export class AcademicServiceController {
       id,
       rest as Parameters<typeof this.academicServiceService.updateDailyMenu>[1],
     );
+  }
+
+  // ─── Lesson Content Handlers (E-Learning) ───────────────────────────────────
+
+  @MessagePattern({ cmd: 'create_lesson' })
+  createLesson(@Payload() data: any) {
+    return this.academicServiceService.createLesson(data);
+  }
+
+  @MessagePattern({ cmd: 'get_lessons_by_class' })
+  getLessonsByClass(@Payload() data: { classId: number }) {
+    return this.academicServiceService.getLessonsByClass(data.classId);
+  }
+
+  @MessagePattern({ cmd: 'update_lesson' })
+  updateLesson(@Payload() data: { id: number; updateData: any }) {
+    return this.academicServiceService.updateLesson(data.id, data.updateData);
+  }
+
+  @MessagePattern({ cmd: 'delete_lesson' })
+  deleteLesson(@Payload() data: { id: number }) {
+    return this.academicServiceService.deleteLesson(data.id);
   }
 }

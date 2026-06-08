@@ -23,6 +23,17 @@ import { User } from './entities/user.entity';
         username: config.get('DB_USERNAME', 'root'),
         password: config.get('DB_PASSWORD', ''),
         database: config.get('DB_NAME', 'kindergarten_db'),
+        charset: 'utf8mb4',
+        // Fix encoding tiếng Việt: buộc mysql2 driver dùng UTF8MB4 ở tầng kết nối TCP
+        extra: {
+          charset: 'UTF8MB4',
+          connectionLimit: 10,
+          waitForConnections: true,
+          enableKeepAlive: true,
+          keepAliveInitialDelay: 10000,
+        },
+        retryAttempts: 10,
+        retryDelay: 3000,
         // Use synchronize:true ONLY in development to auto-create tables
         synchronize: process.env.NODE_ENV !== 'production',
         entities: [User],

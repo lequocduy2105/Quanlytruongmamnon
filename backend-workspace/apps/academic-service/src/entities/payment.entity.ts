@@ -3,7 +3,10 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
+import { Invoice } from './invoice.entity';
 
 export type PaymentMethod =
   | 'cash'
@@ -15,13 +18,26 @@ export type PaymentMethod =
 @Entity('payments')
 export class Payment {
   @PrimaryGeneratedColumn()
-  id: number;
+  id!: number;
 
   @Column({ name: 'invoice_id', type: 'int' })
-  invoiceId: number;
+  invoiceId!: number;
 
-  @Column({ type: 'decimal', precision: 12, scale: 0 })
-  amount: number;
+  @ManyToOne(() => Invoice, (inv) => inv.payments, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'invoice_id' })
+  invoice!: Invoice;
+
+  @Column({
+    name: 'amount',
+    type: 'decimal',
+    precision: 12,
+    scale: 0,
+    transformer: {
+      to: (value: number): number => value,
+      from: (value: any): number => Number(value || 0),
+    },
+  })
+  amount!: number;
 
   @Column({
     name: 'payment_method',
@@ -29,29 +45,29 @@ export class Payment {
     enum: ['cash', 'bank_transfer', 'card', 'momo', 'other'],
     default: 'cash',
   })
-  paymentMethod: PaymentMethod;
+  paymentMethod!: PaymentMethod;
 
   @Column({
     name: 'reference_code',
     type: 'varchar',
-    length: 100,
+    length: 150,
     nullable: true,
   })
-  referenceCode: string | null;
+  referenceCode!: string | null;
 
   @Column({
     name: 'paid_at',
     type: 'datetime',
     default: () => 'CURRENT_TIMESTAMP',
   })
-  paidAt: Date;
+  paidAt!: Date;
 
   @Column({ name: 'received_by', type: 'int', nullable: true })
-  receivedBy: number | null;
+  receivedBy!: number | null;
 
   @Column({ nullable: true, type: 'text' })
-  note: string | null;
+  note!: string | null;
 
   @CreateDateColumn({ name: 'created_at' })
-  createdAt: Date;
+  createdAt!: Date;
 }

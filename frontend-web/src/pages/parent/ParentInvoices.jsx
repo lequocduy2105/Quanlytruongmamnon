@@ -288,6 +288,37 @@ export default function ParentInvoices() {
                       )}
                     </div>
 
+                    {/* VietQR Dynamic Code for Tuition Payment */}
+                    {remaining > 0 && (
+                      <div
+                        className="mt-6 border-t border-slate-100 pt-6 flex flex-col md:flex-row items-center gap-6 bg-cyan-50/50 rounded-2xl p-6 border border-cyan-100/50"
+                      >
+                        <div className="flex-shrink-0 bg-white p-3 rounded-2xl shadow-sm border border-slate-100">
+                          <img
+                            src={`https://img.vietqr.io/image/vietinbank-102888888888-compact.png?amount=${remaining}&addInfo=INV${inv.month.replace('-', '')}STU${inv.studentId}&accountName=TRUONG%20MAM%20NON`}
+                            alt="Mã QR thanh toán học phí"
+                            className="w-40 h-40 object-contain"
+                          />
+                        </div>
+                        <div className="flex-1 space-y-2 text-sm text-slate-600">
+                          <h4 className="font-bold text-cyan-900 text-base flex items-center gap-1.5 font-headline">
+                            <span className="material-symbols-outlined text-cyan-600" style={{ fontVariationSettings: "'FILL' 1" }}>qr_code_scanner</span>
+                            Thanh toán tự động qua VietQR
+                          </h4>
+                          <p className="text-slate-500 text-xs leading-relaxed">
+                            Quét mã QR bằng ứng dụng ngân hàng của bạn để thanh toán nhanh 24/7. 
+                            Thông tin thanh toán sẽ được đối soát tự động ngay lập tức sau khi giao dịch thành công.
+                          </p>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs pt-1">
+                            <div>Ngân hàng: <strong className="text-slate-700">VietinBank</strong></div>
+                            <div>Số tài khoản: <strong className="text-slate-700">102888888888</strong></div>
+                            <div>Số tiền: <strong className="text-cyan-800 font-bold">{fmtVND(remaining)}</strong></div>
+                            <div>Nội dung CK: <strong className="font-mono text-cyan-800 bg-cyan-100/50 px-1.5 py-0.5 rounded">INV{inv.month.replace('-', '')}STU{inv.studentId}</strong></div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
                     {/* Payment progress bar */}
                     {inv.totalAmount > 0 && (
                       <div className="mt-4">

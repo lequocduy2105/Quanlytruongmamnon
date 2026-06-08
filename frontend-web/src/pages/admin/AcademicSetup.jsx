@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import api from "../../api/axiosClient";
 import { useLang } from "../../contexts/LangContext";
 import { useToast } from "../../components/Toast";
+import BaseModal from "../../components/BaseModal";
 
 // ===== ClassFormFields ĐẶT NGOÀI COMPONENT =====
 // Quan trọng: nếu đặt trong AcademicSetup React sẽ unmount input
@@ -28,10 +29,29 @@ function ClassFormFields({ form, setForm, teachers, vi }) {
       </div>
       <div>
         <label className="block text-xs font-bold text-slate-500 mb-1">
-          {vi ? "Nhóm Tuổi *" : "Age Group *"}
+          {vi ? "Khối Lớp (Grade Level) *" : "Grade Level *"}
         </label>
         <select
           required
+          value={form.grade_level}
+          onChange={(e) =>
+            setForm((prev) => ({ ...prev, grade_level: e.target.value }))
+          }
+          className={INPUT_CLS}
+        >
+          <option value="">
+            {vi ? "Chọn khối lớp..." : "Select grade level..."}
+          </option>
+          <option value="mam">{vi ? "Lớp Mầm (3 tuổi)" : "Mầm — 3 years"}</option>
+          <option value="choi">{vi ? "Lớp Chồi (4 tuổi)" : "Chồi — 4 years"}</option>
+          <option value="la">{vi ? "Lớp Lá (5 tuổi)" : "Lá — 5 years"}</option>
+        </select>
+      </div>
+      <div>
+        <label className="block text-xs font-bold text-slate-500 mb-1">
+          {vi ? "Nhóm Tuổi (Mô tả)" : "Age Group (Description)"}
+        </label>
+        <select
           value={form.age_group}
           onChange={(e) =>
             setForm((prev) => ({ ...prev, age_group: e.target.value }))
@@ -101,6 +121,7 @@ export default function AcademicSetup() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [createForm, setCreateForm] = useState({
     class_name: "",
+    grade_level: "",
     age_group: "",
     capacity: 25,
     teacher_id: "",
@@ -111,6 +132,7 @@ export default function AcademicSetup() {
   const [editTarget, setEditTarget] = useState(null);
   const [editForm, setEditForm] = useState({
     class_name: "",
+    grade_level: "",
     age_group: "",
     capacity: 25,
     teacher_id: "",
@@ -144,6 +166,7 @@ export default function AcademicSetup() {
       setSaving(true);
       await api.post("/academic/classes", {
         class_name: createForm.class_name,
+        grade_level: createForm.grade_level || null,
         age_group: createForm.age_group,
         capacity: Number(createForm.capacity),
         teacher_id: createForm.teacher_id
@@ -153,6 +176,7 @@ export default function AcademicSetup() {
       setShowCreateModal(false);
       setCreateForm({
         class_name: "",
+        grade_level: "",
         age_group: "",
         capacity: 25,
         teacher_id: "",
@@ -175,6 +199,7 @@ export default function AcademicSetup() {
     setEditTarget(cls);
     setEditForm({
       class_name: cls.class_name || cls.name || "",
+      grade_level: cls.grade_level || "",
       age_group: cls.age_group || "",
       capacity: cls.capacity || cls.max_capacity || 25,
       teacher_id: cls.teacher?.id || "",
@@ -190,6 +215,7 @@ export default function AcademicSetup() {
       setSaving(true);
       await api.put(`/academic/classes/${editTarget.id}`, {
         class_name: editForm.class_name,
+        grade_level: editForm.grade_level || null,
         age_group: editForm.age_group,
         capacity: Number(editForm.capacity),
         teacher_id: editForm.teacher_id ? Number(editForm.teacher_id) : null,
@@ -210,8 +236,32 @@ export default function AcademicSetup() {
     }
   };
 
+  const handlePromote = async (cls) => {
+    if (
+      !window.confirm(
+        vi
+          ? `Bạn có chắc chắn muốn Lên Lớp cho học sinh lớp "${cls.name || cls.class_name}"?\n- Học sinh lớp Mầm/Chồi sẽ lên khối tiếp theo.\n- Học sinh lớp Lá sẽ Tốt nghiệp.\n- Lớp cũ sẽ được lưu trữ (Archived).`
+          : `Are you sure you want to Promote students in "${cls.name || cls.class_name}"?\n- Mầm/Chồi students will move to the next grade.\n- Lá students will Graduate.\n- This class will be Archived.`
+      )
+    ) {
+      return;
+    }
+    
+    try {
+      await api.post(`/academic/classes/${cls.id}/promote`);
+      toast({ message: vi ? "Đã lên lớp thành công!" : "Promoted successfully!" });
+      fetchData();
+    } catch (err) {
+      console.error("Lỗi khi lên lớp:", err);
+      toast({
+        message: vi ? "Lên lớp thất bại." : "Promotion failed.",
+        type: "error",
+      });
+    }
+  };
+
   const totalStudents = classes.reduce(
-    (sum, cls) => sum + (cls.studentsOnline || cls.students?.length || 0),
+    (sum, cls) => sum + (cls.studentsCount || cls.studentsOnline || cls.students?.length || 0),
     0,
   );
   const totalClasses = classes.length;
@@ -413,7 +463,7 @@ export default function AcademicSetup() {
                 </div>
                 <div className="flex items-center gap-4">
                   <span className="text-sm font-bold text-on-surface">
-                    {cls.studentsOnline || cls.students?.length || 0}{" "}
+                    {cls.studentsCount || cls.studentsOnline || cls.students?.length || 0}{" "}
                     {vi ? "HS" : "students"}
                     <span className="text-slate-400 font-normal">
                       {" "}
@@ -428,6 +478,18 @@ export default function AcademicSetup() {
                     <span className="text-xs font-bold px-3 py-1 rounded-full bg-tertiary-fixed text-tertiary">
                       {vi ? "Cần giáo viên" : "Needs teacher"}
                     </span>
+                  )}
+                  {/* Nút Lên Lớp */}
+                  {cls.status === "active" && (
+                    <button
+                      onClick={() => handlePromote(cls)}
+                      className="text-xs font-bold text-secondary hover:underline hover:text-secondary/80 transition-colors ml-2 flex items-center gap-1"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">
+                        upgrade
+                      </span>
+                      {vi ? "Lên Lớp" : "Promote"}
+                    </button>
                   )}
                   {/* Nút Chỉnh Sửa */}
                   <button
@@ -447,110 +509,87 @@ export default function AcademicSetup() {
       </div>
 
       {/* ===== Modal Tạo Lớp Mới ===== */}
-      {showCreateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-2xl font-bold text-primary font-headline">
-                {vi ? "Tạo Lớp Học Mới" : "Create New Class"}
-              </h3>
-              <button
-                onClick={() => setShowCreateModal(false)}
-                className="text-slate-400 hover:text-error"
-              >
-                <span className="material-symbols-outlined">close</span>
-              </button>
-            </div>
-            <form onSubmit={handleCreate}>
-              <ClassFormFields
-                form={createForm}
-                setForm={setCreateForm}
-                teachers={teachers}
-                vi={vi}
-              />
-              <div className="flex gap-3 justify-end pt-6">
-                <button
-                  type="button"
-                  onClick={() => setShowCreateModal(false)}
-                  className="px-5 py-2.5 font-bold text-slate-500 hover:bg-slate-100 rounded-xl transition-colors"
-                >
-                  {vi ? "Huỷ" : "Cancel"}
-                </button>
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="px-6 py-2.5 bg-primary text-white font-bold rounded-xl shadow-md disabled:opacity-50"
-                >
-                  {saving
-                    ? vi
-                      ? "Đang tạo..."
-                      : "Creating..."
-                    : vi
-                      ? "Tạo Lớp"
-                      : "Create Class"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <BaseModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        title={vi ? "Tạo Lớp Học Mới" : "Create New Class"}
+        footer={
+          <>
+            <button
+              type="button"
+              onClick={() => setShowCreateModal(false)}
+              className="px-5 py-2.5 font-bold text-slate-500 hover:bg-slate-100 rounded-xl transition-colors"
+            >
+              {vi ? "Huỷ" : "Cancel"}
+            </button>
+            <button
+              type="submit"
+              form="create-class-form"
+              disabled={saving}
+              className="px-6 py-2.5 bg-primary text-white font-bold rounded-xl shadow-md disabled:opacity-50"
+            >
+              {saving
+                ? vi
+                  ? "Đang tạo..."
+                  : "Creating..."
+                : vi
+                  ? "Tạo Lớp"
+                  : "Create Class"}
+            </button>
+          </>
+        }
+      >
+        <form id="create-class-form" onSubmit={handleCreate}>
+          <ClassFormFields
+            form={createForm}
+            setForm={setCreateForm}
+            teachers={teachers}
+            vi={vi}
+          />
+        </form>
+      </BaseModal>
 
       {/* ===== Modal Chỉnh Sửa Lớp ===== */}
-      {showEditModal && editTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl">
-            <div className="flex justify-between items-center mb-6">
-              <div>
-                <h3 className="text-2xl font-bold text-primary font-headline">
-                  {vi ? "Chỉnh Sửa Lớp Học" : "Edit Class"}
-                </h3>
-                <p className="text-xs text-slate-400 mt-0.5">
-                  {vi ? "Đang chỉnh sửa" : "Editing"}:{" "}
-                  <span className="font-semibold">
-                    {editTarget.class_name || editTarget.name}
-                  </span>
-                </p>
-              </div>
-              <button
-                onClick={() => setShowEditModal(false)}
-                className="text-slate-400 hover:text-error"
-              >
-                <span className="material-symbols-outlined">close</span>
-              </button>
-            </div>
-            <form onSubmit={handleSaveEdit}>
-              <ClassFormFields
-                form={editForm}
-                setForm={setEditForm}
-                teachers={teachers}
-                vi={vi}
-              />
-              <div className="flex gap-3 justify-end pt-6">
-                <button
-                  type="button"
-                  onClick={() => setShowEditModal(false)}
-                  className="px-5 py-2.5 font-bold text-slate-500 hover:bg-slate-100 rounded-xl transition-colors"
-                >
-                  {vi ? "Huỷ" : "Cancel"}
-                </button>
-                <button
-                  type="submit"
-                  disabled={saving}
-                  className="px-6 py-2.5 bg-primary text-white font-bold rounded-xl shadow-md disabled:opacity-50"
-                >
-                  {saving
-                    ? vi
-                      ? "Đang lưu..."
-                      : "Saving..."
-                    : vi
-                      ? "Lưu Thay Đổi"
-                      : "Save Changes"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <BaseModal
+        isOpen={showEditModal && !!editTarget}
+        onClose={() => setShowEditModal(false)}
+        title={vi ? "Chỉnh Sửa Lớp Học" : "Edit Class"}
+        subtitle={editTarget ? (vi ? `Đang chỉnh sửa: ${editTarget.class_name || editTarget.name}` : `Editing: ${editTarget.class_name || editTarget.name}`) : ""}
+        footer={
+          <>
+            <button
+              type="button"
+              onClick={() => setShowEditModal(false)}
+              className="px-5 py-2.5 font-bold text-slate-500 hover:bg-slate-100 rounded-xl transition-colors"
+            >
+              {vi ? "Huỷ" : "Cancel"}
+            </button>
+            <button
+              type="submit"
+              form="edit-class-form"
+              disabled={saving}
+              className="px-6 py-2.5 bg-primary text-white font-bold rounded-xl shadow-md disabled:opacity-50"
+            >
+              {saving
+                ? vi
+                  ? "Đang lưu..."
+                  : "Saving..."
+                : vi
+                  ? "Lưu Thay Đổi"
+                  : "Save Changes"}
+            </button>
+          </>
+        }
+      >
+        <form id="edit-class-form" onSubmit={handleSaveEdit}>
+          <ClassFormFields
+            form={editForm}
+            setForm={setEditForm}
+            teachers={teachers}
+            vi={vi}
+          />
+        </form>
+      </BaseModal>
     </>
   );
 }

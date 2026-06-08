@@ -562,8 +562,9 @@ export default function TeacherDashboard() {
   const vi = lang === "vi";
   const navigate = useNavigate();
   const toast = useToast();
-  // Lấy activeTeacher từ TeacherLayout context
-  const { activeTeacher } = useOutletContext();
+  // Lấy activeTeacher từ TeacherLayout context — null-safe
+  const outletCtx = useOutletContext() ?? {};
+  const { activeTeacher } = outletCtx;
 
   const [dashData, setDashData] = useState(null);
   const [students, setStudents] = useState([]);
@@ -623,9 +624,8 @@ export default function TeacherDashboard() {
     if (!activeTeacher) return;
     try {
       const [dashRes, medRes] = await Promise.all([
-        // Truyền teacherId để backend tìm đúng giáo viên (không phụ thuộc JWT userId)
-        axiosClient.get(`/teacher/dashboard?teacherId=${activeTeacher.id}`),
-        axiosClient.get(`/teacher/medications-today?teacherId=${activeTeacher.id}`).catch(() => ({ data: [] })),
+        axiosClient.get('/teacher/dashboard'),
+        axiosClient.get('/teacher/medications-today').catch(() => ({ data: [] })),
       ]);
 
 
@@ -635,8 +635,8 @@ export default function TeacherDashboard() {
       setAttendance(dash.attendance || { present: 0, absent: 0, late: 0 });
       setMedicationsToday(medRes.data || []);
 
-      // Fetch học sinh từ class của giáo viên này (truyền teacherId để backend tìm)
-      const classRes = await axiosClient.get(`/teacher/my-class?teacherId=${activeTeacher.id}`);
+      // Fetch học sinh từ class của giáo viên này
+      const classRes = await axiosClient.get('/teacher/my-roster');
       const myClassData = classRes.data || {};
       setMyClass(myClassData);
       setStudents(myClassData.students || []);

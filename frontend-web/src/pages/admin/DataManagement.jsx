@@ -43,9 +43,7 @@ export default function DataManagement() {
     const rows = students.map((s) => [
       s.id,
       s.full_name,
-      s.classroom?.class_name ||
-        s.classroom?.name ||
-        (vi ? "Chưa phân lớp" : "Not assigned"),
+      (s.className && s.className !== 'Chưa có lớp' && s.className !== 'Chưa phân lớp') ? s.className : (vi ? "Chưa phân lớp" : "Not assigned"),
       (s.allergy_tags || []).join("; ") || (vi ? "Không" : "None"),
     ]);
     const csvContent = [headers, ...rows].map((r) => r.join(",")).join("\n");
@@ -321,12 +319,10 @@ export default function DataManagement() {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-1.5">
                         <span
-                          className={`w-2 h-2 rounded-full ${s.classroom ? "bg-secondary" : "bg-slate-300"}`}
+                          className={`w-2 h-2 rounded-full ${s.classId ? "bg-secondary" : "bg-slate-300"}`}
                         />
                         <span className="text-sm text-slate-600">
-                          {s.classroom?.class_name ||
-                            s.classroom?.name ||
-                            (vi ? "Chưa phân lớp" : "Not assigned")}
+                          {(s.className && s.className !== 'Chưa có lớp' && s.className !== 'Chưa phân lớp') ? s.className : (vi ? "Chưa phân lớp" : "Not assigned")}
                         </span>
                       </div>
                     </td>

@@ -4,6 +4,7 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
+  Index,
 } from 'typeorm';
 import { Classroom } from './classroom.entity';
 
@@ -11,7 +12,14 @@ import { Classroom } from './classroom.entity';
  * Student entity - thuộc academic-service.
  * guardian_user_id là foreign key tới bảng users (auth-service).
  * Không dùng TypeORM relation cross-service trong Microservices.
+ *
+ * SOFT DELETE PATTERN:
+ * - KHÔNG bao giờ xóa cứng (hard delete) record học sinh có khóa ngoại
+ * - Khi "xóa" học sinh → chỉ chuyển status = 'inactive' hoặc 'graduated'
+ * - Dữ liệu lịch sử (điểm danh, hóa đơn) vẫn còn nguyên
+ * - Tương tự: sinh viên tốt nghiệp Hoa Sen vẫn xuất được bảng điểm sau 25 năm
  */
+@Index(['full_name', 'date_of_birth'])
 @Entity('students')
 export class Student {
   @PrimaryGeneratedColumn()
@@ -29,6 +37,35 @@ export class Student {
 
   @Column({ type: 'date', nullable: true })
   date_of_birth!: Date;
+
+  // ─── Soft Delete & Lifecycle ──────────────────────────────────────────────
+  /**
+   * Trạng thái học sinh:
+   * - active: đang học bình thường
+   * - inactive: đã nghỉ học / rút hồ sơ (không xóa dữ liệu)
+   * - graduated: đã tốt nghiệp cuối năm lớp Lá
+   */
+  @Column({
+    type: 'varchar',
+    length: 20,
+    default: 'active',
+  })
+  status!: 'active' | 'inactive' | 'graduated';
+
+  /** Ngày nhập học */
+  @Column({ name: 'enrollment_date', type: 'date', nullable: true })
+  enrollment_date!: Date | null;
+
+  /** Lý do nghỉ học (khi status = inactive) */
+  @Column({ name: 'withdrawal_reason', type: 'text', nullable: true })
+  withdrawal_reason!: string | null;
+
+  /**
+   * Flag đặc biệt: học sinh cá biệt (tự kỷ, chậm phát triển...).
+   * Khi true → Admin có thể cho vào lớp không đúng độ tuổi chuẩn.
+   */
+  @Column({ name: 'is_special_needs', type: 'boolean', default: false })
+  is_special_needs!: boolean;
 
   // ─── Thông tin dị ứng ────────────────────────────────────────────────────
   /** Danh sách dị ứng, lưu dạng CSV: "Đậu phộng,Hải sản" */

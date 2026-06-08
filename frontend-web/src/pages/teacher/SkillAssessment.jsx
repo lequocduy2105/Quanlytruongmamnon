@@ -30,18 +30,17 @@ export default function SkillAssessment() {
   const fetchStudents = async () => {
     try {
       setLoading(true);
-      // Ưu tiên lấy học sinh của lớp giáo viên phụ trách
-      const res = await api.get(`/teacher/my-class?teacherId=${activeTeacher?.id || ""}`);
-      const classStudents = res.data?.students || [];
-      if (classStudents.length > 0) {
-        setStudents(classStudents);
-        setSelectedStudent(classStudents[0]);
-      } else {
-        // fallback: lấy tất cả nếu chưa có lớp
-        const allRes = await api.get("/academic/students");
-        setStudents(allRes.data || []);
-        if (allRes.data?.length > 0) setSelectedStudent(allRes.data[0]);
+      // Zero-Trust: CHỈ lấy học sinh từ lớp giáo viên phụ trách
+      // TUYỆT ĐỐI không fallback sang /academic/students (endpoint Admin)
+      const res = await api.get('/teacher/my-roster');
+      if (res.data?.error) {
+        // Giáo viên chưa được phân công lớp — hiện empty state
+        setStudents([]);
+        return;
       }
+      const classStudents = res.data?.students || [];
+      setStudents(classStudents);
+      if (classStudents.length > 0) setSelectedStudent(classStudents[0]);
     } catch (error) {
       console.error("Lỗi khi tải danh sách học sinh:", error);
     } finally {

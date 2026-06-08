@@ -9,25 +9,29 @@ const fmtVND = (n) => Number(n || 0).toLocaleString("vi-VN") + " ₫";
 // ── Status Badge ────────────────────────────────────────────
 function StatusBadge({ status }) {
   const cfg = {
-    paid: { bg: "#dcfce7", color: "#15803d", label: "Đã Thanh Toán" },
-    partial: { bg: "#fef9c3", color: "#854d0e", label: "Đã Đóng Một Phần" },
-    pending: { bg: "#fef3c7", color: "#b45309", label: "Chờ Thanh Toán" },
-    overdue: { bg: "#fee2e2", color: "#991b1b", label: "Quá Hạn" },
-    cancelled: { bg: "#f1f5f9", color: "#64748b", label: "Đã Huỷ" },
-  }[status] || { bg: "#f1f5f9", color: "#64748b", label: status };
+    paid: { bg: "rgba(34, 197, 94, 0.12)", color: "#16a34a", label: "Đã Thanh Toán", dot: "#22c55e" },
+    partial: { bg: "rgba(234, 179, 8, 0.12)", color: "#ca8a04", label: "Đóng Một Phần", dot: "#eab308" },
+    pending: { bg: "rgba(249, 115, 22, 0.12)", color: "#ea580c", label: "Chờ Thanh Toán", dot: "#f97316" },
+    overdue: { bg: "rgba(239, 68, 68, 0.12)", color: "#dc2626", label: "Quá Hạn", dot: "#ef4444" },
+    cancelled: { bg: "rgba(148, 163, 184, 0.12)", color: "#475569", label: "Đã Huỷ", dot: "#94a3b8" },
+  }[status] || { bg: "rgba(148, 163, 184, 0.12)", color: "#475569", label: status, dot: "#94a3b8" };
 
   return (
     <span
       style={{
         background: cfg.bg,
         color: cfg.color,
-        padding: "3px 10px",
-        borderRadius: 20,
+        padding: "5px 12px",
+        borderRadius: "9999px",
         fontWeight: 700,
-        fontSize: 11,
-        display: "inline-block",
+        fontSize: "11px",
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "6px",
+        border: `1px solid ${cfg.color}20`,
       }}
     >
+      <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: cfg.dot }} />
       {cfg.label}
     </span>
   );
@@ -123,7 +127,14 @@ export default function FinanceManagement() {
     }
   }, [month, toast]);
 
-  useEffect(() => { fetchAll(); }, [fetchAll]);
+  useEffect(() => {
+    fetchAll();
+    // Tự động cập nhật dữ liệu mỗi 10 giây (short-polling) để phản ánh các giao dịch webhook thời gian thực
+    const interval = setInterval(() => {
+      fetchAll();
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [fetchAll]);
 
   // ── Generate invoices ──────────────────────────────────────
   const handleGenerate = async () => {
@@ -161,6 +172,21 @@ export default function FinanceManagement() {
       fetchAll();
     } catch {
       toast({ message: "Ghi nhận thất bại!", type: "error" });
+    }
+  };
+
+  // ── Pay Invoice (Confirm payment in full) ──────────────────
+  const handlePayInvoice = async (invoiceId) => {
+    if (!window.confirm("Xác nhận thanh toán toàn bộ hóa đơn này?")) return;
+    try {
+      await axiosClient.put(`/finance/invoices/${invoiceId}/pay`, {
+        note: "Xác nhận thanh toán trực tiếp tại quầy",
+      });
+      toast({ message: "✅ Đã xác nhận thanh toán hóa đơn!" });
+      fetchAll();
+    } catch (err) {
+      console.error(err);
+      toast({ message: "Xác nhận thanh toán thất bại!", type: "error" });
     }
   };
 
@@ -421,8 +447,13 @@ export default function FinanceManagement() {
                     ) : (
                       filteredInvoices.map((inv) => {
                         const remaining = Number(inv.totalAmount || 0) - Number(inv.amountPaid || 0);
+                        const isOverdue = inv.status === "overdue";
                         return (
-                          <tr key={inv.id} className="hover:bg-slate-50 transition-colors">
+                          <tr 
+                            key={inv.id} 
+                            className="hover:bg-slate-50 transition-colors"
+                            style={isOverdue ? { backgroundColor: "rgba(239, 68, 68, 0.05)" } : {}}
+                          >
                             <td className="py-3 px-4 text-slate-400 font-mono text-xs">
                               #{inv.id}
                             </td>
@@ -443,18 +474,31 @@ export default function FinanceManagement() {
                               <StatusBadge status={inv.status} />
                             </td>
                             <td className="py-3 px-4 text-center">
-                              {inv.status !== "paid" && inv.status !== "cancelled" && (
-                                <button
-                                  onClick={() => {
-                                    setPayModal(inv);
-                                    setPayAmount(String(Math.max(0, remaining)));
-                                    setPayNote("");
-                                  }}
-                                  className="text-xs font-bold text-primary hover:underline bg-primary/10 px-3 py-1.5 rounded-lg"
-                                >
-                                  💳 Ghi Thu
-                                </button>
-                              )}
+                              <div className="flex items-center justify-center gap-2">
+                                {inv.status !== "paid" && inv.status !== "cancelled" && (
+                                  <>
+                                    {inv.status === "pending" && (
+                                      <button
+                                        onClick={() => handlePayInvoice(inv.id)}
+                                        className="text-xs font-bold text-white bg-green-600 hover:bg-green-700 px-3 py-1.5 rounded-lg shadow-sm hover:shadow transition-all"
+                                        title="Xác nhận đóng đủ tiền học phí"
+                                      >
+                                        ✓ Xác Nhận
+                                      </button>
+                                    )}
+                                    <button
+                                      onClick={() => {
+                                        setPayModal(inv);
+                                        setPayAmount(String(Math.max(0, remaining)));
+                                        setPayNote("");
+                                      }}
+                                      className="text-xs font-bold text-primary hover:bg-primary/20 bg-primary/10 px-3 py-1.5 rounded-lg transition-colors"
+                                    >
+                                      💳 Ghi Thu
+                                    </button>
+                                  </>
+                                )}
+                              </div>
                             </td>
                           </tr>
                         );
