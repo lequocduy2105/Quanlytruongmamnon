@@ -4,6 +4,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useLang } from "../contexts/LangContext";
 import LangToggle from "../components/LangToggle";
 import NotificationBell from "../components/NotificationBell";
+import DarkModeToggle from "../components/DarkModeToggle";
 import api from "../api/axiosClient";
 
 export default function ParentLayout() {
@@ -76,14 +77,14 @@ export default function ParentLayout() {
     }
 
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 relative overflow-hidden">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-4 relative overflow-hidden text-slate-800 dark:text-slate-100">
         {/* Background decoration */}
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute -top-40 -right-40 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl" />
           <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-secondary/5 rounded-full blur-3xl" />
         </div>
         
-        <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-100 p-8">
+        <div className="relative w-full max-w-md bg-white dark:bg-slate-900 rounded-3xl shadow-2xl border border-slate-100 dark:border-slate-800 p-8">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-bold text-primary font-headline">
               {vi ? "Đổi mật khẩu lần đầu" : "Change Password First Time"}
@@ -105,7 +106,7 @@ export default function ParentLayout() {
   // ─── GATEKEEPER 2: Loading State ───
   if (loadingChildren) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center text-slate-500 dark:text-slate-400">
         <div className="flex items-center gap-3 text-slate-400">
           <span className="material-symbols-outlined animate-spin text-primary">
             progress_activity
@@ -121,8 +122,8 @@ export default function ParentLayout() {
   // ─── GATEKEEPER 3: No Children linked ───
   if (children.length === 0) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col relative">
-        <header className="h-16 px-8 flex justify-between items-center bg-white border-b border-slate-200">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col relative text-slate-800 dark:text-slate-100">
+        <header className="h-16 px-8 flex justify-between items-center bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-primary text-2xl">child_care</span>
             <span className="font-extrabold text-cyan-900 font-headline">The Atelier</span>
@@ -140,10 +141,10 @@ export default function ParentLayout() {
             <span className="material-symbols-outlined text-4xl">warning</span>
           </div>
           <div>
-            <h3 className="text-lg font-bold text-slate-900">
+            <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
               {vi ? "Không tìm thấy hồ sơ học sinh" : "No student profile found"}
             </h3>
-            <p className="text-sm text-slate-500 mt-2">
+            <p className="text-sm text-slate-500 dark:text-slate-400 mt-2">
               {vi 
                 ? "Tài khoản của bạn chưa được liên kết với học sinh nào. Vui lòng liên hệ với nhà trường để được hỗ trợ."
                 : "Your account is not linked to any student. Please contact the school administration for support."}
@@ -157,14 +158,15 @@ export default function ParentLayout() {
   // ─── GATEKEEPER 4: Multi-Child Chooser ───
   if (!activeStudent && children.length > 1) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col relative">
-        <header className="h-16 px-8 flex justify-between items-center bg-white border-b border-slate-200">
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex flex-col relative text-slate-800 dark:text-slate-100">
+        <header className="h-16 px-8 flex justify-between items-center bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800">
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-primary text-2xl">child_care</span>
             <span className="font-extrabold text-cyan-900 font-headline">The Atelier</span>
           </div>
           <div className="flex items-center gap-4">
             <LangToggle />
+            <DarkModeToggle />
             <button
               onClick={handleLogout}
               className="text-xs font-bold text-error flex items-center gap-1 hover:bg-error-container/30 px-3 py-1.5 rounded-lg transition-colors"
@@ -177,10 +179,10 @@ export default function ParentLayout() {
         
         <div className="flex-1 flex flex-col items-center justify-center p-8 max-w-4xl mx-auto space-y-8 animate-fade-in">
           <div className="text-center space-y-2">
-            <h2 className="text-2xl font-black text-cyan-900 font-headline">
+            <h2 className="text-2xl font-black text-cyan-900 dark:text-cyan-100 font-headline">
               {vi ? "Chào mừng Phụ Huynh!" : "Welcome Parent!"}
             </h2>
-            <p className="text-sm text-slate-500 font-medium max-w-md">
+            <p className="text-sm text-slate-500 dark:text-slate-400 font-medium max-w-md">
               {vi 
                 ? "Vui lòng chọn học sinh bên dưới để truy cập Cổng thông tin phụ huynh." 
                 : "Please choose a student profile to enter the Parent Portal."}
@@ -194,13 +196,13 @@ export default function ParentLayout() {
                 <button
                   key={student.id}
                   onClick={() => handleSelectStudent(student)}
-                  className="flex items-center gap-4 p-5 bg-white rounded-2xl border border-slate-200 hover:border-primary hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 group text-left w-full"
+                  className="flex items-center gap-4 p-5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-primary hover:shadow-xl hover:shadow-primary/5 transition-all duration-300 group text-left w-full text-slate-800 dark:text-slate-100"
                 >
                   <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center text-primary font-black text-lg group-hover:bg-primary group-hover:text-white transition-all shrink-0">
                     {studentInitial}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <h3 className="font-bold text-slate-800 text-base group-hover:text-primary transition-colors truncate">
+                    <h3 className="font-bold text-slate-800 dark:text-slate-100 text-base group-hover:text-primary transition-colors truncate">
                       {student.full_name}
                     </h3>
                     {student.classroom?.name ? (
@@ -236,8 +238,8 @@ export default function ParentLayout() {
       pathname === to ||
       (to !== "/parent/dashboard" && pathname.startsWith(to));
     return isActive
-      ? "flex items-center gap-3 px-4 py-3 rounded-xl text-cyan-800 font-bold border-r-4 border-cyan-700 bg-cyan-50 transition-all duration-200"
-      : "flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-100 hover:text-primary transition-all duration-200";
+      ? "flex items-center gap-3 px-4 py-3 rounded-xl text-cyan-800 dark:text-cyan-400 font-bold border-r-4 border-cyan-700 bg-cyan-50 dark:bg-cyan-950/30 transition-all duration-200"
+      : "flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-primary dark:hover:text-cyan-400 transition-all duration-200";
   };
 
   const currentLabel =
@@ -245,9 +247,9 @@ export default function ParentLayout() {
     "Dashboard";
 
   return (
-    <div className="bg-surface text-on-surface font-body min-h-screen flex relative">
+    <div className="bg-surface dark:bg-slate-950 text-on-surface dark:text-slate-100 font-body min-h-screen flex relative">
       {/* ─── Sidebar ─── */}
-      <aside className="hidden md:flex flex-col h-screen w-64 shrink-0 fixed left-0 top-0 bg-slate-50 border-r border-surface-container py-6 z-40">
+      <aside className="hidden md:flex flex-col h-screen w-64 shrink-0 fixed left-0 top-0 bg-slate-50 dark:bg-slate-900 border-r border-surface-container dark:border-slate-800 py-6 z-40">
         {/* Brand */}
         <div className="px-6 mb-4 flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white shadow-sm">
@@ -300,7 +302,7 @@ export default function ParentLayout() {
         </nav>
 
         {/* User & Logout */}
-        <div className="px-4 pt-4 border-t border-slate-200 mt-4">
+        <div className="px-4 pt-4 border-t border-slate-200 dark:border-slate-800 mt-4">
           <div className="flex items-center gap-3 px-2 mb-3">
             <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-sm">
               P
@@ -324,8 +326,8 @@ export default function ParentLayout() {
       </aside>
 
       {/* ─── Main Content ─── */}
-      <div className="flex-1 md:ml-64 flex flex-col min-h-screen">
-        <header className="fixed top-0 right-0 left-0 md:left-64 h-16 flex justify-between items-center px-8 z-30 bg-white/80 backdrop-blur-xl border-b border-surface-container">
+      <div className="flex-1 md:ml-64 flex flex-col min-h-screen bg-surface dark:bg-slate-950">
+        <header className="fixed top-0 right-0 left-0 md:left-64 h-16 flex justify-between items-center px-8 z-30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-surface-container dark:border-slate-850">
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-slate-400 text-xl">
               navigate_next
@@ -342,7 +344,7 @@ export default function ParentLayout() {
                   setActiveStudent(null);
                   localStorage.removeItem("activeStudentId");
                 }}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-bold hover:bg-slate-50 transition-colors text-slate-600"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-800 text-xs font-bold hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-slate-600 dark:text-slate-400"
               >
                 <span className="material-symbols-outlined text-[16px] text-slate-400">sync</span>
                 {vi ? "Chọn con khác" : "Switch Child"}
@@ -350,6 +352,7 @@ export default function ParentLayout() {
             )}
 
             <LangToggle />
+            <DarkModeToggle />
             <NotificationBell />
             <div className="h-7 w-px bg-slate-200" />
             <div className="text-right">

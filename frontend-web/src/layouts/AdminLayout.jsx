@@ -4,6 +4,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useLang } from "../contexts/LangContext";
 import LangToggle from "../components/LangToggle";
 import NotificationBell from "../components/NotificationBell";
+import DarkModeToggle from "../components/DarkModeToggle";
 
 export default function AdminLayout() {
   const { pathname } = useLocation();
@@ -46,8 +47,8 @@ export default function AdminLayout() {
         : pathname.startsWith(to);
 
     return isActive
-      ? "flex items-center gap-3 px-4 py-3 rounded-xl text-cyan-800 font-bold border-r-4 border-cyan-700 bg-cyan-50 transition-all duration-200"
-      : "flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-100 hover:text-primary transition-all duration-200";
+      ? "flex items-center gap-3 px-4 py-3 rounded-xl text-cyan-800 dark:text-cyan-400 font-bold border-r-4 border-cyan-700 bg-cyan-50 dark:bg-cyan-950/30 transition-all duration-200"
+      : "flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-primary dark:hover:text-cyan-400 transition-all duration-200";
   };
 
   const currentLabel =
@@ -55,9 +56,9 @@ export default function AdminLayout() {
     t("nav_dashboard");
 
   return (
-    <div className="bg-surface text-on-surface font-body min-h-screen flex">
+    <div className="bg-surface dark:bg-slate-950 text-on-surface dark:text-slate-100 font-body min-h-screen flex">
       {/* ─── Sidebar ─── */}
-      <aside className="hidden md:flex flex-col h-screen w-64 flex-shrink-0 fixed left-0 top-0 bg-slate-50 border-r border-surface-container py-6 z-40">
+      <aside className="hidden md:flex flex-col h-screen w-64 shrink-0 fixed left-0 top-0 bg-slate-50 dark:bg-slate-900 border-r border-surface-container dark:border-slate-800 py-6 z-40">
         {/* Brand */}
         <div className="px-6 mb-8 flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white shadow-sm">
@@ -91,7 +92,7 @@ export default function AdminLayout() {
         </nav>
 
         {/* User & Logout */}
-        <div className="px-4 pt-4 border-t border-slate-200 mt-4">
+        <div className="px-4 pt-4 border-t border-slate-200 dark:border-slate-800 mt-4">
           <div className="flex items-center gap-3 px-2 mb-3">
             <div className="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-sm">
               A
@@ -118,9 +119,9 @@ export default function AdminLayout() {
       </aside>
 
       {/* ─── Main Content ─── */}
-      <div className="flex-1 md:ml-64 flex flex-col min-h-screen">
+      <div className="flex-1 md:ml-64 flex flex-col min-h-screen bg-surface dark:bg-slate-950">
         {/* Top Bar */}
-        <header className="fixed top-0 right-0 left-0 md:left-64 h-16 flex justify-between items-center px-8 z-30 bg-white/80 backdrop-blur-xl border-b border-surface-container">
+        <header className="fixed top-0 right-0 left-0 md:left-64 h-16 flex justify-between items-center px-8 z-30 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border-b border-surface-container dark:border-slate-850">
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-slate-400 text-xl">
               navigate_next
@@ -132,6 +133,7 @@ export default function AdminLayout() {
           <div className="flex items-center gap-3">
             {/* ─── Language Toggle ─── */}
             <LangToggle />
+            <DarkModeToggle />
 
             <NotificationBell />
             <div className="h-7 w-px bg-slate-200" />

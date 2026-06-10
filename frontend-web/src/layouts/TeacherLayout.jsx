@@ -4,6 +4,7 @@ import { useAuth } from "../contexts/AuthContext";
 import { useLang } from "../contexts/LangContext";
 import LangToggle from "../components/LangToggle";
 import NotificationBell from "../components/NotificationBell";
+import DarkModeToggle from "../components/DarkModeToggle";
 import api from "../api/axiosClient";
 
 export default function TeacherLayout() {
@@ -124,8 +125,8 @@ export default function TeacherLayout() {
   const getLinkClass = (to) => {
     const isActive = pathname.startsWith(to);
     return isActive
-      ? "flex items-center gap-3 px-4 py-3 rounded-xl bg-cyan-50 border-r-4 border-cyan-700 text-cyan-800 font-bold shadow-sm transition-all duration-200"
-      : "flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-100 hover:text-primary transition-all duration-200";
+      ? "flex items-center gap-3 px-4 py-3 rounded-xl bg-cyan-50 dark:bg-cyan-950/30 border-r-4 border-cyan-700 text-cyan-800 dark:text-cyan-400 font-bold shadow-sm transition-all duration-200"
+      : "flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 hover:text-primary dark:hover:bg-slate-800 dark:hover:text-cyan-400 transition-all duration-200";
   };
 
   const currentLabel =
@@ -135,9 +136,9 @@ export default function TeacherLayout() {
   const teacherInitial = activeTeacher.full_name?.charAt(0)?.toUpperCase() || "T";
 
   return (
-    <div className="min-h-screen bg-surface flex text-on-surface">
+    <div className="min-h-screen bg-surface dark:bg-slate-950 flex text-on-surface dark:text-slate-100">
       {/* ─── Sidebar ─── */}
-      <aside className="w-64 shrink-0 fixed left-0 top-0 h-screen bg-slate-50 border-r border-slate-100 z-50 flex flex-col py-6">
+      <aside className="w-64 shrink-0 fixed left-0 top-0 h-screen bg-slate-50 dark:bg-slate-900 border-r border-slate-100 dark:border-slate-800 z-50 flex flex-col py-6">
         {/* Brand */}
         <div className="px-6 mb-6 flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-primary-container flex items-center justify-center text-white shadow-sm">
@@ -209,9 +210,9 @@ export default function TeacherLayout() {
       </aside>
 
       {/* ─── Main Content ─── */}
-      <div className="flex-1 ml-64 flex flex-col min-h-screen bg-surface">
+      <div className="flex-1 ml-64 flex flex-col min-h-screen bg-surface dark:bg-slate-950">
         {/* Top Bar */}
-        <header className="h-16 fixed top-0 right-0 left-64 z-40 bg-white/80 backdrop-blur-xl flex justify-between items-center px-8 border-b border-surface-container">
+        <header className="h-16 fixed top-0 right-0 left-64 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl flex justify-between items-center px-8 border-b border-surface-container dark:border-slate-850">
           <div className="flex items-center gap-2">
             <span className="material-symbols-outlined text-slate-300 text-xl">
               navigate_next
@@ -223,6 +224,7 @@ export default function TeacherLayout() {
 
           <div className="flex items-center gap-4">
             <LangToggle />
+            <DarkModeToggle />
             <NotificationBell />
             <div className="h-7 w-px bg-slate-200" />
             <div className="flex items-center gap-3">

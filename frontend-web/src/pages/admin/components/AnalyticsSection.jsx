@@ -120,14 +120,14 @@ export default function AnalyticsSection({ stats, assessments = [] }) {
   return (
     <section className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
       {/* ── Biểu đồ xu hướng đánh giá KỸ NĂNG ─────────────────────────────── */}
-      <div className="lg:col-span-2 bg-surface-container-lowest p-8 rounded-4xl">
+      <div className="lg:col-span-2 bg-surface-container-lowest dark:bg-slate-900 border border-transparent dark:border-slate-800/50 p-8 rounded-4xl">
         {/* Header */}
         <div className="flex justify-between items-start mb-6 gap-3 flex-wrap">
           <div>
-            <h3 className="text-xl font-bold text-cyan-900 font-headline">
+            <h3 className="text-xl font-bold text-cyan-900 dark:text-cyan-100 font-headline">
               {vi ? "Xu Hướng Đánh Giá Kỹ Năng" : "Skill Assessment Trend"}
             </h3>
-            <p className="text-slate-500 text-sm mt-0.5">
+            <p className="text-slate-500 dark:text-slate-400 text-sm mt-0.5">
               {hasAnyData
                 ? `${vi ? "Tổng" : "Total"}: ${totalVisible} ${vi ? "đánh giá" : "assessments"}`
                 : vi
@@ -137,15 +137,15 @@ export default function AnalyticsSection({ stats, assessments = [] }) {
           </div>
 
           {/* Toggle Tháng / Ngày */}
-          <div className="flex bg-slate-100 rounded-xl p-1 gap-1">
+          <div className="flex bg-slate-100 dark:bg-slate-800 rounded-xl p-1 gap-1">
             {PERIOD_OPTS.map((opt) => (
               <button
                 key={opt.id}
                 onClick={() => setViewMode(opt.id)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                   viewMode === opt.id
-                    ? "bg-white text-cyan-800 shadow-sm"
-                    : "text-slate-400 hover:text-slate-600"
+                    ? "bg-white dark:bg-slate-900 text-cyan-800 dark:text-cyan-400 shadow-sm"
+                    : "text-slate-400 dark:text-slate-500 hover:text-slate-600 dark:hover:text-slate-300"
                 }`}
               >
                 {opt.label}
@@ -163,7 +163,8 @@ export default function AnalyticsSection({ stats, assessments = [] }) {
             >
               <CartesianGrid
                 strokeDasharray="3 3"
-                stroke="#f1f5f9"
+                stroke="currentColor"
+                className="text-slate-100 dark:text-slate-800/80"
                 vertical={false}
               />
               <XAxis
@@ -184,7 +185,7 @@ export default function AnalyticsSection({ stats, assessments = [] }) {
               />
               <Tooltip
                 content={<CustomTooltip vi={vi} />}
-                cursor={{ fill: "#f1f5f9" }}
+                cursor={{ fill: "currentColor", className: "text-slate-100/50 dark:text-slate-800/30" }}
               />
               <Bar
                 dataKey="total"
@@ -215,7 +216,7 @@ export default function AnalyticsSection({ stats, assessments = [] }) {
           {/* Overlay khi chưa có data */}
           {!hasAnyData && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-              <div className="bg-white/90 border border-slate-200 rounded-xl px-5 py-3 text-center shadow-sm">
+              <div className="bg-white/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 rounded-xl px-5 py-3 text-center shadow-sm">
                 <p className="text-sm font-bold text-slate-400">
                   {vi
                     ? "📋 Chưa có đánh giá kỹ năng nào"
@@ -234,13 +235,13 @@ export default function AnalyticsSection({ stats, assessments = [] }) {
         {/* Chú thích */}
         <div className="mt-3 flex items-center gap-2">
           <div className="w-3 h-3 rounded-sm bg-cyan-600" />
-          <span className="text-[11px] text-slate-500">
+          <span className="text-[11px] text-slate-500 dark:text-slate-400">
             {vi
               ? `Số đánh giá kỹ năng ${viewMode === "month" ? "mỗi tháng" : "theo từng ngày"}`
               : `Skill assessments ${viewMode === "month" ? "per month" : "per day"}`}
           </span>
           {hasAnyData && (
-            <span className="ml-auto text-[11px] font-bold text-cyan-700 bg-cyan-50 px-2 py-0.5 rounded-full">
+            <span className="ml-auto text-[11px] font-bold text-cyan-700 dark:text-cyan-300 bg-cyan-50 dark:bg-cyan-950/50 px-2 py-0.5 rounded-full border border-transparent dark:border-cyan-800/30">
               {vi ? "Dữ liệu thật" : "Live data"}
             </span>
           )}
@@ -248,12 +249,12 @@ export default function AnalyticsSection({ stats, assessments = [] }) {
       </div>
 
       {/* ── Biểu đồ tình trạng sức khoẻ ────────────────────────────────────── */}
-      <div className="bg-surface-container-lowest p-8 rounded-4xl flex flex-col">
+      <div className="bg-surface-container-lowest dark:bg-slate-900 border border-transparent dark:border-slate-800/50 p-8 rounded-4xl flex flex-col">
         <div className="mb-8">
-          <h3 className="text-xl font-bold text-cyan-900 font-headline">
+          <h3 className="text-xl font-bold text-cyan-900 dark:text-cyan-100 font-headline">
             {t("dash_healthStatus")}
           </h3>
-          <p className="text-slate-500 text-sm">{t("dash_bmi")}</p>
+          <p className="text-slate-500 dark:text-slate-400 text-sm">{t("dash_bmi")}</p>
         </div>
         <div className="flex-1 flex flex-col items-center justify-center relative">
           <div className="relative w-48 h-48">
@@ -266,7 +267,8 @@ export default function AnalyticsSection({ stats, assessments = [] }) {
                 cy="18"
                 fill="transparent"
                 r="16"
-                stroke="#edeeec"
+                stroke="currentColor"
+                className="text-slate-100 dark:text-slate-800"
                 strokeWidth="3"
               ></circle>
               <circle
@@ -300,10 +302,10 @@ export default function AnalyticsSection({ stats, assessments = [] }) {
               ></circle>
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-3xl font-black text-cyan-900">
+              <span className="text-3xl font-black text-cyan-900 dark:text-cyan-100">
                 {health.normalPercentage}%
               </span>
-              <span className="text-[10px] font-bold uppercase text-slate-400">
+              <span className="text-[10px] font-bold uppercase text-slate-400 dark:text-slate-500">
                 {t("dash_normal")}
               </span>
             </div>
@@ -311,24 +313,24 @@ export default function AnalyticsSection({ stats, assessments = [] }) {
           <div className="mt-8 grid grid-cols-3 gap-4 w-full">
             <div className="text-center">
               <div className="w-2 h-2 rounded-full bg-secondary mx-auto mb-2"></div>
-              <p className="text-[10px] font-bold text-slate-500 uppercase">
+              <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">
                 {t("dash_normal")}
               </p>
-              <p className="text-sm font-bold text-cyan-900">{health.normal}</p>
+              <p className="text-sm font-bold text-cyan-900 dark:text-cyan-100">{health.normal}</p>
             </div>
             <div className="text-center">
               <div className="w-2 h-2 rounded-full bg-tertiary-fixed-dim mx-auto mb-2"></div>
-              <p className="text-[10px] font-bold text-slate-500 uppercase">
+              <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">
                 {t("dash_under")}
               </p>
-              <p className="text-sm font-bold text-cyan-900">{health.under}</p>
+              <p className="text-sm font-bold text-cyan-900 dark:text-cyan-100">{health.under}</p>
             </div>
             <div className="text-center">
               <div className="w-2 h-2 rounded-full bg-error mx-auto mb-2"></div>
-              <p className="text-[10px] font-bold text-slate-500 uppercase">
+              <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase">
                 {t("dash_over")}
               </p>
-              <p className="text-sm font-bold text-cyan-900">{health.over}</p>
+              <p className="text-sm font-bold text-cyan-900 dark:text-cyan-100">{health.over}</p>
             </div>
           </div>
 

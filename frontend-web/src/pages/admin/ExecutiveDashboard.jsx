@@ -16,29 +16,29 @@ function FinanceSummaryBar({ summary, vi }) {
       icon: "receipt_long",
       label: vi ? "Tổng hóa đơn" : "Total Invoices",
       value: summary.totalInvoices ?? "—",
-      color: "text-cyan-700",
-      bg: "bg-cyan-50",
+      color: "text-cyan-700 dark:text-cyan-400",
+      bg: "bg-cyan-50 dark:bg-cyan-950/20",
     },
     {
       icon: "check_circle",
       label: vi ? "Đã thanh toán" : "Collected",
       value: fmtVND(summary.totalCollected),
-      color: "text-green-700",
-      bg: "bg-green-50",
+      color: "text-green-700 dark:text-green-400",
+      bg: "bg-green-50 dark:bg-green-950/20",
     },
     {
       icon: "pending",
       label: vi ? "Chờ thu" : "Pending",
       value: fmtVND(summary.totalPending),
-      color: "text-amber-700",
-      bg: "bg-amber-50",
+      color: "text-amber-700 dark:text-amber-400",
+      bg: "bg-amber-50 dark:bg-amber-950/20",
     },
     {
       icon: "warning",
       label: vi ? "Quá hạn" : "Overdue",
       value: summary.overdueCount ?? 0,
-      color: "text-error",
-      bg: "bg-red-50",
+      color: "text-error dark:text-red-400",
+      bg: "bg-red-50 dark:bg-red-950/20",
     },
   ];
 
@@ -46,15 +46,15 @@ function FinanceSummaryBar({ summary, vi }) {
     <section className="mb-8">
       <div className="flex items-center gap-2 mb-4">
         <span
-          className="material-symbols-outlined text-cyan-700"
+          className="material-symbols-outlined text-cyan-700 dark:text-cyan-400"
           style={{ fontVariationSettings: "'FILL' 1" }}
         >
           account_balance_wallet
         </span>
-        <h3 className="text-sm font-extrabold text-cyan-900 uppercase tracking-widest">
+        <h3 className="text-sm font-extrabold text-cyan-900 dark:text-cyan-100 uppercase tracking-widest">
           {vi ? "Tài Chính Tháng Này" : "This Month's Finance"}
         </h3>
-        <span className="ml-auto text-[11px] text-slate-400">
+        <span className="ml-auto text-[11px] text-slate-400 dark:text-slate-500">
           {new Date().toLocaleDateString(vi ? "vi-VN" : "en-US", {
             month: "long",
             year: "numeric",
@@ -74,7 +74,7 @@ function FinanceSummaryBar({ summary, vi }) {
               {item.icon}
             </span>
             <div className="min-w-0">
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider truncate">
+              <p className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider truncate">
                 {item.label}
               </p>
               <p className={`text-base font-black ${item.color} truncate`}>

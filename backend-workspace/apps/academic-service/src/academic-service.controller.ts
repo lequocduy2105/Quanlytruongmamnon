@@ -397,8 +397,13 @@ export class AcademicServiceController {
 
   // ─── Finance (MISSING-02) ────────────────────────────────────────
   @MessagePattern({ cmd: 'get_fee_configs' })
-  getFeeConfigs() {
-    return this.academicServiceService.getFeeConfigs();
+  async getFeeConfigs() {
+    try {
+      return await this.academicServiceService.getFeeConfigs();
+    } catch (err) {
+      console.error('[ExceptionsFilter] getFeeConfigs database error:', err);
+      throw err;
+    }
   }
 
   @MessagePattern({ cmd: 'upsert_fee_config' })
@@ -418,9 +423,14 @@ export class AcademicServiceController {
   }
 
   @MessagePattern({ cmd: 'get_invoices' })
-  getInvoices(@Payload() data: { month?: string | null }) {
-    const month = data.month ?? new Date().toISOString().slice(0, 7);
-    return this.academicServiceService.getInvoicesByMonth(month);
+  async getInvoices(@Payload() data: { month?: string | null }) {
+    try {
+      const month = data.month ?? new Date().toISOString().slice(0, 7);
+      return await this.academicServiceService.getInvoicesByMonth(month);
+    } catch (err) {
+      console.error('[ExceptionsFilter] getInvoices database error:', err);
+      throw err;
+    }
   }
 
   @MessagePattern({ cmd: 'get_invoices_by_class' })
@@ -459,9 +469,14 @@ export class AcademicServiceController {
   }
 
   @MessagePattern({ cmd: 'get_finance_summary' })
-  getFinanceSummary(@Payload() data: { month?: string | null }) {
-    const month = data.month ?? new Date().toISOString().slice(0, 7);
-    return this.academicServiceService.getFinancialSummary(month);
+  async getFinanceSummary(@Payload() data: { month?: string | null }) {
+    try {
+      const month = data.month ?? new Date().toISOString().slice(0, 7);
+      return await this.academicServiceService.getFinancialSummary(month);
+    } catch (err) {
+      console.error('[ExceptionsFilter] getFinanceSummary database error:', err);
+      throw err;
+    }
   }
 
   @MessagePattern({ cmd: 'get_parent_invoices' })
