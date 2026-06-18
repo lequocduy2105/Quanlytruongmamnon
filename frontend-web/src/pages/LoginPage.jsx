@@ -8,14 +8,6 @@ const ROLE_HOME = {
   PARENT: "/parent/dashboard",
 };
 
-const DEMO_ACCOUNTS = [
-  { label: "Admin", email: "admin@school.com", role: "ADMIN" },
-  { label: "Cô Ánh (Bướm Vui)", email: "teacher@school.com", role: "TEACHER" },
-  { label: "Thầy Minh (Sao Sáng)", email: "teacher2@school.com", role: "TEACHER" },
-  { label: "Thầy Khang (Lớp IT)", email: "teacher3@school.com", role: "TEACHER" },
-  { label: "Parent", email: "parent@school.com", role: "PARENT" },
-];
-
 export default function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -51,11 +43,6 @@ export default function LoginPage() {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const fillDemo = (email) => {
-    setForm({ email, password: "password123" });
-    setError("");
   };
 
   return (
@@ -95,7 +82,7 @@ export default function LoginPage() {
             {/* Email */}
             <div className="space-y-1.5">
               <label className="text-xs font-bold uppercase tracking-widest text-slate-500">
-                Email
+                Email / Tài khoản
               </label>
               <div className="relative">
                 <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xl">
@@ -103,10 +90,10 @@ export default function LoginPage() {
                 </span>
                 <input
                   name="email"
-                  type="email"
+                  type="text"
                   value={form.email}
                   onChange={handleChange}
-                  placeholder="Nhập địa chỉ email"
+                  placeholder="Nhập địa chỉ email hoặc tài khoản"
                   autoComplete="email"
                   className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium text-on-surface placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                 />
@@ -163,27 +150,7 @@ export default function LoginPage() {
               )}
             </button>
           </form>
-
-          {/* Demo accounts */}
-          <div className="mt-8 pt-6 border-t border-slate-100">
-            <p className="text-xs font-bold uppercase tracking-widest text-slate-400 text-center mb-4">
-              TÀI KHOẢN DEMO (Mật khẩu: password123)
-            </p>
-            <div className="grid grid-cols-2 gap-2">
-              {DEMO_ACCOUNTS.map(({ label, email, role }) => (
-                <button
-                  key={email}
-                  type="button"
-                  onClick={() => fillDemo(email)}
-                  className="py-2.5 px-2 text-xs font-bold rounded-xl border border-slate-200 text-slate-600 hover:bg-primary hover:text-white hover:border-primary transition-all text-center truncate"
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
-
         <p className="text-center text-xs text-slate-400 mt-6 font-medium">
           © 2024 The Atelier Kindergarten. All rights reserved.
         </p>

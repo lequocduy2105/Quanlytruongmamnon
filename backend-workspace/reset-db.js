@@ -1,8 +1,9 @@
 const mysql = require('mysql2/promise');
+const bcrypt = require('bcryptjs');
 require('dotenv').config();
 
 async function run() {
-  console.log('=== KHỞI ĐỘNG TIẾN TRÌNH DỌN DẸP DATABASE ===');
+  console.log('=== KHỞI ĐỘNG TIẾN TRÌNH DỌN DẸP DATABASE DIỆN RỘNG ===');
   
   const config = {
     host: process.env.DB_HOST || 'localhost',
@@ -18,36 +19,19 @@ async function run() {
   try {
     conn = await mysql.createConnection(config);
     
-    // 1. Tắt Foreign Key Checks để thực hiện Truncate/Delete an toàn
+    // 1. Tắt Foreign Key Checks để thực hiện Truncate an toàn
     console.log('\n[1/5] Vô hiệu hóa kiểm tra khóa ngoại (FOREIGN_KEY_CHECKS = 0)...');
     await conn.query('SET FOREIGN_KEY_CHECKS = 0');
     
-    // 2. Truncate các bảng dữ liệu phát sinh (test data) và các danh mục tĩnh (Master Data)
-    const tablesToTruncate = [
-      'activity_logs',
-      'attendance',
-      'authorized_pickups',
-      'classrooms',
-      'daily_menus',
-      'fee_configs',
-      'feedbacks',
-      'health_records',
-      'incident_reports',
-      'invoices',
-      'leave_requests',
-      'lesson_contents',
-      'medication_logs',
-      'medication_schedules',
-      'notifications',
-      'payments',
-      'skill_assessments',
-      'students',
-      'support_tickets',
-      'teachers'
-    ];
+    // 2. Lấy danh sách toàn bộ các bảng trong database
+    console.log('\n[2/5] Đang quét danh sách bảng trong database...');
+    const [rows] = await conn.query('SHOW TABLES');
+    const tables = rows.map(row => Object.values(row)[0]);
+    console.log(`  + Đã tìm thấy ${tables.length} bảng.`);
     
-    console.log('\n[2/5] Đang dọn dẹp toàn bộ dữ liệu nghiệp vụ & danh mục lớp học, học phí (Truncate)...');
-    for (const table of tablesToTruncate) {
+    // 3. Truncate toàn bộ các bảng vừa quét được
+    console.log('\n[3/5] Đang dọn dẹp toàn bộ dữ liệu (Truncate)...');
+    for (const table of tables) {
       try {
         await conn.query(`TRUNCATE TABLE \`${table}\``);
         console.log(`  + Đã dọn dẹp bảng: ${table}`);
@@ -56,24 +40,22 @@ async function run() {
       }
     }
     
-    // 3. Dọn dẹp bảng users, chỉ giữ lại tài khoản ADMIN
-    console.log('\n[3/5] Đang dọn dẹp bảng users (chỉ giữ lại tài khoản ADMIN)...');
-    const [userDeleteResult] = await conn.query("DELETE FROM `users` WHERE `role` != 'ADMIN'");
-    console.log(`  + Đã xóa ${userDeleteResult.affectedRows} tài khoản (Teacher, Parent).`);
+    // 4. Tạo tài khoản Admin duy nhất để đăng nhập
+    console.log('\n[4/5] Đang tạo tài khoản quản trị ADMIN duy nhất...');
+    const passwordHash = await bcrypt.hash('PASSWORD123', 10);
+    const [adminResult] = await conn.query(
+      "INSERT INTO `users` (`email`, `password_hash`, `role`) VALUES (?, ?, 'ADMIN')",
+      ['admin', passwordHash]
+    );
+    console.log(`  + Đã tạo tài khoản quản trị mới: email/username = 'admin', password = 'PASSWORD123' (ID: ${adminResult.insertId})`);
     
-    // Reset AUTO_INCREMENT của users về giá trị an toàn (max id + 1)
-    const [maxIdRows] = await conn.query('SELECT MAX(id) AS maxId FROM users');
-    const nextAutoIncrement = (maxIdRows[0].maxId || 0) + 1;
-    await conn.query(`ALTER TABLE \`users\` AUTO_INCREMENT = ${nextAutoIncrement}`);
-    console.log(`  + Reset AUTO_INCREMENT cho bảng users về: ${nextAutoIncrement}`);
-
-    // 4. Bật lại Foreign Key Checks
-    console.log('\n[4/5] Kích hoạt lại kiểm tra khóa ngoại (FOREIGN_KEY_CHECKS = 1)...');
+    // 5. Bật lại Foreign Key Checks
+    console.log('\n[5/5] Kích hoạt lại kiểm tra khóa ngoại (FOREIGN_KEY_CHECKS = 1)...');
     await conn.query('SET FOREIGN_KEY_CHECKS = 1');
     
     console.log('\n=========================================');
-    console.log('✅ DỌN DẸP DATABASE THÀNH CÔNG!');
-    console.log('Hệ thống đã sẵn sàng cho kiểm thử End-to-End từ DB sạch.');
+    console.log('✅ QUÉT SẠCH DỮ LIỆU & RESET DATABASE THÀNH CÔNG!');
+    console.log('Hệ thống trống trơn, chỉ còn duy nhất tài khoản admin.');
     console.log('=========================================');
     
   } catch (err) {
