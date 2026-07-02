@@ -10,7 +10,7 @@ services:
       - "3307:3306"
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/01_init.sql
-      - mysql_data:/var/lib/mysql
+      - ./mysql_data:/var/lib/mysql
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p123456"]
@@ -18,6 +18,3 @@ services:
       timeout: 5s
       retries: 5
 
-volumes:
-  mysql_data:
-    driver: local

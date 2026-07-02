@@ -1429,14 +1429,7 @@ export class AcademicServiceService {
           targetClass.grade_level !== expectedGradeLevel &&
           !(data.isAdminOverride && data.is_special_needs)
         ) {
-          return {
-            error:
-              `Học sinh ${ageInfo} nhưng lớp "${targetClass.name}" ` +
-              `là lớp ${targetClass.grade_level?.toUpperCase()}. ` +
-              `Vui lòng chọn lớp ${expectedGradeLevel.toUpperCase()} phù hợp.`,
-            expected_grade: expectedGradeLevel,
-            class_grade: targetClass.grade_level,
-          };
+          ageInfo = `[Cảnh báo lệch tuổi] Học sinh ${ageInfo} xếp vào lớp "${targetClass.name}" (${targetClass.grade_level.toUpperCase()})`;
         }
       }
     }

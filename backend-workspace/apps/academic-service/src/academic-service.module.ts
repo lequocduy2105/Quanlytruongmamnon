@@ -79,8 +79,8 @@ const ALL_ENTITIES = [
         // Auto-reconnect: NestJS tự thử kết nối lại nếu DB bị sập
         retryAttempts: 10,
         retryDelay: 3000, // thử lại mỗi 3 giây
-        // synchronize tắt để tránh lỗi typeorm_metadata — schema đã được tạo qua seed script
-        synchronize: false,
+        // synchronize bật để tự động đồng bộ cấu trúc DB khi có thay đổi Entity
+        synchronize: true,
         entities: ALL_ENTITIES,
         // Bật SQL logging chỉ khi DEBUG_SQL=true — tắt ở production để tránh log nhạy cảm
         logging: config.get('DEBUG_SQL', 'false') === 'true',

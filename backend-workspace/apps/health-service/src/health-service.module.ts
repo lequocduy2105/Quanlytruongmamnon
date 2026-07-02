@@ -44,8 +44,8 @@ const HEALTH_ENTITIES = [
         },
         retryAttempts: 10,
         retryDelay: 3000,
-        // synchronize: false — schema đã được tạo qua init.sql
-        synchronize: false,
+        // synchronize: true — tự động đồng bộ cấu trúc DB
+        synchronize: true,
         entities: HEALTH_ENTITIES,
         logging: false,
       }),

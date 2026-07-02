@@ -1,0 +1,13 @@
+{
+  "watch": ["apps"],
+  "ext": "ts",
+  "ignore": [
+    "dist",
+    "node_modules",
+    "**/*.spec.ts"
+  ],
+  "exec": "cls && npx nest start",
+  "events": {
+    "restart": "cls"
+  }
+}

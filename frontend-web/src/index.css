@@ -34,3 +34,71 @@
 .animate-slide-in-right {
   animation: slide-in-right 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
+
+/* ============================================================
+   GLOBAL OVERRIDES FOR TAILWIND DARK MODE
+   Automatically skins light-themed elements (cards, tables, inputs)
+   ============================================================ */
+html.dark {
+  /* 1. Nền của các Khung chứa chính, Bảng biểu, Modal */
+  .bg-white, 
+  .bg-surface-container-lowest {
+    background-color: #121620 !important; /* Màu nền card tối của Dashboard */
+    color: #f1f5f9 !important;            /* Màu chữ xám trắng */
+  }
+
+  /* 2. Nền các thẻ thống kê phụ (bg-surface-container-low) */
+  .bg-surface-container-low {
+    background-color: #131926 !important;
+    border: 1px solid #1e293b !important;
+  }
+
+  /* 3. Màu chữ xám phụ */
+  .text-slate-500, 
+  .text-slate-600,
+  .text-on-surface-variant {
+    color: #94a3b8 !important;            /* Đổi sang màu slate-400 */
+  }
+
+  /* 4. Màu thương hiệu / Tiêu đề (text-primary) */
+  .text-primary {
+    color: #22d3ee !important;            /* Đổi sang cyan-400 sáng nổi bật */
+  }
+
+  /* 5. Cấu trúc bảng Table */
+  table {
+    border-color: #1e293b !important;
+  }
+  
+  .border-slate-50, 
+  .border-slate-100, 
+  .divide-slate-50,
+  .divide-slate-100,
+  thead tr {
+    border-color: #1e293b !important;
+    background-color: #131926 !important;
+  }
+
+  tbody tr {
+    background-color: transparent !important;
+    border-color: #1e293b !important;
+  }
+
+  tbody tr:hover {
+    background-color: rgba(30, 41, 59, 0.4) !important;
+  }
+
+  /* 6. Đồng bộ Form Inputs và Select */
+  input, select, textarea {
+    background-color: #0b0e14 !important;
+    border-color: #1e293b !important;
+    color: #f1f5f9 !important;
+  }
+
+  /* 7. Dropdown & Option tags */
+  option {
+    background-color: #121620 !important;
+    color: #f1f5f9 !important;
+  }
+}
+

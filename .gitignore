@@ -47,3 +47,11 @@ lerna-debug.log*
 *.sqlite3
 db.sqlite
 db.sqlite3
+database-setup/mysql_data/
+mysql_data/
+db_data/
+
+# Sockets and temp files
+*.sock
+*.socket
+
